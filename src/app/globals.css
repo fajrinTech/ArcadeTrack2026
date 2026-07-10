@@ -1,26 +1,337 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjOVeL.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-alt: #F5F5F5;
+  --foreground: #000000;
+  --text-muted: #555555;
+  --primary: #FFEB3B;
+  --primary-dark: #FDD835;
+  --secondary: #FF5252;
+  --secondary-dark: #E53935;
+  --tertiary: #2196F3;
+  --tertiary-dark: #1976D2;
+  --success: #4CAF50;
+  --success-dark: #388E3C;
+  --black: #000000;
+  --border: 3px solid #000000;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-text-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-secondary: var(--secondary);
+  --color-secondary-dark: var(--secondary-dark);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-dark: var(--tertiary-dark);
+  --color-success: var(--success);
+  --color-success-dark: var(--success-dark);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', var(--font-geist-mono), monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Neubrutalist Base */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+  position: relative;
+  overflow-x: hidden;
+  letter-spacing: -0.01em;
+  line-height: 1.6;
+}
+
+/* Subtle dot grid pattern */
+body::before {
+  content: "";
+  display: block;
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, #000 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
+  opacity: 0.03;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Noise grain overlay */
+body::after {
+  content: "";
+  display: block;
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Neubrutalist Card */
+.neobrutal-card {
+  background: var(--surface);
+  border: 3px solid var(--black);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  position: relative;
+  box-shadow: 4px 4px 0px var(--black);
+  transition: all 200ms ease-out;
+}
+
+.neobrutal-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--black);
+}
+
+/* Neubrutalist Badge/Tag */
+.neobrutal-badge {
+  border: 2px solid var(--black);
+  box-shadow: 2px 2px 0px var(--black);
+  border-radius: 0.25rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Neubrutalist Button - Primary (Yellow) */
+.neobrutal-btn-primary {
+  background: var(--primary);
+  color: var(--black);
+  border: 3px solid var(--black);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  box-shadow: 4px 4px 0px var(--black);
+  transition: all 200ms ease-out;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.neobrutal-btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px var(--black);
+}
+
+.neobrutal-btn-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px var(--black);
+}
+
+.neobrutal-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 4px 4px 0px var(--black);
+}
+
+/* Neubrutalist Button - Secondary (Blue) */
+.neobrutal-btn-secondary {
+  background: var(--tertiary);
+  color: #FFFFFF;
+  border: 3px solid var(--black);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  box-shadow: 4px 4px 0px var(--black);
+  transition: all 200ms ease-out;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.neobrutal-btn-secondary:hover {
+  background: var(--tertiary-dark);
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px var(--black);
+}
+
+.neobrutal-btn-secondary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px var(--black);
+}
+
+/* Neubrutalist Button - Ghost */
+.neobrutal-btn-ghost {
+  background: transparent;
+  color: var(--black);
+  border: 1.5px solid var(--black);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 200ms ease-out;
+  cursor: pointer;
+}
+
+.neobrutal-btn-ghost:hover {
+  background: var(--surface-alt);
+}
+
+/* Neubrutalist Input */
+.neobrutal-input {
+  background: var(--surface);
+  border: 3px solid var(--black);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  width: 100%;
+  transition: all 200ms ease-out;
+  outline: none;
+}
+
+.neobrutal-input:focus {
+  border-color: var(--primary);
+  box-shadow: 4px 4px 0px var(--primary);
+}
+
+.neobrutal-input::placeholder {
+  color: #999;
+}
+
+/* Neubrutalist Select */
+.neobrutal-select {
+  background: var(--surface);
+  border: 3px solid var(--black);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease-out;
+  outline: none;
+  appearance: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.neobrutal-select:focus {
+  border-color: var(--tertiary);
+  box-shadow: 3px 3px 0px var(--tertiary);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-alt);
+  border-left: 3px solid var(--black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border: 2px solid var(--black);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
+}
+
+/* Focus ring for accessibility */
+*:focus-visible {
+  outline: 3px solid var(--tertiary);
+  outline-offset: 2px;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Entry animation keyframes */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-slide-up {
+  animation: fadeSlideUp 420ms ease-out both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 200ms ease-out both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 300ms ease-out both;
+}
+
+/* Stagger delays for lists */
+.stagger-1 { animation-delay: 80ms; }
+.stagger-2 { animation-delay: 160ms; }
+.stagger-3 { animation-delay: 240ms; }
+.stagger-4 { animation-delay: 320ms; }
+.stagger-5 { animation-delay: 400ms; }
+.stagger-6 { animation-delay: 480ms; }
+.stagger-7 { animation-delay: 560ms; }
+.stagger-8 { animation-delay: 640ms; }
+
+/* Progress bar animation */
+@keyframes fillProgress {
+  from { width: 0%; }
+}
+
+.animate-progress {
+  animation: fillProgress 800ms ease-out both;
+}
+
+/* Pulse animation for active elements */
+@keyframes subtlePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-subtle-pulse {
+  animation: subtlePulse 2s ease-in-out infinite;
+}
+
+/* Toast slide-in from the right */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(24px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.animate-toast-in {
+  animation: toastIn 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }

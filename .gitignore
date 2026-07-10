@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# agent / ai tooling
+.agents
+.kilo
+AGENTS.md
+CLAUDE.md
+design.md
+skills-lock.json
+PRD-Arcade-Tracker.md
+
+# local dummy data (pindah ke Supabase nanti)
+src/lib/db.json
