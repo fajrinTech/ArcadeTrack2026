@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Participant, Badge, SkillBadge } from '@/lib/db';
 import ActivityChart from '@/components/ActivityChart';
 import { 
@@ -9,6 +9,82 @@ import {
   BackpackIcon,
   ListBulletIcon
 } from '@radix-ui/react-icons';
+import { animate } from 'animejs';
+
+interface LiquidWaveProps {
+  colorClass: string;
+  milestoneIdx: number;
+}
+
+function LiquidWave({ colorClass, milestoneIdx }: LiquidWaveProps) {
+  const pathRef = useRef<SVGPathElement>(null);
+
+  useEffect(() => {
+    if (!pathRef.current) return;
+    
+    // Wave animation using anime.js v4
+    const anim = animate(pathRef.current, {
+      d: [
+        'M0,12 C50,18 150,6 200,12 L200,100 L0,100 Z',
+        'M0,12 C50,6 150,18 200,12 L200,100 L0,100 Z'
+      ],
+      duration: 2500 + milestoneIdx * 400, // slightly different speeds
+      ease: 'inOutSine',
+      direction: 'alternate',
+      loop: true
+    });
+
+    return () => {
+      anim.pause();
+    };
+  }, [milestoneIdx]);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none z-0">
+      <svg 
+        viewBox="0 0 200 100" 
+        preserveAspectRatio="none" 
+        className={`absolute bottom-0 left-0 w-full h-[110%] opacity-20 ${colorClass}`}
+      >
+        <path 
+          ref={pathRef} 
+          d="M0,12 C50,12 150,12 200,12 L200,100 L0,100 Z" 
+          className="fill-current"
+        />
+      </svg>
+    </div>
+  );
+}
+
+const getMilestoneColors = (idx: number) => {
+  switch (idx) {
+    case 0: // Milestone 1
+      return {
+        cardBg: 'bg-success/10 border-success',
+        waveColor: 'text-success',
+        textColor: 'text-success'
+      };
+    case 1: // Milestone 2
+      return {
+        cardBg: 'bg-primary/10 border-primary-dark',
+        waveColor: 'text-primary-dark',
+        textColor: 'text-primary-dark'
+      };
+    case 2: // Milestone 3
+      return {
+        cardBg: 'bg-secondary/10 border-secondary',
+        waveColor: 'text-secondary',
+        textColor: 'text-secondary'
+      };
+    case 3: // Ultimate
+    default:
+      return {
+        cardBg: 'bg-tertiary/10 border-tertiary',
+        waveColor: 'text-tertiary',
+        textColor: 'text-tertiary'
+      };
+  }
+};
 
 interface DashboardProps {
   participant: Participant;
@@ -361,24 +437,29 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                       const totalTarget = m.games + m.skills;
                       const completionPercent = Math.round((totalDone / totalTarget) * 100);
 
+                      const colors = getMilestoneColors(idx);
+
                       return (
                         <div
                           key={m.name}
-                          className={`relative p-3 border-[3px] border-black rounded-lg flex flex-col gap-2.5 transition-all shadow-[3px_3px_0px_#000] ${
+                          className={`relative p-3 border-[3px] border-black rounded-lg flex flex-col gap-2.5 transition-all overflow-hidden shadow-[3px_3px_0px_#000] ${
                             isCompleted
-                              ? 'bg-success/10 border-success'
+                              ? colors.cardBg
                               : isNext
                                 ? 'bg-primary/15 border-black'
                                 : 'bg-surface-alt border-black'
                           }`}
                         >
-                          <div className="flex items-center gap-2">
+                          {/* Liquid wave background for 100% completed milestone */}
+                          {isCompleted && (
+                            <LiquidWave colorClass={colors.waveColor} milestoneIdx={idx} />
+                          )}
+
+                          <div className="flex items-center gap-2 relative z-10">
                             {/* Circle with liquid animation */}
-                            <div className={`w-9 h-9 shrink-0 rounded-full border-[3px] border-black flex items-center justify-center transition-all z-10 shadow-[2px_2px_0px_#000] relative bg-white overflow-hidden ${
-                              isCompleted ? 'bg-success' : ''
-                            }`}>
+                            <div className={`w-9 h-9 shrink-0 rounded-full border-[3px] border-black flex items-center justify-center transition-all shadow-[2px_2px_0px_#000] relative bg-white overflow-hidden`}>
                               {isCompleted ? (
-                                <CheckIcon className="w-5 h-5 text-white stroke-[3px] relative z-20" />
+                                <CheckIcon className="w-5 h-5 text-success stroke-[3px] relative z-20" />
                               ) : (
                                 <>
                                   {/* Wave Water Layer */}
@@ -398,14 +479,14 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                             </div>
                             
                             <span className={`text-xs font-black uppercase tracking-wide truncate ${
-                              isCompleted ? 'text-success' : 'text-black'
+                              isCompleted ? colors.textColor : 'text-black'
                             }`}>
                               {m.name}
                             </span>
                           </div>
 
                           {/* Live Progress Bars instead of static text */}
-                          <div className="space-y-2.5 font-mono text-[10px] font-bold text-text-muted leading-none">
+                          <div className="space-y-2.5 font-mono text-[10px] font-bold text-text-muted leading-none relative z-10">
                             <div className="text-black bg-surface-alt border-2 border-black rounded px-1.5 py-1 text-[9px] w-fit shadow-[1px_1px_0_#000]">
                               +{m.bonus} Bonus · Total {m.total} pt
                             </div>
