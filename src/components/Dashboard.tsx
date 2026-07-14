@@ -63,7 +63,7 @@ function LiquidWave({ colorClass, milestoneIdx, heightPercent, isHovered, hoverX
       <svg 
         viewBox="0 0 200 100" 
         preserveAspectRatio="none" 
-        className={`absolute bottom-0 left-0 w-full opacity-20 transition-all duration-1000 ease-out ${colorClass}`}
+        className={`absolute bottom-0 left-0 w-full opacity-35 transition-all duration-1000 ease-out ${colorClass}`}
         style={{ height: `${heightPercent}%` }}
       >
         <path 
