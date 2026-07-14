@@ -15,30 +15,48 @@ interface LiquidWaveProps {
   colorClass: string;
   milestoneIdx: number;
   heightPercent: number;
+  isHovered: boolean;
+  hoverX: number;
 }
 
-function LiquidWave({ colorClass, milestoneIdx, heightPercent }: LiquidWaveProps) {
+function LiquidWave({ colorClass, milestoneIdx, heightPercent, isHovered, hoverX }: LiquidWaveProps) {
   const pathRef = useRef<SVGPathElement>(null);
 
   useEffect(() => {
     if (!pathRef.current) return;
     
-    // Wave animation using anime.js v4
-    const anim = animate(pathRef.current, {
-      d: [
-        'M0,12 C50,18 150,6 200,12 L200,100 L0,100 Z',
-        'M0,12 C50,6 150,18 200,12 L200,100 L0,100 Z'
-      ],
-      duration: 2500 + milestoneIdx * 400, // slightly different speeds
-      ease: 'inOutSine',
-      direction: 'alternate',
-      loop: true
-    });
+    if (isHovered && heightPercent < 100) {
+      // Swell height: water bulges towards the cursor
+      const bulgeY = 2; // top height of the swell in SVG coordinates
+      const targetPath = `M0,12 C${hoverX - 40},${bulgeY} ${hoverX + 40},${bulgeY} 200,12 L200,100 L0,100 Z`;
+      
+      const anim = animate(pathRef.current, {
+        d: targetPath,
+        duration: 350,
+        ease: 'outQuad'
+      });
+      
+      return () => {
+        anim.pause();
+      };
+    } else {
+      // Idle sloshing wave loop
+      const anim = animate(pathRef.current, {
+        d: [
+          'M0,12 C50,18 150,6 200,12 L200,100 L0,100 Z',
+          'M0,12 C50,6 150,18 200,12 L200,100 L0,100 Z'
+        ],
+        duration: 2500 + milestoneIdx * 400,
+        ease: 'inOutSine',
+        direction: 'alternate',
+        loop: true
+      });
 
-    return () => {
-      anim.pause();
-    };
-  }, [milestoneIdx]);
+      return () => {
+        anim.pause();
+      };
+    }
+  }, [isHovered, hoverX, heightPercent, milestoneIdx]);
 
   return (
     <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none z-0">
@@ -87,6 +105,130 @@ const getMilestoneColors = (idx: number) => {
       };
   }
 };
+
+interface MilestoneCardProps {
+  m: { name: string; games: number; skills: number; bonus: number; total: number };
+  idx: number;
+  isCompleted: boolean;
+  isNext: boolean;
+  totalCurrentGames: number;
+  totalCurrentSkills: number;
+  colors: { cardBg: string; waveColor: string; textColor: string };
+}
+
+function MilestoneCard({
+  m,
+  idx,
+  isCompleted,
+  isNext,
+  totalCurrentGames,
+  totalCurrentSkills,
+  colors
+}: MilestoneCardProps) {
+  const [hoverState, setHoverState] = useState({ isHovered: false, hoverX: 100 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const relX = (e.clientX - rect.left) / rect.width;
+    const svgX = relX * 200; // scale to SVG viewBox width 200
+    setHoverState({ isHovered: true, hoverX: svgX });
+  };
+
+  const handleMouseLeave = () => {
+    setHoverState({ isHovered: false, hoverX: 100 });
+  };
+
+  // Hitung progres detail milestone harian
+  const gamesDone = Math.min(totalCurrentGames, m.games);
+  const skillsDone = Math.min(totalCurrentSkills, m.skills);
+  const totalDone = gamesDone + skillsDone;
+  const totalTarget = m.games + m.skills;
+  const completionPercent = Math.round((totalDone / totalTarget) * 100);
+
+  return (
+    <div
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`relative p-3 border-[3px] border-black rounded-lg flex flex-col gap-2.5 transition-all overflow-hidden shadow-[3px_3px_0px_#000] ${
+        isCompleted
+          ? colors.cardBg
+          : isNext
+            ? 'bg-primary/15 border-black'
+            : 'bg-surface-alt border-black'
+      }`}
+    >
+      {/* Liquid wave background based on milestone progress */}
+      {completionPercent > 0 && (
+        <LiquidWave 
+          colorClass={colors.waveColor} 
+          milestoneIdx={idx} 
+          heightPercent={completionPercent}
+          isHovered={hoverState.isHovered}
+          hoverX={hoverState.hoverX}
+        />
+      )}
+
+      <div className="flex items-center gap-2 relative z-10">
+        {/* Circle with liquid animation */}
+        <div className={`w-9 h-9 shrink-0 rounded-full border-[3px] border-black flex items-center justify-center transition-all shadow-[2px_2px_0px_#000] relative bg-white overflow-hidden`}>
+          {isCompleted ? (
+            <CheckIcon className="w-5 h-5 text-success stroke-[3px] relative z-20" />
+          ) : (
+            <>
+              {/* Wave Water Layer */}
+              <div 
+                className="absolute bottom-0 left-0 right-0 bg-primary/75 transition-all duration-1000 ease-out"
+                style={{ height: `${completionPercent}%` }}
+              >
+                {completionPercent > 0 && completionPercent < 100 && (
+                  <div className="absolute bottom-[calc(100%-2px)] left-1/2 w-[220%] h-[220%] rounded-[38%] bg-white/70 animate-wave-spin" />
+                )}
+              </div>
+              <span className="text-xs font-black font-mono relative z-20 text-black">
+                {idx + 1}
+              </span>
+            </>
+          )}
+        </div>
+        
+        <span className={`text-xs font-black uppercase tracking-wide truncate ${
+          isCompleted ? colors.textColor : 'text-black'
+        }`}>
+          {m.name}
+        </span>
+      </div>
+
+      {/* Live Progress Bars instead of static text */}
+      <div className="space-y-2.5 font-mono text-[10px] font-bold text-text-muted leading-none relative z-10">
+        <div className="text-black bg-surface-alt border-2 border-black rounded px-1.5 py-1 text-[9px] w-fit shadow-[1px_1px_0_#000]">
+          +{m.bonus} Bonus · Total {m.total} pt
+        </div>
+        
+        {/* Game progress */}
+        <div className="space-y-1">
+          <div className="flex justify-between text-[9px] font-extrabold text-text-muted">
+            <span>GAMES</span>
+            <span className="text-black">{gamesDone}/{m.games}</span>
+          </div>
+          <div className="w-full h-2.5 bg-surface-alt border-[2px] border-black rounded overflow-hidden shadow-[1px_1px_0_#000]">
+            <div className="h-full bg-primary" style={{ width: `${(gamesDone / m.games) * 100}%` }} />
+          </div>
+        </div>
+
+        {/* Skill progress */}
+        <div className="space-y-1">
+          <div className="flex justify-between text-[9px] font-extrabold text-text-muted">
+            <span>SKILLS</span>
+            <span className="text-black">{skillsDone}/{m.skills}</span>
+          </div>
+          <div className="w-full h-2.5 bg-surface-alt border-[2px] border-black rounded overflow-hidden shadow-[1px_1px_0_#000]">
+            <div className="h-full bg-tertiary" style={{ width: `${(skillsDone / m.skills) * 100}%` }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface DashboardProps {
   participant: Participant;
@@ -431,95 +573,19 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                     {milestones.map((m, idx) => {
                       const isCompleted = totalCurrentGames >= m.games && totalCurrentSkills >= m.skills;
                       const isNext = !isCompleted && (idx === 0 || (totalCurrentGames >= milestones[idx - 1].games && totalCurrentSkills >= milestones[idx - 1].skills));
-
-                      // Hitung progres detail milestone harian
-                      const gamesDone = Math.min(totalCurrentGames, m.games);
-                      const skillsDone = Math.min(totalCurrentSkills, m.skills);
-                      const totalDone = gamesDone + skillsDone;
-                      const totalTarget = m.games + m.skills;
-                      const completionPercent = Math.round((totalDone / totalTarget) * 100);
-
                       const colors = getMilestoneColors(idx);
 
                       return (
-                        <div
+                        <MilestoneCard 
                           key={m.name}
-                          className={`relative p-3 border-[3px] border-black rounded-lg flex flex-col gap-2.5 transition-all overflow-hidden shadow-[3px_3px_0px_#000] ${
-                            isCompleted
-                              ? colors.cardBg
-                              : isNext
-                                ? 'bg-primary/15 border-black'
-                                : 'bg-surface-alt border-black'
-                          }`}
-                        >
-                          {/* Liquid wave background based on milestone progress */}
-                          {completionPercent > 0 && (
-                            <LiquidWave 
-                              colorClass={colors.waveColor} 
-                              milestoneIdx={idx} 
-                              heightPercent={completionPercent}
-                            />
-                          )}
-
-                          <div className="flex items-center gap-2 relative z-10">
-                            {/* Circle with liquid animation */}
-                            <div className={`w-9 h-9 shrink-0 rounded-full border-[3px] border-black flex items-center justify-center transition-all shadow-[2px_2px_0px_#000] relative bg-white overflow-hidden`}>
-                              {isCompleted ? (
-                                <CheckIcon className="w-5 h-5 text-success stroke-[3px] relative z-20" />
-                              ) : (
-                                <>
-                                  {/* Wave Water Layer */}
-                                  <div 
-                                    className="absolute bottom-0 left-0 right-0 bg-primary/75 transition-all duration-1000 ease-out"
-                                    style={{ height: `${completionPercent}%` }}
-                                  >
-                                    {completionPercent > 0 && completionPercent < 100 && (
-                                      <div className="absolute bottom-[calc(100%-2px)] left-1/2 w-[220%] h-[220%] rounded-[38%] bg-white/70 animate-wave-spin" />
-                                    )}
-                                  </div>
-                                  <span className="text-xs font-black font-mono relative z-20 text-black">
-                                    {idx + 1}
-                                  </span>
-                                </>
-                              )}
-                            </div>
-                            
-                            <span className={`text-xs font-black uppercase tracking-wide truncate ${
-                              isCompleted ? colors.textColor : 'text-black'
-                            }`}>
-                              {m.name}
-                            </span>
-                          </div>
-
-                          {/* Live Progress Bars instead of static text */}
-                          <div className="space-y-2.5 font-mono text-[10px] font-bold text-text-muted leading-none relative z-10">
-                            <div className="text-black bg-surface-alt border-2 border-black rounded px-1.5 py-1 text-[9px] w-fit shadow-[1px_1px_0_#000]">
-                              +{m.bonus} Bonus · Total {m.total} pt
-                            </div>
-                            
-                            {/* Game progress */}
-                            <div className="space-y-1">
-                              <div className="flex justify-between text-[9px] font-extrabold text-text-muted">
-                                <span>GAMES</span>
-                                <span className="text-black">{gamesDone}/{m.games}</span>
-                              </div>
-                              <div className="w-full h-2.5 bg-surface-alt border-[2px] border-black rounded overflow-hidden shadow-[1px_1px_0_#000]">
-                                <div className="h-full bg-primary" style={{ width: `${(gamesDone / m.games) * 100}%` }} />
-                              </div>
-                            </div>
-
-                            {/* Skill progress */}
-                            <div className="space-y-1">
-                              <div className="flex justify-between text-[9px] font-extrabold text-text-muted">
-                                <span>SKILLS</span>
-                                <span className="text-black">{skillsDone}/{m.skills}</span>
-                              </div>
-                              <div className="w-full h-2.5 bg-surface-alt border-[2px] border-black rounded overflow-hidden shadow-[1px_1px_0_#000]">
-                                <div className="h-full bg-tertiary" style={{ width: `${(skillsDone / m.skills) * 100}%` }} />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                          m={m}
+                          idx={idx}
+                          isCompleted={isCompleted}
+                          isNext={isNext}
+                          totalCurrentGames={totalCurrentGames}
+                          totalCurrentSkills={totalCurrentSkills}
+                          colors={colors}
+                        />
                       );
                     })}
                   </div>
