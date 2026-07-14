@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Arcade Tracker 2026 — Google Cloud Skills Boost",
+  title: "Arcade Tracker 2026 | Google Cloud Skills Boost",
   description: "Monitor Google Skills Arcade milestones, badge points, and participants status in one premium developer dashboard.",
   openGraph: {
     title: "Arcade Tracker 2026 | Google Cloud Skills Boost",
