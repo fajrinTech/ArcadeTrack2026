@@ -106,22 +106,22 @@ export default function ActivityChart({ badges, activeMonthPrefix, embedded = fa
                 >
                   
                   {/* Tooltip on Hover / Tap */}
-                  <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-black text-white text-[10px] font-mono p-2 rounded-lg border-2 border-white shadow-[2px_2px_0px_#000] transition-opacity duration-150 z-30 min-w-[135px] text-center pointer-events-none ${
+                  <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white text-black text-[10px] font-mono p-2 rounded-lg border-2 border-black shadow-[2px_2px_0px_#000] transition-opacity duration-150 z-30 min-w-[135px] text-center pointer-events-none ${
                     activeWeek === week.name ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                   }`}>
-                    <div className="font-bold border-b border-white/20 pb-1 mb-1">
+                    <div className="font-bold border-b border-black/25 pb-1 mb-1 text-black">
                       {week.label} ({week.start}-{week.end} {monthName.slice(0, 3)})
                     </div>
                     {week.total > 0 ? (
                       <div className="space-y-0.5">
-                        <div className="font-black text-primary text-xs">{week.total} BADGE SELESAI</div>
-                        <div className="text-[10px] text-gray-300 mt-1 space-y-0.5">
+                        <div className="font-black text-secondary text-xs">{week.total} BADGE SELESAI</div>
+                        <div className="text-[10px] text-text-muted mt-1 space-y-0.5">
                           <div>🎮 {week.games} Game Badges</div>
                           <div>🏅 {week.skills} Skill Badges</div>
                         </div>
                       </div>
                     ) : (
-                      <div className="text-gray-400">Belum ada aktivitas</div>
+                      <div className="text-text-muted">Belum ada aktivitas</div>
                     )}
                   </div>
 
