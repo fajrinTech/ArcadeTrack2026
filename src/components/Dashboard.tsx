@@ -14,9 +14,10 @@ import { animate } from 'animejs';
 interface LiquidWaveProps {
   colorClass: string;
   milestoneIdx: number;
+  heightPercent: number;
 }
 
-function LiquidWave({ colorClass, milestoneIdx }: LiquidWaveProps) {
+function LiquidWave({ colorClass, milestoneIdx, heightPercent }: LiquidWaveProps) {
   const pathRef = useRef<SVGPathElement>(null);
 
   useEffect(() => {
@@ -44,7 +45,8 @@ function LiquidWave({ colorClass, milestoneIdx }: LiquidWaveProps) {
       <svg 
         viewBox="0 0 200 100" 
         preserveAspectRatio="none" 
-        className={`absolute bottom-0 left-0 w-full h-[110%] opacity-20 ${colorClass}`}
+        className={`absolute bottom-0 left-0 w-full opacity-20 transition-all duration-1000 ease-out ${colorClass}`}
+        style={{ height: `${heightPercent}%` }}
       >
         <path 
           ref={pathRef} 
@@ -450,9 +452,13 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                                 : 'bg-surface-alt border-black'
                           }`}
                         >
-                          {/* Liquid wave background for 100% completed milestone */}
-                          {isCompleted && (
-                            <LiquidWave colorClass={colors.waveColor} milestoneIdx={idx} />
+                          {/* Liquid wave background based on milestone progress */}
+                          {completionPercent > 0 && (
+                            <LiquidWave 
+                              colorClass={colors.waveColor} 
+                              milestoneIdx={idx} 
+                              heightPercent={completionPercent}
+                            />
                           )}
 
                           <div className="flex items-center gap-2 relative z-10">
