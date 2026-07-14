@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getParticipants, updateParticipant, setBadges, deleteParticipant } from '@/lib/db';
+import { getParticipant, updateParticipant, setBadges, deleteParticipant, getBadges } from '@/lib/db';
 
 export async function POST(
   request: Request,
@@ -7,39 +7,28 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const participants = getParticipants();
-    const participant = participants.find(p => p.id === id);
-
+    const participant = await getParticipant(id);
     if (!participant) {
       return NextResponse.json({ error: 'Peserta tidak ditemukan.' }, { status: 404 });
     }
 
     const baseUrl = new URL(request.url).origin;
-    const scrapeRes = await fetch(`${baseUrl}/api/scrape?url=${encodeURIComponent(participant.profile_url)}`, {
-      cache: 'no-store'
-    });
-
+    const scrapeRes = await fetch(`${baseUrl}/api/scrape?url=${encodeURIComponent(participant.profile_url)}`, { cache: 'no-store' });
     if (!scrapeRes.ok) {
       const errorData = await scrapeRes.json();
       return NextResponse.json({ error: errorData.error || 'Gagal melakukan scraping data terbaru.' }, { status: scrapeRes.status });
     }
 
     const scrapeData = await scrapeRes.json();
+    await setBadges(id, scrapeData.badges);
 
-    // Update badges
-    setBadges(id, scrapeData.badges);
-
-    // Update participant details
-    const updated = updateParticipant(id, {
+    const updated = await updateParticipant(id, {
       name: scrapeData.name || participant.name,
       avatar_url: scrapeData.avatar_url || participant.avatar_url,
-      total_points: scrapeData.total_points,
-      badges_count: scrapeData.badges_count,
-      last_synced: scrapeData.scraped_at
+      last_synced: scrapeData.scraped_at,
     });
 
     return NextResponse.json({ success: true, participant: updated });
-
   } catch (error: any) {
     console.error('Sync participant error:', error);
     return NextResponse.json({ error: 'Terjadi kesalahan saat menyinkronkan data.' }, { status: 500 });
@@ -52,35 +41,28 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const deleted = deleteParticipant(id);
-
+    const deleted = await deleteParticipant(id);
     if (!deleted) {
       return NextResponse.json({ error: 'Peserta tidak ditemukan.' }, { status: 404 });
     }
-
     return NextResponse.json({ success: true, message: 'Peserta berhasil dihapus.' });
   } catch (error: any) {
     console.error('DELETE participant error:', error);
     return NextResponse.json({ error: 'Gagal menghapus peserta.' }, { status: 500 });
   }
 }
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const participants = getParticipants();
-    const participant = participants.find(p => p.id === id);
-
+    const participant = await getParticipant(id);
     if (!participant) {
       return NextResponse.json({ error: 'Peserta tidak ditemukan.' }, { status: 404 });
     }
-
-    // Get badges for this participant
-    const { getBadges } = require('@/lib/db');
-    const badges = getBadges(id);
-
+    const badges = await getBadges(id);
     return NextResponse.json({ participant, badges });
   } catch (error: any) {
     console.error('GET participant detail error:', error);

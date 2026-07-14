@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Header from '@/components/Header';
 import Dashboard from '@/components/Dashboard';
+import ProfileHeader from '@/components/ProfileHeader';
+import DashboardSkeleton from '@/components/DashboardSkeleton';
 import LeaderboardPanel from '@/components/FacilitatorPanel';
 import { useToast } from '@/components/Toast';
 import { Participant, Badge } from '@/lib/db';
@@ -18,7 +19,6 @@ export default function Home() {
   
   const [currentView, setCurrentView] = useState<'dashboard' | 'leaderboard'>('dashboard');
 
-  const [name, setName] = useState('');
   const [profileUrl, setProfileUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -46,6 +46,8 @@ export default function Home() {
       setMyProfileId(savedId);
       setSelectedParticipantId(savedId);
     }
+    // Pre-fill link terakhir (cache) supaya login ulang lebih mudah.
+    setProfileUrl(localStorage.getItem('lastProfileUrl') ?? '');
     fetchParticipants();
   }, []);
 
@@ -74,7 +76,7 @@ export default function Home() {
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !profileUrl) return;
+    if (!profileUrl) return;
 
     setLoginError(null);
     setIsSubmitting(true);
@@ -82,23 +84,25 @@ export default function Home() {
       const res = await fetch('/api/participants', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, profile_url: profileUrl })
+        body: JSON.stringify({ profile_url: profileUrl })
       });
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Gagal mendaftarkan profil. Pastikan URL profil Google Cloud Skills Boost Anda valid dan disetel ke Publik.');
+        throw new Error(errorData.error || 'Gagal masuk. Pastikan URL profil Google Cloud Skills Boost Anda valid dan disetel ke Publik.');
       }
 
       const newPart = await res.json();
-      
+
       localStorage.setItem('myProfileId', newPart.id);
+      localStorage.setItem('lastProfileUrl', profileUrl); // cache link
       setMyProfileId(newPart.id);
       setSelectedParticipantId(newPart.id);
       setCurrentView('dashboard');
-      
+
       await fetchParticipants();
-      toast(`Selamat datang, ${newPart.name || 'Learner'}!`, 'success');
+      const nm = newPart.name || 'Learner';
+      toast(newPart.returning ? `Selamat datang kembali, ${nm}!` : `Selamat datang, ${nm}!`, 'success');
     } catch (err: unknown) {
       setLoginError(err instanceof Error ? err.message : 'Koneksi bermasalah. Silakan coba lagi.');
     } finally {
@@ -128,42 +132,22 @@ export default function Home() {
   };
 
   const handleResetSession = () => {
-    if (confirm('Apakah Anda yakin ingin keluar sesi ini? Profil Anda tidak akan terhapus dari sistem, namun Anda harus memasukkan info kembali untuk melacak.')) {
-      localStorage.removeItem('myProfileId');
+    if (confirm('Apakah Anda yakin ingin keluar sesi ini? Profil Anda tidak akan terhapus dari sistem, dan link Anda tetap tersimpan untuk memudahkan masuk kembali.')) {
+      localStorage.removeItem('myProfileId'); // link (lastProfileUrl) sengaja dipertahankan
       setMyProfileId(null);
       setSelectedParticipantId(null);
       setSelectedParticipant(null);
       setBadges([]);
-      setName('');
-      setProfileUrl('');
       setCurrentView('dashboard');
     }
   };
 
   return (
     <div className="min-h-dvh flex flex-col pb-12">
-      <Header 
-        currentView={currentView}
-        onViewChange={(view) => {
-          setCurrentView(view);
-          if (view === 'dashboard' && myProfileId) {
-            setSelectedParticipantId(myProfileId);
-          }
-        }}
-        isLoggedIn={myProfileId !== null}
-        onSyncSelf={myProfileId ? () => handleSyncParticipant(myProfileId) : undefined}
-      />
-
       <div className="flex-grow max-w-7xl w-full mx-auto px-4 md:px-6 py-6 relative z-10">
         
         {isLoadingList ? (
-          <div className="space-y-6 animate-pulse">
-            <div className="h-28 bg-surface border-[3px] border-black rounded-lg shadow-[4px_4px_0_#000]" />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="h-48 bg-surface border-[3px] border-black rounded-lg shadow-[4px_4px_0_#000]" />
-              <div className="h-48 bg-surface border-[3px] border-black rounded-lg md:col-span-2 shadow-[4px_4px_0_#000]" />
-            </div>
-          </div>
+          <DashboardSkeleton />
         ) : !myProfileId ? (
           <div className="max-w-md w-full mx-auto mt-8 md:mt-16 px-4 animate-scale-in">
             <div className="neobrutal-card text-center p-6 md:p-8 space-y-6">
@@ -183,35 +167,21 @@ export default function Home() {
               </div>
 
               <p className="text-sm text-text-muted leading-relaxed max-w-xs mx-auto">
-                Masukkan nama panggilan dan URL profil Google Cloud Skills Boost yang sudah disetel ke <strong>Publik</strong> untuk memulai pelacakan.
+                Cukup masukkan URL profil Google Cloud Skills Boost Anda yang sudah disetel ke <strong>Publik</strong>. Nama diambil otomatis dari profil.
               </p>
 
               <form onSubmit={handleLoginSubmit} className="space-y-4 text-left font-mono text-xs">
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-[10px] uppercase font-bold text-text-muted block mb-1.5">Nama Panggilan</label>
-                    <input 
-                      type="text" 
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="E.g. Fajrin Widianto"
-                      disabled={isSubmitting}
-                      className="neobrutal-input"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] uppercase font-bold text-text-muted block mb-1.5">URL Profil Skills Boost</label>
-                    <input 
-                      type="url" 
-                      value={profileUrl}
-                      onChange={(e) => setProfileUrl(e.target.value)}
-                      placeholder="https://www.skills.google/public_profiles/..."
-                      disabled={isSubmitting}
-                      className="neobrutal-input"
-                      required
-                    />
-                  </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-text-muted block mb-1.5">URL Profil Skills Boost</label>
+                  <input 
+                    type="url" 
+                    value={profileUrl}
+                    onChange={(e) => setProfileUrl(e.target.value)}
+                    placeholder="https://www.skills.google/public_profiles/..."
+                    disabled={isSubmitting}
+                    className="neobrutal-input"
+                    required
+                  />
                 </div>
 
                 {loginError && (
@@ -223,13 +193,13 @@ export default function Home() {
 
                 <button 
                   type="submit" 
-                  disabled={isSubmitting || !name || !profileUrl}
+                  disabled={isSubmitting || !profileUrl}
                   className="neobrutal-btn-primary w-full flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
                       <UpdateIcon className="w-4 h-4 animate-spin" />
-                      <span>CONNECTING_PROFILE...</span>
+                      <span>CONNECTING PROFILE...</span>
                     </>
                   ) : (
                     <span>ENTER THE ARCADE</span>
@@ -239,8 +209,45 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <div className="w-full">
-            
+          <div className="w-full space-y-6">
+
+            {/* Profile Header (Moved to the very top when logged in) */}
+            {selectedParticipant && !isLoadingDetail && (
+              <ProfileHeader 
+                participant={selectedParticipant} 
+                badges={badges} 
+                onResetSession={handleResetSession}
+                onSync={myProfileId === selectedParticipant.id ? () => handleSyncParticipant(selectedParticipant.id) : undefined}
+              />
+            )}
+
+            {/* Navbar: switcher */}
+            <nav className="flex items-center gap-1 bg-surface-alt p-1 border-[3px] border-black rounded-lg shadow-[4px_4px_0px_#000]">
+              <button
+                onClick={() => {
+                  setCurrentView('dashboard');
+                  if (myProfileId) setSelectedParticipantId(myProfileId);
+                }}
+                className={`flex-1 px-5 py-2.5 rounded-md text-xs uppercase font-bold tracking-wider transition-all duration-200 border-[3px] ${
+                  currentView === 'dashboard'
+                    ? 'bg-primary text-black border-black shadow-[2px_2px_0px_#000] -translate-y-0.5'
+                    : 'text-text-muted hover:text-black hover:bg-white border-transparent'
+                }`}
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => setCurrentView('leaderboard')}
+                className={`flex-1 px-5 py-2.5 rounded-md text-xs uppercase font-bold tracking-wider transition-all duration-200 border-[3px] ${
+                  currentView === 'leaderboard'
+                    ? 'bg-tertiary text-white border-black shadow-[2px_2px_0px_#000] -translate-y-0.5'
+                    : 'text-text-muted hover:text-black hover:bg-white border-transparent'
+                }`}
+              >
+                Leaderboard
+              </button>
+            </nav>
+
             {currentView === 'leaderboard' && (
               <div className="max-w-4xl mx-auto transition-all">
                 <LeaderboardPanel 
@@ -258,18 +265,11 @@ export default function Home() {
             {currentView === 'dashboard' && (
               <div className="w-full transition-all">
                 {isLoadingDetail || !selectedParticipant ? (
-                  <div className="space-y-6 animate-pulse">
-                    <div className="h-28 bg-surface border-[3px] border-black rounded-lg shadow-[4px_4px_0_#000]" />
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="h-48 bg-surface border-[3px] border-black rounded-lg shadow-[4px_4px_0_#000]" />
-                      <div className="h-48 bg-surface border-[3px] border-black rounded-lg md:col-span-2 shadow-[4px_4px_0_#000]" />
-                    </div>
-                  </div>
+                  <DashboardSkeleton />
                 ) : (
                   <Dashboard 
                     participant={selectedParticipant} 
                     badges={badges} 
-                    onResetSession={handleResetSession}
                   />
                 )}
               </div>

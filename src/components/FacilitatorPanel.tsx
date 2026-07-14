@@ -56,16 +56,16 @@ export default function FacilitatorPanel({
   // Visual podium order: silver (left), gold (center), bronze (right)
   const podiumOrder = [top3[1], top3[0], top3[2]];
   const podiumMeta = [
-    { rank: 1, medal: MEDALS[1], height: 'h-28', ring: 'border-zinc-400', pts: 'text-zinc-500' },
-    { rank: 0, medal: MEDALS[0], height: 'h-36', ring: 'border-primary', pts: 'text-primary' },
-    { rank: 2, medal: MEDALS[2], height: 'h-24', ring: 'border-orange-400', pts: 'text-orange-500' },
+    { rank: 1, medal: MEDALS[1], height: 'h-20 sm:h-28', ring: 'border-zinc-400', pts: 'text-zinc-500' },
+    { rank: 0, medal: MEDALS[0], height: 'h-24 sm:h-36', ring: 'border-primary', pts: 'text-primary' },
+    { rank: 2, medal: MEDALS[2], height: 'h-16 sm:h-24', ring: 'border-orange-400', pts: 'text-orange-500' },
   ];
 
   return (
     <div className="neobrutal-card animate-fade-slide-up">
       <div className="border-b-[2px] border-black pb-2.5 mb-5 flex items-center justify-between">
         <span className="text-[10px] uppercase tracking-widest text-text-muted font-bold font-mono">
-          GLOBAL_LEADERBOARD
+          GLOBAL LEADERBOARD
         </span>
         <span className="w-3.5 h-3.5 rounded-full bg-success border-[2px] border-black shadow-[1px_1px_0px_#000] animate-subtle-pulse" />
       </div>
@@ -77,7 +77,7 @@ export default function FacilitatorPanel({
       ) : (
         <>
           {/* Podium */}
-          <div className="mb-6 flex items-end justify-center gap-3 sm:gap-5">
+          <div className="mb-6 flex items-end justify-center gap-1.5 sm:gap-5">
             {podiumOrder.map((p, i) => {
               const meta = podiumMeta[i];
               if (!p) return <div key={`empty-${i}`} className="flex-1 max-w-[120px]" />;
@@ -93,16 +93,16 @@ export default function FacilitatorPanel({
                   <div className="relative mb-2">
                     <Avatar
                       p={p}
-                      className={`${isGold ? 'w-20 h-20' : 'w-16 h-16'} ${meta.ring} transition-transform group-hover:-translate-y-1 shadow-[3px_3px_0px_#000]`}
-                      textClass={isGold ? 'text-xl' : 'text-base'}
+                      className={`${isGold ? 'w-14 h-14 sm:w-20 sm:h-20' : 'w-11 h-11 sm:w-16 sm:h-16'} ${meta.ring} transition-transform group-hover:-translate-y-1 shadow-[3px_3px_0px_#000]`}
+                      textClass={isGold ? 'text-base sm:text-xl' : 'text-sm sm:text-base'}
                     />
-                    <span className={`absolute -top-2 -right-1 ${isGold ? 'text-2xl' : 'text-xl'} drop-shadow`}>
+                    <span className={`absolute -top-2 -right-1 ${isGold ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'} drop-shadow`}>
                       {meta.medal}
                     </span>
                   </div>
 
                   <span
-                    className="max-w-full truncate text-[11px] font-extrabold text-black uppercase tracking-wide"
+                    className="max-w-full truncate text-[9px] sm:text-[11px] font-extrabold text-black uppercase tracking-wide"
                     title={p.name}
                   >
                     {p.name}
@@ -114,12 +114,12 @@ export default function FacilitatorPanel({
                   )}
 
                   <div
-                    className={`mt-2 w-full rounded-t-md border-[3px] border-b-0 border-black bg-surface-alt flex flex-col items-center justify-start pt-2 ${meta.height} transition-all group-hover:bg-white`}
+                    className={`mt-2 w-full rounded-t-md border-[3px] border-b-0 border-black bg-surface-alt flex flex-col items-center justify-start pt-1.5 sm:pt-2 ${meta.height} transition-all group-hover:bg-white`}
                   >
-                    <span className={`font-black leading-none ${isGold ? 'text-2xl' : 'text-xl'} ${meta.pts}`}>
+                    <span className={`font-black leading-none ${isGold ? 'text-lg sm:text-2xl' : 'text-base sm:text-xl'} ${meta.pts}`}>
                       {(p.monthly_points ?? 0).toFixed(1)}
                     </span>
-                    <span className="text-[8px] font-mono font-bold text-text-muted uppercase tracking-widest">
+                    <span className="text-[7px] sm:text-[8px] font-mono font-bold text-text-muted uppercase tracking-widest">
                       pts
                     </span>
                   </div>
@@ -162,7 +162,7 @@ export default function FacilitatorPanel({
                     <td className="py-2.5 px-2">
                       <div className="flex items-center gap-2.5">
                         <Avatar p={p} className="w-8 h-8" textClass="text-[10px]" />
-                        <span className="font-extrabold text-black truncate max-w-[150px]" title={p.name}>
+                        <span className="font-extrabold text-black truncate max-w-[95px] sm:max-w-[150px]" title={p.name}>
                           {p.name}
                         </span>
                         {medal && <span className="text-sm leading-none">{medal}</span>}

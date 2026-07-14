@@ -64,7 +64,7 @@ export default function ActivityHeatmap({ badges, embedded = false }: { badges: 
     <div className={embedded ? 'space-y-4' : 'neobrutal-card space-y-4 animate-fade-slide-up stagger-4'}>
       <div className="border-b-[2px] border-black pb-2.5 flex items-center justify-between">
         <span className="text-[10px] uppercase tracking-widest text-text-muted font-bold font-mono">
-          ACTIVITY_HEATMAP
+          ACTIVITY HEATMAP
         </span>
         <span className="text-[10px] font-mono text-text-muted font-bold">
           {totalInRange} badge · {activeDays} hari aktif

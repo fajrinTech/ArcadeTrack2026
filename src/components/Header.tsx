@@ -76,7 +76,7 @@ export default function Header({ currentView, onViewChange, isLoggedIn, onSyncSe
         <div className="flex items-center gap-6">
           {/* Clock */}
           <div className="hidden sm:block font-mono text-text-muted text-[10px]">
-            SYS_TIME: <span className="text-black font-bold">{time || 'YYYY-MM-DD HH:MM:SS'}</span>
+            SYS TIME: <span className="text-black font-bold">{time || 'YYYY-MM-DD HH:MM:SS'}</span>
           </div>
 
           {/* Sync own profile */}
