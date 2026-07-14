@@ -51,3 +51,8 @@ PRD-Arcade-Tracker.md
 
 # local dummy data (pindah ke Supabase nanti)
 src/lib/db.json
+
+# user requested ignored files
+MILESTONE_FASILITATOR.md
+liat.md
+/scripts/
