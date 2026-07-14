@@ -16,6 +16,24 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Arcade Tracker 2026 — Google Cloud Skills Boost",
   description: "Monitor Google Skills Arcade milestones, badge points, and participants status in one premium developer dashboard.",
+  openGraph: {
+    title: "Arcade Tracker 2026 — Google Cloud Skills Boost",
+    description: "Monitor Google Skills Arcade milestones, badge points, and participants status in one premium developer dashboard.",
+    url: "https://github.com/fajrinTech/ArcadeTrack2026",
+    siteName: "Arcade Tracker 2026",
+    images: [
+      {
+        url: "/OpenGraph.png",
+        width: 1200,
+        height: 630,
+        alt: "Arcade Tracker 2026 Preview",
+      },
+    ],
+    type: "website",
+  },
+  icons: {
+    icon: "/500px.png",
+  },
 };
 
 export default function RootLayout({

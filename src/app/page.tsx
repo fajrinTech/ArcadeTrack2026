@@ -7,7 +7,7 @@ import DashboardSkeleton from '@/components/DashboardSkeleton';
 import LeaderboardPanel from '@/components/FacilitatorPanel';
 import { useToast } from '@/components/Toast';
 import { Participant, Badge } from '@/lib/db';
-import { UpdateIcon, TargetIcon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { UpdateIcon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
 
 export default function Home() {
   const toast = useToast();
@@ -153,10 +153,8 @@ export default function Home() {
             <div className="neobrutal-card text-center p-6 md:p-8 space-y-6">
               
               <div className="space-y-3">
-                <div className="w-14 h-14 rounded-lg bg-primary border-[3px] border-black p-0.5 mx-auto shadow-[3px_3px_0px_#000]">
-                  <div className="w-full h-full bg-white rounded-md flex items-center justify-center">
-                    <TargetIcon className="w-7 h-7 text-secondary" />
-                  </div>
+                <div className="w-14 h-14 rounded-lg overflow-hidden border-[3px] border-black mx-auto shadow-[3px_3px_0px_#000]">
+                  <img src="/500px.png" alt="Arcade Logo" className="w-full h-full object-cover" />
                 </div>
                 <h2 className="text-2xl font-extrabold text-black tracking-tight uppercase" style={{ fontFamily: 'var(--font-sans)' }}>
                   Arcade Login

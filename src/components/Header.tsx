@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { TargetIcon, UpdateIcon } from '@radix-ui/react-icons';
+import { UpdateIcon } from '@radix-ui/react-icons';
 
 interface HeaderProps {
   currentView: 'dashboard' | 'leaderboard';
@@ -39,8 +39,8 @@ export default function Header({ currentView, onViewChange, isLoggedIn, onSyncSe
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center border-[3px] border-black shadow-[3px_3px_0px_#000]">
-            <TargetIcon className="w-5 h-5 text-black" />
+          <div className="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center border-[3px] border-black shadow-[3px_3px_0px_#000]">
+            <img src="/500px.png" alt="Arcade Logo" className="w-full h-full object-cover" />
           </div>
           <span className="text-black font-extrabold uppercase tracking-widest text-sm" style={{ fontFamily: 'var(--font-sans)' }}>
             Arcade Tracker <span className="text-secondary">2026</span>
