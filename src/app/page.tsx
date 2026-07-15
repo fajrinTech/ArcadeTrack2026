@@ -7,7 +7,7 @@ import DashboardSkeleton from '@/components/DashboardSkeleton';
 import LeaderboardPanel from '@/components/FacilitatorPanel';
 import { useToast } from '@/components/Toast';
 import { Participant, Badge } from '@/lib/db';
-import { UpdateIcon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { UpdateIcon, ExclamationTriangleIcon, Cross2Icon } from '@radix-ui/react-icons';
 
 export default function Home() {
   const toast = useToast();
@@ -25,6 +25,7 @@ export default function Home() {
 
   const [isLoadingList, setIsLoadingList] = useState(true);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
 
   const fetchParticipants = async () => {
     try {
@@ -216,6 +217,7 @@ export default function Home() {
                 badges={badges} 
                 onResetSession={handleResetSession}
                 onSync={myProfileId === selectedParticipant.id ? () => handleSyncParticipant(selectedParticipant.id) : undefined}
+                onOpenNotifications={() => setIsNotifOpen(true)}
               />
             )}
 
@@ -276,6 +278,68 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {isNotifOpen && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in pointer-events-auto">
+          <div className="neobrutal-card max-w-sm sm:max-w-md w-full !p-4 sm:!p-6 flex flex-col animate-scale-in bg-white max-h-[80vh]">
+            <div className="flex items-center justify-between border-b-[3px] border-black pb-2 sm:pb-3 shrink-0">
+              <h3 className="text-base sm:text-lg font-black text-black tracking-tight uppercase" style={{ fontFamily: 'var(--font-sans)' }}>
+                Notifikasi Program
+              </h3>
+              <button
+                onClick={() => setIsNotifOpen(false)}
+                className="p-1 border-[2.5px] border-black rounded bg-white hover:bg-secondary hover:text-white shadow-[2px_2px_0px_#000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_#000] transition-all"
+              >
+                <Cross2Icon className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-2.5 sm:space-y-3.5 font-mono text-[11px] sm:text-xs text-left overflow-y-auto pr-1 py-2 flex-grow my-3">
+              <div className="!p-2.5 sm:!p-3 border-[2px] border-black bg-primary/10 rounded-lg shadow-[2px_2px_0px_#000] space-y-0.5">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-[9px] sm:text-[10px] uppercase font-bold text-tertiary">Scraper Update</span>
+                  <span className="text-[8px] sm:text-[9px] text-text-muted">15 Jul 2026</span>
+                </div>
+                <h4 className="font-extrabold text-black uppercase text-xs sm:text-sm">Penyaringan Badge Diperketat</h4>
+                <p className="text-text-muted leading-normal sm:leading-relaxed">
+                  Sistem pemindai (scraper) kini memverifikasi badge ke dalam katalog resmi. **Course Completion** dan **AI Boost Bites** tidak akan dihitung dalam poin Arcade.
+                </p>
+              </div>
+
+              <div className="!p-2.5 sm:!p-3 border-[2px] border-black bg-success/10 rounded-lg shadow-[2px_2px_0px_#000] space-y-0.5">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-[9px] sm:text-[10px] uppercase font-bold text-success">Periode Aktif</span>
+                  <span className="text-[8px] sm:text-[9px] text-text-muted">15 Jul 2026</span>
+                </div>
+                <h4 className="font-extrabold text-black uppercase text-xs sm:text-sm">Penyesuaian Tanggal Mulai</h4>
+                <p className="text-text-muted leading-normal sm:leading-relaxed">
+                  Awal periode berjalan program disesuaikan ke tanggal **13 Juli 2026** (hari pembukaan pendaftaran). Badge sebelum tanggal ini akan diarsipkan secara otomatis.
+                </p>
+              </div>
+
+              <div className="!p-2.5 sm:!p-3 border-[2px] border-black bg-zinc-50 rounded-lg shadow-[2px_2px_0px_#000] space-y-0.5">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-[9px] sm:text-[10px] uppercase font-bold text-black">Panduan</span>
+                  <span className="text-[8px] sm:text-[9px] text-text-muted">14 Jul 2026</span>
+                </div>
+                <h4 className="font-extrabold text-black uppercase text-xs sm:text-sm">Cara Sinkronisasi Profil</h4>
+                <p className="text-text-muted leading-normal sm:leading-relaxed">
+                  Pastikan profil Google Cloud Skills Boost Anda disetel ke **Publik** agar data dapat disinkronkan. URL wajib menggunakan format resmi: <code className="break-all bg-zinc-100 px-1 py-0.5 rounded border border-zinc-200 text-black">https://www.skills.google/public_profiles/uuid</code>.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-2 shrink-0 border-t-[3px] border-black mt-2">
+              <button
+                onClick={() => setIsNotifOpen(false)}
+                className="neobrutal-btn-primary w-full text-center py-1.5 sm:py-2 text-xs sm:text-sm"
+              >
+                Paham & Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

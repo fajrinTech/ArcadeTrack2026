@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getParticipants, getParticipantByUrl, addParticipant, updateParticipant, setBadges } from '@/lib/db';
+import { getParticipants, getParticipantByUrl, addParticipant, updateParticipant, setBadges, normalizeProfileUrl } from '@/lib/db';
 
 export async function GET() {
   try {
@@ -20,10 +20,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'URL profil wajib diisi.' }, { status: 400 });
     }
 
-    // Normalize to skills.google
-    let targetUrl = profile_url.trim();
-    if (targetUrl.includes('cloudskillsboost.google/public_profiles/')) {
-      targetUrl = targetUrl.replace('cloudskillsboost.google/public_profiles/', 'skills.google/public_profiles/');
+    const targetUrl = normalizeProfileUrl(profile_url);
+    if (!targetUrl) {
+      return NextResponse.json({ error: 'Format URL tidak valid. Gunakan format: https://www.skills.google/public_profiles/uuid' }, { status: 400 });
     }
 
     // Sudah terdaftar → login kembali

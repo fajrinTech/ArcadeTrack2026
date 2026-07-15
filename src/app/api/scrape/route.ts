@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import * as cheerio from 'cheerio';
+import * as Cheerio from 'cheerio';
+import { getSkillBadges, normalizeProfileUrl } from '@/lib/db';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -9,19 +10,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'URL profil wajib diisi.' }, { status: 400 });
   }
 
-  // Normalize URL to skills.google
-  let targetUrl = profileUrl.trim();
-  if (targetUrl.includes('cloudskillsboost.google/public_profiles/')) {
-    targetUrl = targetUrl.replace('cloudskillsboost.google/public_profiles/', 'skills.google/public_profiles/');
-  }
-
-  if (!targetUrl.startsWith('https://www.skills.google/public_profiles/') && 
-      !targetUrl.startsWith('https://skills.google/public_profiles/')) {
+  const normalizedUrl = normalizeProfileUrl(profileUrl);
+  if (!normalizedUrl) {
     return NextResponse.json({ error: 'Format URL tidak valid. Gunakan format: https://www.skills.google/public_profiles/uuid' }, { status: 400 });
   }
 
   try {
-    const response = await fetch(targetUrl, {
+    const response = await fetch(normalizedUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -37,7 +32,7 @@ export async function GET(request: Request) {
     }
 
     const html = await response.text();
-    const $ = cheerio.load(html);
+    const $ = Cheerio.load(html);
 
     // Extract name
     let name = $('h1').first().text().trim();
@@ -48,17 +43,31 @@ export async function GET(request: Request) {
       name = 'Google Cloud Learner';
     }
 
-    // Extract profile avatar. The real user photo lives in the <ql-avatar
-    // class="profile-avatar" src="..."> custom element (hosted on
-    // googleusercontent). og:image is only a generic Google logo, so ignore it.
+    // Extract profile avatar
     let avatarUrl =
       $('ql-avatar.profile-avatar').attr('src') ||
       $('.profile-avatar').attr('src') ||
       $('.profile-avatar img, .avatar img').first().attr('src') ||
       '';
     if (avatarUrl.startsWith('//')) avatarUrl = 'https:' + avatarUrl;
-    // Guard against relative/generic assets (e.g. the Google "G" logo)
     if (avatarUrl && !avatarUrl.startsWith('http')) avatarUrl = '';
+
+    // Fetch official skill badges from DB catalog
+    let officialSkills: any[] = [];
+    try {
+      officialSkills = await getSkillBadges();
+    } catch (dbErr) {
+      console.error('Failed to fetch official skill badges from DB:', dbErr);
+    }
+
+    const normalizeBadgeName = (bName: string) => {
+      return bName
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/\s+(challenge labs|challenge lab|course|quest|bites)$/, '');
+    };
 
     const badges: any[] = [];
     
@@ -82,7 +91,7 @@ export async function GET(request: Request) {
         // Categorize badge based on confirmed PRD rules:
         // Game badges: Arcade Voyage, Arcade Base Camp, Arcade Adventure, Arcade Trail, Safe Spaces, Arcade Simulator, etc.
         const lowerTitle = title.toLowerCase();
-        const isGame = 
+        const isGame = (
           lowerTitle.includes('arcade') || 
           lowerTitle.includes('voyage') || 
           lowerTitle.includes('base camp') || 
@@ -90,15 +99,43 @@ export async function GET(request: Request) {
           lowerTitle.includes('trail') || 
           lowerTitle.includes('safe spaces') || 
           lowerTitle.includes('simulator') || 
-          lowerTitle.includes('trivia');
+          lowerTitle.includes('trivia')
+        ) && !lowerTitle.includes('boost bites') 
+          && !lowerTitle.includes('guidelines') 
+          && !lowerTitle.includes('facilitator');
 
-        badges.push({
-          badge_name: title,
-          category: isGame ? 'game' : 'skill_badge',
-          points: isGame ? 1 : 0.5,
-          earned_date: earnedDate,
-          image_url: imageUrl
-        });
+        // Check if it is a valid skill badge by catalog or modal description heuristic
+        let isSkillBadge = false;
+        if (!isGame) {
+          // Heuristic: check if the description modal contains "skill badge"
+          const modalId = $(el).find('ql-button').attr('modal');
+          let hasSkillBadgeDescription = false;
+          if (modalId) {
+            const dialog = $(`#${modalId}`);
+            if (dialog.length > 0) {
+              const description = dialog.find('p').text().toLowerCase();
+              hasSkillBadgeDescription = description.includes('skill badge');
+            }
+          }
+
+          // Catalog match
+          const normTitle = normalizeBadgeName(title);
+          const hasCatalogMatch = officialSkills.some(skill => {
+            return normTitle === normalizeBadgeName(skill.name);
+          });
+
+          isSkillBadge = hasCatalogMatch || hasSkillBadgeDescription;
+        }
+
+        if (isGame || isSkillBadge) {
+          badges.push({
+            badge_name: title,
+            category: isGame ? 'game' : 'skill_badge',
+            points: isGame ? 1 : 0.5,
+            earned_date: earnedDate,
+            image_url: imageUrl
+          });
+        }
       }
     });
 
@@ -106,14 +143,14 @@ export async function GET(request: Request) {
     const gameBadges = badges.filter(b => b.category === 'game');
     const skillBadges = badges.filter(b => b.category === 'skill_badge');
 
-    const totalGamePoints = gameBadges.length; // 1 point per game
-    const totalSkillPoints = skillBadges.length * 0.5; // 0.5 points per skill badge
+    const totalGamePoints = gameBadges.length;
+    const totalSkillPoints = skillBadges.length * 0.5;
     const totalBasePoints = totalGamePoints + totalSkillPoints;
 
     return NextResponse.json({
       name,
       avatar_url: avatarUrl,
-      profile_url: targetUrl,
+      profile_url: normalizedUrl,
       scraped_at: new Date().toISOString(),
       badges_count: badges.length,
       total_points: totalBasePoints,

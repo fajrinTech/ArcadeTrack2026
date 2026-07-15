@@ -242,7 +242,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
   // Periode arcade berjalan: badge yang diperoleh sejak awal bulan ini dan
   // seterusnya. Badge sebelum tanggal ini = arsip akun lama (mis. akun
   // fasilitator), hanya ditampilkan dan TIDAK menyumbang poin.
-  const activePeriodStart = `${activeMonthPrefix}-01`;
+  const activePeriodStart = '2026-07-13';
 
   const [activeSubTab, setActiveSubTab] = useState<'dashboard' | 'arcade_track' | 'fasttrack' | 'track_badge'>('dashboard');
   const [fasttrackPage, setFasttrackPage] = useState(1);
@@ -876,7 +876,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                 Access Code:
               </span>
               <div className="flex gap-2">
-                <div className="flex-1 bg-surface-alt border-[3px] border-black p-3 font-mono font-black text-center text-sm rounded-lg tracking-wider text-primary select-all select-none">
+                <div className="flex-1 bg-surface-alt border-[3px] border-black p-3 font-mono font-black text-center text-sm rounded-lg tracking-wider text-black select-all select-none">
                   {selectedGameModal.accessCode}
                 </div>
                 <button

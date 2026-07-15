@@ -9,14 +9,16 @@ interface ProfileHeaderProps {
   badges: Badge[];
   onResetSession: () => void;
   onSync?: () => Promise<void>;
+  onOpenNotifications?: () => void;
 }
 
-export default function ProfileHeader({ participant, badges, onResetSession, onSync }: ProfileHeaderProps) {
+export default function ProfileHeader({ participant, badges, onResetSession, onSync, onOpenNotifications }: ProfileHeaderProps) {
   const [isSyncing, setIsSyncing] = useState(false);
+  const [hasUnread, setHasUnread] = useState(true);
 
   const activeMonthName = 'Juli 2026';
   const activeMonthPrefix = '2026-07';
-  const activePeriodStart = `${activeMonthPrefix}-01`;
+  const activePeriodStart = '2026-07-13';
 
   const isCurrentPeriod = (b: Badge) => b.earned_date >= activePeriodStart;
   const historicalBadges = badges.filter(b => !isCurrentPeriod(b));
@@ -76,7 +78,7 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
                 onClick={handleSync}
                 disabled={isSyncing}
                 title="Sinkronkan profil saya"
-                className="inline-flex items-center gap-1 text-[9px] uppercase tracking-widest font-bold font-mono text-white bg-secondary hover:bg-secondary-dark border-[3px] border-black rounded-lg px-3 py-1.5 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000] disabled:opacity-50"
+                className="order-1 md:order-2 inline-flex items-center gap-1 text-[9px] uppercase tracking-widest font-bold font-mono text-white bg-secondary hover:bg-secondary-dark border-[3px] border-black rounded-lg px-3 py-1.5 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000] disabled:opacity-50"
               >
                 <UpdateIcon className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
                 <span>{isSyncing ? 'Syncing' : 'Sync'}</span>
@@ -84,10 +86,26 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
             )}
             <button
               onClick={onResetSession}
-              className="inline-flex items-center gap-1 text-[9px] uppercase tracking-widest font-bold font-mono text-black bg-white hover:bg-secondary hover:text-white border-[3px] border-black rounded-lg px-3 py-1.5 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000]"
+              className="order-2 md:order-3 inline-flex items-center gap-1 text-[9px] uppercase tracking-widest font-bold font-mono text-black bg-white hover:bg-secondary hover:text-white border-[3px] border-black rounded-lg px-3 py-1.5 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000]"
             >
               <ExitIcon className="w-3 h-3" />
               <span>Keluar Sesi</span>
+            </button>
+            <button
+              onClick={() => {
+                onOpenNotifications?.();
+                setHasUnread(false);
+              }}
+              title="Notifikasi Program"
+              className="order-3 md:order-1 relative inline-flex items-center justify-center text-[9px] uppercase tracking-widest font-bold font-mono text-black bg-primary hover:bg-yellow-400 border-[3px] border-black rounded-lg w-8 h-8 md:w-auto md:px-3 md:py-1.5 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5 md:mr-1">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+              </svg>
+              <span className="hidden md:inline">Notif</span>
+              {hasUnread && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-secondary rounded-full border-[2px] border-black shadow-[1px_1px_0px_#000]" />
+              )}
             </button>
           </div>
         </div>

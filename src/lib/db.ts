@@ -10,7 +10,17 @@ const supabase = createClient(
 );
 
 // ponytail: awal periode arcade berjalan. Hardcoded; ubah tiap ganti bulan.
-export const ACTIVE_PERIOD_START = '2026-07-01';
+export const ACTIVE_PERIOD_START = '2026-07-13';
+
+export function normalizeProfileUrl(url: string): string | null {
+  const trimmed = url.trim();
+  if ((trimmed.match(/https?:\/\//gi) || []).length > 1) {
+    return null;
+  }
+  const match = trimmed.match(/(?:skills\.google|cloudskillsboost\.google)\/public_profiles\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
+  if (!match) return null;
+  return `https://www.skills.google/public_profiles/${match[1].toLowerCase()}`;
+}
 
 export interface Participant {
   id: string;
