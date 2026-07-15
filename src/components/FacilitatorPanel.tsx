@@ -80,7 +80,7 @@ export default function FacilitatorPanel({
           <div className="mb-6 flex items-end justify-center gap-1.5 sm:gap-5">
             {podiumOrder.map((p, i) => {
               const meta = podiumMeta[i];
-              if (!p) return <div key={`empty-${i}`} className="flex-1 max-w-[120px]" />;
+              if (!p) return <div key={`empty-${i}`} className="flex-1 w-0 max-w-[120px]" />;
               const isMe = myProfileId === p.id;
               const isGold = meta.rank === 0;
 
@@ -88,7 +88,7 @@ export default function FacilitatorPanel({
                 <button
                   key={p.id}
                   onClick={() => onSelect(p.id)}
-                  className="group flex flex-1 max-w-[130px] flex-col items-center focus:outline-none"
+                  className="group flex flex-1 w-0 max-w-[130px] flex-col items-center focus:outline-none"
                 >
                   <div className="relative mb-2">
                     <Avatar
