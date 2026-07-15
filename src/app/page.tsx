@@ -295,36 +295,16 @@ export default function Home() {
             </div>
 
             <div className="space-y-2.5 sm:space-y-3.5 font-mono text-[11px] sm:text-xs text-left overflow-y-auto pr-1 py-2 flex-grow my-3">
-              <div className="!p-2.5 sm:!p-3 border-[2px] border-black bg-primary/10 rounded-lg shadow-[2px_2px_0px_#000] space-y-0.5">
+              <div className="!p-3 border-[2px] border-black bg-primary/10 rounded-lg shadow-[2px_2px_0px_#000] space-y-1">
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-[9px] sm:text-[10px] uppercase font-bold text-tertiary">Scraper Update</span>
+                  <span className="text-[9px] sm:text-[10px] uppercase font-bold text-tertiary">Update Sistem</span>
                   <span className="text-[8px] sm:text-[9px] text-text-muted">15 Jul 2026</span>
                 </div>
-                <h4 className="font-extrabold text-black uppercase text-xs sm:text-sm">Penyaringan Badge Diperketat</h4>
+                <h4 className="font-extrabold text-black uppercase text-xs sm:text-sm">Perbaikan Bug Minor</h4>
                 <p className="text-text-muted leading-normal sm:leading-relaxed">
-                  Sistem pemindai (scraper) kini memverifikasi badge ke dalam katalog resmi. **Course Completion** dan **AI Boost Bites** tidak akan dihitung dalam poin Arcade.
-                </p>
-              </div>
-
-              <div className="!p-2.5 sm:!p-3 border-[2px] border-black bg-success/10 rounded-lg shadow-[2px_2px_0px_#000] space-y-0.5">
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-[9px] sm:text-[10px] uppercase font-bold text-success">Periode Aktif</span>
-                  <span className="text-[8px] sm:text-[9px] text-text-muted">15 Jul 2026</span>
-                </div>
-                <h4 className="font-extrabold text-black uppercase text-xs sm:text-sm">Penyesuaian Tanggal Mulai</h4>
-                <p className="text-text-muted leading-normal sm:leading-relaxed">
-                  Awal periode berjalan program disesuaikan ke tanggal **13 Juli 2026** (hari pembukaan pendaftaran). Badge sebelum tanggal ini akan diarsipkan secara otomatis.
-                </p>
-              </div>
-
-              <div className="!p-2.5 sm:!p-3 border-[2px] border-black bg-zinc-50 rounded-lg shadow-[2px_2px_0px_#000] space-y-0.5">
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-[9px] sm:text-[10px] uppercase font-bold text-black">Panduan</span>
-                  <span className="text-[8px] sm:text-[9px] text-text-muted">14 Jul 2026</span>
-                </div>
-                <h4 className="font-extrabold text-black uppercase text-xs sm:text-sm">Cara Sinkronisasi Profil</h4>
-                <p className="text-text-muted leading-normal sm:leading-relaxed">
-                  Pastikan profil Google Cloud Skills Boost Anda disetel ke **Publik** agar data dapat disinkronkan. URL wajib menggunakan format resmi: <code className="break-all bg-zinc-100 px-1 py-0.5 rounded border border-zinc-200 text-black">https://www.skills.google/public_profiles/uuid</code>.
+                  Terima kasih banyak atas masukan dan laporan kendala yang Anda kirimkan. Kami memohon maaf atas ketidaknyamanan saat menggunakan platform ini sebelumnya.
+                  <br /><br />
+                  Kami telah menyelesaikan perbaikan pada sistem perhitungan poin, penyaringan quest, serta validasi URL profil untuk memastikan data tracker berjalan dengan akurat dan lancar.
                 </p>
               </div>
             </div>
