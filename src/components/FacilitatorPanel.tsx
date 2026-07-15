@@ -56,9 +56,9 @@ export default function FacilitatorPanel({
   // Visual podium order: silver (left), gold (center), bronze (right)
   const podiumOrder = [top3[1], top3[0], top3[2]];
   const podiumMeta = [
-    { rank: 1, medal: MEDALS[1], height: 'h-20 sm:h-28', ring: 'border-zinc-400', pts: 'text-zinc-600' },
-    { rank: 0, medal: MEDALS[0], height: 'h-24 sm:h-36', ring: 'border-primary', pts: 'text-amber-700' },
-    { rank: 2, medal: MEDALS[2], height: 'h-16 sm:h-24', ring: 'border-orange-400', pts: 'text-orange-700' },
+    { rank: 1, medal: MEDALS[1], height: 'h-20 sm:h-28', ring: 'border-zinc-400', pts: 'text-zinc-500' },
+    { rank: 0, medal: MEDALS[0], height: 'h-24 sm:h-36', ring: 'border-primary', pts: 'text-amber-600' },
+    { rank: 2, medal: MEDALS[2], height: 'h-16 sm:h-24', ring: 'border-orange-400', pts: 'text-orange-500' },
   ];
 
   return (
@@ -175,9 +175,9 @@ export default function FacilitatorPanel({
                     </td>
 
                     <td className={`py-2.5 px-2 text-right font-extrabold ${
-                      idx === 0 ? 'text-amber-700' :
-                      idx === 1 ? 'text-zinc-600' :
-                      idx === 2 ? 'text-orange-700' : 'text-black'
+                      idx === 0 ? 'text-amber-600' :
+                      idx === 1 ? 'text-zinc-500' :
+                      idx === 2 ? 'text-orange-500' : 'text-black'
                     }`}>
                       {(p.monthly_points ?? 0).toFixed(1)}
                     </td>
