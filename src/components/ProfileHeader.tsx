@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Participant, Badge } from '@/lib/db';
 import { ExternalLinkIcon, ExitIcon, UpdateIcon } from '@radix-ui/react-icons';
 
@@ -14,7 +14,14 @@ interface ProfileHeaderProps {
 
 export default function ProfileHeader({ participant, badges, onResetSession, onSync, onOpenNotifications }: ProfileHeaderProps) {
   const [isSyncing, setIsSyncing] = useState(false);
-  const [hasUnread, setHasUnread] = useState(true);
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    const lastRead = localStorage.getItem('arcade_notif_last_read');
+    if (lastRead !== '2026-07-15') {
+      setHasUnread(true);
+    }
+  }, []);
 
   const activeMonthName = 'Juli 2026';
   const activeMonthPrefix = '2026-07';
@@ -95,6 +102,7 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
               onClick={() => {
                 onOpenNotifications?.();
                 setHasUnread(false);
+                localStorage.setItem('arcade_notif_last_read', '2026-07-15');
               }}
               title="Notifikasi Program"
               className="order-3 md:order-1 relative inline-flex items-center justify-center text-[9px] uppercase tracking-widest font-bold font-mono text-black bg-primary hover:bg-yellow-400 border-[3px] border-black rounded-lg w-8 h-8 md:w-auto md:px-3 md:py-1.5 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000]"
