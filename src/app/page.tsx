@@ -16,6 +16,7 @@ export default function Home() {
   const [selectedParticipantId, setSelectedParticipantId] = useState<string | null>(null);
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
   const [badges, setBadges] = useState<Badge[]>([]);
+  const [myRole, setMyRole] = useState<'facilitator' | 'participant' | null>(null);
   
   const [currentView, setCurrentView] = useState<'dashboard' | 'leaderboard'>('dashboard');
 
@@ -60,6 +61,11 @@ export default function Home() {
         const data = await res.json();
         setSelectedParticipant(data.participant);
         setBadges(data.badges);
+        
+        const currentMyProfileId = myProfileId || localStorage.getItem('myProfileId');
+        if (id === currentMyProfileId) {
+          setMyRole(data.participant.role);
+        }
       }
     } catch (err) {
       console.error('Error fetching participant detail:', err);
@@ -99,6 +105,7 @@ export default function Home() {
       localStorage.setItem('lastProfileUrl', profileUrl); // cache link
       setMyProfileId(newPart.id);
       setSelectedParticipantId(newPart.id);
+      setMyRole(newPart.role);
       setCurrentView('dashboard');
 
       await fetchParticipants();
@@ -139,6 +146,7 @@ export default function Home() {
       setSelectedParticipantId(null);
       setSelectedParticipant(null);
       setBadges([]);
+      setMyRole(null);
       setCurrentView('dashboard');
     }
   };
@@ -254,6 +262,7 @@ export default function Home() {
                   participants={participants}
                   selectedId={selectedParticipantId}
                   myProfileId={myProfileId}
+                  isFacilitator={myRole === 'facilitator'}
                   onSelect={(id) => {
                     setSelectedParticipantId(id);
                     setCurrentView('dashboard');

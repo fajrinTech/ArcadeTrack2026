@@ -6,6 +6,7 @@ interface LeaderboardPanelProps {
   participants: Participant[];
   selectedId: string | null;
   myProfileId: string | null;
+  isFacilitator: boolean;
   onSelect: (id: string) => void;
 }
 
@@ -46,6 +47,7 @@ export default function FacilitatorPanel({
   participants,
   selectedId,
   myProfileId,
+  isFacilitator,
   onSelect,
 }: LeaderboardPanelProps) {
   const sorted = [...participants].sort(
@@ -83,17 +85,19 @@ export default function FacilitatorPanel({
               if (!p) return <div key={`empty-${i}`} className="flex-1 w-0 max-w-[120px]" />;
               const isMe = myProfileId === p.id;
               const isGold = meta.rank === 0;
+              const canClick = isFacilitator || isMe;
 
               return (
                 <button
                   key={p.id}
-                  onClick={() => onSelect(p.id)}
-                  className="group flex flex-1 w-0 max-w-[130px] flex-col items-center focus:outline-none"
+                  onClick={canClick ? () => onSelect(p.id) : undefined}
+                  className={`group flex flex-1 w-0 max-w-[130px] flex-col items-center focus:outline-none ${canClick ? 'cursor-pointer' : 'cursor-default'}`}
+                  disabled={!canClick}
                 >
                   <div className="relative mb-2">
                     <Avatar
                       p={p}
-                      className={`${isGold ? 'w-14 h-14 sm:w-20 sm:h-20' : 'w-11 h-11 sm:w-16 sm:h-16'} ${meta.ring} transition-transform group-hover:-translate-y-1 shadow-[3px_3px_0px_#000]`}
+                      className={`${isGold ? 'w-14 h-14 sm:w-20 sm:h-20' : 'w-11 h-11 sm:w-16 sm:h-16'} ${meta.ring} transition-transform ${canClick ? 'group-hover:-translate-y-1' : ''} shadow-[3px_3px_0px_#000]`}
                       textClass={isGold ? 'text-base sm:text-xl' : 'text-sm sm:text-base'}
                     />
                     <span className={`absolute -top-2 -right-1 ${isGold ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'} drop-shadow`}>
@@ -114,7 +118,7 @@ export default function FacilitatorPanel({
                   )}
 
                   <div
-                    className={`mt-2 w-full rounded-t-md border-[3px] border-b-0 border-black bg-surface-alt flex flex-col items-center justify-start pt-1.5 sm:pt-2 ${meta.height} transition-all group-hover:bg-white`}
+                    className={`mt-2 w-full rounded-t-md border-[3px] border-b-0 border-black bg-surface-alt flex flex-col items-center justify-start pt-1.5 sm:pt-2 ${meta.height} transition-all ${canClick ? 'group-hover:bg-white' : ''}`}
                   >
                     <span className={`font-black leading-none ${isGold ? 'text-lg sm:text-2xl' : 'text-base sm:text-xl'} ${meta.pts}`}>
                       {(p.monthly_points ?? 0).toFixed(1)}
@@ -142,17 +146,20 @@ export default function FacilitatorPanel({
                 const isSelected = selectedId === p.id;
                 const isMe = myProfileId === p.id;
                 const medal = idx < 3 ? MEDALS[idx] : null;
+                const canClick = isFacilitator || isMe;
 
                 return (
                   <tr
                     key={p.id}
-                    onClick={() => onSelect(p.id)}
-                    className={`cursor-pointer transition-all duration-200 ${
+                    onClick={canClick ? () => onSelect(p.id) : undefined}
+                    className={`transition-all duration-200 ${
+                      canClick ? 'cursor-pointer' : 'cursor-default'
+                    } ${
                       isSelected
                         ? 'bg-primary/20 font-extrabold'
                         : isMe
-                          ? 'bg-tertiary/5 hover:bg-tertiary/10'
-                          : 'hover:bg-surface-alt'
+                          ? `bg-tertiary/5 ${canClick ? 'hover:bg-tertiary/10' : ''}`
+                          : canClick ? 'hover:bg-surface-alt' : ''
                     }`}
                   >
                     <td className="py-2.5 px-2 text-center">

@@ -279,7 +279,10 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
   const missingSkills = nextMilestone ? Math.max(0, nextMilestone.skills - totalCurrentSkills) : 0;
 
   const activeTargetPoints = nextMilestone ? nextMilestone.games + nextMilestone.skills * 0.5 : 40;
-  const completionPercentage = Math.min(100, Math.round((totalCurrentPoints / activeTargetPoints) * 100));
+  // ponytail: completionPercentage based on the average progress of games and skills components to avoid showing 100% when one is deficient.
+  const completionPercentage = nextMilestone
+    ? Math.round(((Math.min(1, totalCurrentGames / nextMilestone.games) + Math.min(1, totalCurrentSkills / nextMilestone.skills)) / 2) * 100)
+    : 100;
 
   // Total poin arcade = base (game 1pt + skill 0.5pt) + bonus milestone tertinggi.
   const totalArcadePoints = totalCurrentPoints + (lastCompletedMilestone?.bonus ?? 0);
