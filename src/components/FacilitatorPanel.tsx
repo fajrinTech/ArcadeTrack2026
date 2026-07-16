@@ -198,11 +198,11 @@ export default function FacilitatorPanel({
                 {top50.map((p, idx) => {
                   const isSelected = selectedId === p.id;
                   const isMe = myProfileId === p.id;
-                  const medal = idx < 3 ? MEDALS[idx] : null;
                   const canClick = isFacilitator || isMe;
 
                   // Find original rank from the full sorted list
                   const originalRank = sorted.findIndex(item => item.id === p.id) + 1;
+                  const medal = originalRank <= 3 ? MEDALS[originalRank - 1] : null;
 
                   return (
                     <tr
