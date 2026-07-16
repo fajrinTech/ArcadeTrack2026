@@ -304,6 +304,20 @@ export default function Home() {
             </div>
 
             <div className="space-y-2.5 sm:space-y-3.5 font-mono text-[11px] sm:text-xs text-left overflow-y-auto pr-1 py-2 flex-grow my-3">
+              {/* Fitur Baru Search */}
+              <div className="!p-3 border-[2px] border-black bg-primary/10 rounded-lg shadow-[2px_2px_0px_#000] space-y-1">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-[9px] sm:text-[10px] uppercase font-bold text-tertiary">Fitur Baru</span>
+                  <span className="text-[8px] sm:text-[9px] text-text-muted">16 Jul 2026</span>
+                </div>
+                <h4 className="font-extrabold text-black uppercase text-xs sm:text-sm">Pencarian Peserta</h4>
+                <p className="text-text-muted leading-normal sm:leading-relaxed">
+                  Sekarang Anda bisa mencari nama peserta secara langsung di Leaderboard. Ketik saja nama di kolom pencarian untuk mem-filter data secara real-time.
+                  <br /><br />
+                  Untuk menjaga visual tetap rapi, podium 3 besar akan otomatis disembunyikan selama Anda sedang melakukan pencarian.
+                </p>
+              </div>
+
               <div className="!p-3 border-[2px] border-black bg-primary/10 rounded-lg shadow-[2px_2px_0px_#000] space-y-1">
                 <div className="flex items-center justify-between mb-0.5">
                   <span className="text-[9px] sm:text-[10px] uppercase font-bold text-tertiary">Update Sistem</span>
