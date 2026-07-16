@@ -9,6 +9,23 @@ import { useToast } from '@/components/Toast';
 import { Participant, Badge } from '@/lib/db';
 import { UpdateIcon, ExclamationTriangleIcon, Cross2Icon } from '@radix-ui/react-icons';
 
+const NOTIFICATIONS = [
+  {
+    id: '2026-07-16',
+    dateStr: '16 Jul 2026',
+    category: 'Fitur Baru',
+    title: 'Pencarian Peserta',
+    content: 'Sekarang Anda bisa mencari nama peserta secara langsung di Leaderboard. Ketik saja nama di kolom pencarian untuk mem-filter data secara real-time.\n\nUntuk menjaga visual tetap rapi, podium 3 besar akan otomatis disembunyikan selama Anda sedang melakukan pencarian.'
+  },
+  {
+    id: '2026-07-15',
+    dateStr: '15 Jul 2026',
+    category: 'Update Sistem',
+    title: 'Perbaikan Bug Minor',
+    content: 'Terima kasih banyak atas masukan dan laporan kendala yang Anda kirimkan. Kami memohon maaf atas ketidaknyamanan saat menggunakan platform ini sebelumnya.\n\nKami telah menyelesaikan perbaikan pada sistem perhitungan poin, penyaringan quest, serta validasi URL profil untuk memastikan data tracker berjalan dengan akurat dan lancar.'
+  }
+];
+
 export default function Home() {
   const toast = useToast();
   const [myProfileId, setMyProfileId] = useState<string | null>(null);
@@ -27,6 +44,18 @@ export default function Home() {
   const [isLoadingList, setIsLoadingList] = useState(true);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [openNotifs, setOpenNotifs] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (isNotifOpen) {
+      const lastRead = localStorage.getItem('arcade_notif_last_read') || '1970-01-01';
+      const initialOpen: Record<string, boolean> = {};
+      NOTIFICATIONS.forEach(notif => {
+        initialOpen[notif.id] = notif.id > lastRead;
+      });
+      setOpenNotifs(initialOpen);
+    }
+  }, [isNotifOpen]);
 
   const fetchParticipants = async () => {
     try {
@@ -303,33 +332,46 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="space-y-2.5 sm:space-y-3.5 font-mono text-[11px] sm:text-xs text-left overflow-y-auto pr-1 py-2 flex-grow my-3">
-              {/* Fitur Baru Search */}
-              <div className="!p-3 border-[2px] border-black bg-primary/10 rounded-lg shadow-[2px_2px_0px_#000] space-y-1">
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-[9px] sm:text-[10px] uppercase font-bold text-tertiary">Fitur Baru</span>
-                  <span className="text-[8px] sm:text-[9px] text-text-muted">16 Jul 2026</span>
-                </div>
-                <h4 className="font-extrabold text-black uppercase text-xs sm:text-sm">Pencarian Peserta</h4>
-                <p className="text-text-muted leading-normal sm:leading-relaxed">
-                  Sekarang Anda bisa mencari nama peserta secara langsung di Leaderboard. Ketik saja nama di kolom pencarian untuk mem-filter data secara real-time.
-                  <br /><br />
-                  Untuk menjaga visual tetap rapi, podium 3 besar akan otomatis disembunyikan selama Anda sedang melakukan pencarian.
-                </p>
-              </div>
+            <div className="space-y-3 font-mono text-[11px] sm:text-xs text-left overflow-y-auto pr-1 py-2 flex-grow my-3">
+              {NOTIFICATIONS.map((notif) => {
+                const isOpen = !!openNotifs[notif.id];
+                return (
+                  <div 
+                    key={notif.id}
+                    className="border-[2px] border-black bg-primary/10 rounded-lg shadow-[2px_2px_0px_#000] overflow-hidden flex flex-col"
+                  >
+                    {/* Accordion Header */}
+                    <button
+                      onClick={() => setOpenNotifs(prev => ({ ...prev, [notif.id]: !prev[notif.id] }))}
+                      className="w-full text-left !p-3 flex flex-col gap-1 hover:bg-black/5 active:bg-black/10 transition-colors focus:outline-none shrink-0"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] sm:text-[10px] uppercase font-bold text-tertiary">
+                          {notif.category}
+                        </span>
+                        <span className="text-[8px] sm:text-[9px] text-text-muted font-bold">
+                          {notif.dateStr}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="font-extrabold text-black uppercase text-xs sm:text-sm truncate">
+                          {notif.title}
+                        </h4>
+                        <span className="text-xs font-black shrink-0 text-black">
+                          {isOpen ? '[-]' : '[+]'}
+                        </span>
+                      </div>
+                    </button>
 
-              <div className="!p-3 border-[2px] border-black bg-primary/10 rounded-lg shadow-[2px_2px_0px_#000] space-y-1">
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-[9px] sm:text-[10px] uppercase font-bold text-tertiary">Update Sistem</span>
-                  <span className="text-[8px] sm:text-[9px] text-text-muted">15 Jul 2026</span>
-                </div>
-                <h4 className="font-extrabold text-black uppercase text-xs sm:text-sm">Perbaikan Bug Minor</h4>
-                <p className="text-text-muted leading-normal sm:leading-relaxed">
-                  Terima kasih banyak atas masukan dan laporan kendala yang Anda kirimkan. Kami memohon maaf atas ketidaknyamanan saat menggunakan platform ini sebelumnya.
-                  <br /><br />
-                  Kami telah menyelesaikan perbaikan pada sistem perhitungan poin, penyaringan quest, serta validasi URL profil untuk memastikan data tracker berjalan dengan akurat dan lancar.
-                </p>
-              </div>
+                    {/* Accordion Content */}
+                    {isOpen && (
+                      <div className="border-t-[2px] border-black p-3 bg-white text-text-muted leading-normal sm:leading-relaxed whitespace-pre-line">
+                        {notif.content}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             <div className="pt-2 shrink-0 border-t-[3px] border-black mt-2">
