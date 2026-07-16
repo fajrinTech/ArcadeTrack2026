@@ -44,12 +44,12 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
     <div className="neobrutal-card animate-fade-slide-up">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[10px] uppercase tracking-widest text-tertiary font-bold font-mono">
               Profil Peserta
             </span>
             {participant.role === 'facilitator' && (
-              <span className="text-[8px] uppercase tracking-widest bg-tertiary text-white border-[2px] border-black px-1.5 py-0.5 font-bold font-mono shadow-[1px_1px_0px_#000] rounded">
+              <span className="text-[10px] uppercase tracking-wider bg-tertiary text-white border-[2.5px] border-black px-2 py-0.5 font-black shadow-[2px_2px_0px_#000] rounded">
                 Fasilitator
               </span>
             )}
