@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useMemo, useEffect } from 'react';
 import { Participant } from '@/lib/db';
 
 interface LeaderboardPanelProps {
@@ -14,10 +15,8 @@ interface LeaderboardPanelProps {
 const AVATAR_COLORS = ['bg-primary', 'bg-secondary', 'bg-tertiary', 'bg-success', 'bg-zinc-400'];
 
 function getInitials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '?';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  const parts = name.trim().toUpperCase().split(/\s+/).filter(Boolean);
+  return parts.length > 1 ? parts[0][0] + parts[parts.length - 1][0] : parts[0]?.slice(0, 2) || '?';
 }
 
 function Avatar({ p, className = '', textClass = 'text-sm' }: { p: Participant; className?: string; textClass?: string }) {
@@ -50,18 +49,53 @@ export default function FacilitatorPanel({
   isFacilitator,
   onSelect,
 }: LeaderboardPanelProps) {
-  const sorted = [...participants].sort(
-    (a, b) => (b.monthly_points ?? 0) - (a.monthly_points ?? 0)
-  );
+  const [inputValue, setInputValue] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const top3 = sorted.slice(0, 3);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchQuery(inputValue);
+    }, 150);
+    return () => clearTimeout(handler);
+  }, [inputValue]);
+
+  const sorted = useMemo(() => {
+    return [...participants].sort(
+      (a, b) => (b.monthly_points ?? 0) - (a.monthly_points ?? 0)
+    );
+  }, [participants]);
+
+  const top3 = useMemo(() => {
+    return sorted.slice(0, 3);
+  }, [sorted]);
+
   // Visual podium order: silver (left), gold (center), bronze (right)
-  const podiumOrder = [top3[1], top3[0], top3[2]];
+  const podiumOrder = useMemo(() => {
+    return [top3[1], top3[0], top3[2]];
+  }, [top3]);
+
   const podiumMeta = [
     { rank: 1, medal: MEDALS[1], height: 'h-20 sm:h-28', ring: 'border-zinc-400', pts: 'text-zinc-500' },
     { rank: 0, medal: MEDALS[0], height: 'h-24 sm:h-36', ring: 'border-primary', pts: 'text-amber-600' },
     { rank: 2, medal: MEDALS[2], height: 'h-16 sm:h-24', ring: 'border-orange-400', pts: 'text-orange-500' },
   ];
+
+  const filtered = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return sorted;
+    return sorted.filter(p => p.name.toLowerCase().includes(query));
+  }, [sorted, searchQuery]);
+
+  const top50 = useMemo(() => {
+    return filtered.slice(0, 50);
+  }, [filtered]);
+
+  const myIndex = useMemo(() => {
+    return sorted.findIndex(p => p.id === myProfileId);
+  }, [sorted, myProfileId]);
+
+  const showMyRankAtBottom = myIndex >= 50;
+  const myParticipant = showMyRankAtBottom ? sorted[myIndex] : null;
 
   return (
     <div className="neobrutal-card animate-fade-slide-up">
@@ -72,6 +106,18 @@ export default function FacilitatorPanel({
         <span className="w-3.5 h-3.5 rounded-full bg-success border-[2px] border-black shadow-[1px_1px_0px_#000] animate-subtle-pulse" />
       </div>
 
+      {sorted.length > 0 && (
+        <div className="mb-6">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Cari nama peserta..."
+            className="neobrutal-input text-xs font-mono w-full"
+          />
+        </div>
+      )}
+
       {sorted.length === 0 ? (
         <div className="py-10 text-center text-text-muted font-mono text-[10px]">
           NO PLAYERS DETECTED
@@ -79,120 +125,157 @@ export default function FacilitatorPanel({
       ) : (
         <>
           {/* Podium */}
-          <div className="mb-6 flex items-end justify-center gap-1.5 sm:gap-5">
-            {podiumOrder.map((p, i) => {
-              const meta = podiumMeta[i];
-              if (!p) return <div key={`empty-${i}`} className="flex-1 w-0 max-w-[120px]" />;
-              const isMe = myProfileId === p.id;
-              const isGold = meta.rank === 0;
-              const canClick = isFacilitator || isMe;
-
-              return (
-                <button
-                  key={p.id}
-                  onClick={canClick ? () => onSelect(p.id) : undefined}
-                  className={`group flex flex-1 w-0 max-w-[130px] flex-col items-center focus:outline-none ${canClick ? 'cursor-pointer' : 'cursor-default'}`}
-                  disabled={!canClick}
-                >
-                  <div className="relative mb-2">
-                    <Avatar
-                      p={p}
-                      className={`${isGold ? 'w-14 h-14 sm:w-20 sm:h-20' : 'w-11 h-11 sm:w-16 sm:h-16'} ${meta.ring} transition-transform ${canClick ? 'group-hover:-translate-y-1' : ''} shadow-[3px_3px_0px_#000]`}
-                      textClass={isGold ? 'text-base sm:text-xl' : 'text-sm sm:text-base'}
-                    />
-                    <span className={`absolute -top-2 -right-1 ${isGold ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'} drop-shadow`}>
-                      {meta.medal}
-                    </span>
-                  </div>
-
-                  <span
-                    className="max-w-full truncate text-[9px] sm:text-[11px] font-extrabold text-black uppercase tracking-wide"
-                    title={p.name}
-                  >
-                    {p.name}
-                  </span>
-                  {isMe && (
-                    <span className="mt-0.5 text-[7px] uppercase bg-tertiary text-white border-[2px] border-black px-1.5 py-px font-bold rounded shadow-[1px_1px_0px_#000]">
-                      ME
-                    </span>
-                  )}
-
-                  <div
-                    className={`mt-2 w-full rounded-t-md border-[3px] border-b-0 border-black bg-surface-alt flex flex-col items-center justify-start pt-1.5 sm:pt-2 ${meta.height} transition-all ${canClick ? 'group-hover:bg-white' : ''}`}
-                  >
-                    <span className={`font-black leading-none ${isGold ? 'text-lg sm:text-2xl' : 'text-base sm:text-xl'} ${meta.pts}`}>
-                      {(p.monthly_points ?? 0).toFixed(1)}
-                    </span>
-                    <span className="text-[7px] sm:text-[8px] font-mono font-bold text-text-muted uppercase tracking-widest">
-                      pts
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Full ranking list */}
-          <table className="w-full text-left text-xs border-collapse font-mono">
-            <thead>
-              <tr className="border-b-[3px] border-black text-text-muted uppercase tracking-wider font-bold text-[10px]">
-                <th className="py-2.5 px-2 text-center w-10">#</th>
-                <th className="py-2.5 px-2">PLAYER</th>
-                <th className="py-2.5 px-2 text-right">PTS (JULI)</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y-[2px] divide-black text-black">
-              {sorted.map((p, idx) => {
-                const isSelected = selectedId === p.id;
+          {!searchQuery.trim() && (
+            <div className="mb-6 flex items-end justify-center gap-1.5 sm:gap-5">
+              {podiumOrder.map((p, i) => {
+                const meta = podiumMeta[i];
+                if (!p) return <div key={`empty-${i}`} className="flex-1 w-0 max-w-[120px]" />;
                 const isMe = myProfileId === p.id;
-                const medal = idx < 3 ? MEDALS[idx] : null;
+                const isGold = meta.rank === 0;
                 const canClick = isFacilitator || isMe;
 
                 return (
-                  <tr
+                  <button
                     key={p.id}
                     onClick={canClick ? () => onSelect(p.id) : undefined}
-                    className={`transition-all duration-200 ${
-                      canClick ? 'cursor-pointer' : 'cursor-default'
-                    } ${
-                      isSelected
-                        ? 'bg-primary/20 font-extrabold'
-                        : isMe
-                          ? `bg-tertiary/5 ${canClick ? 'hover:bg-tertiary/10' : ''}`
-                          : canClick ? 'hover:bg-surface-alt' : ''
-                    }`}
+                    className={`group flex flex-1 w-0 max-w-[130px] flex-col items-center focus:outline-none ${canClick ? 'cursor-pointer' : 'cursor-default'}`}
+                    disabled={!canClick}
                   >
-                    <td className="py-2.5 px-2 text-center">
-                      <span className="font-black text-text-muted text-[11px]">{idx + 1}</span>
-                    </td>
+                    <div className="relative mb-2">
+                      <Avatar
+                        p={p}
+                        className={`${isGold ? 'w-14 h-14 sm:w-20 sm:h-20' : 'w-11 h-11 sm:w-16 sm:h-16'} ${meta.ring} transition-transform ${canClick ? 'group-hover:-translate-y-1' : ''} shadow-[3px_3px_0px_#000]`}
+                        textClass={isGold ? 'text-base sm:text-xl' : 'text-sm sm:text-base'}
+                      />
+                      <span className={`absolute -top-2 -right-1 ${isGold ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'} drop-shadow`}>
+                        {meta.medal}
+                      </span>
+                    </div>
 
-                    <td className="py-2.5 px-2">
-                      <div className="flex items-center gap-2.5">
-                        <Avatar p={p} className="w-8 h-8" textClass="text-[10px]" />
-                        <span className="font-extrabold text-black truncate max-w-[95px] sm:max-w-[150px]" title={p.name}>
-                          {p.name}
-                        </span>
-                        {medal && <span className="text-sm leading-none">{medal}</span>}
-                        {isMe && (
-                          <span className="text-[8px] uppercase bg-tertiary text-white border-[2px] border-black px-1.5 py-0.5 font-bold rounded shadow-[1px_1px_0px_#000]">
-                            ME
-                          </span>
-                        )}
-                      </div>
-                    </td>
+                    <span
+                      className="max-w-full truncate text-[9px] sm:text-[11px] font-extrabold text-black uppercase tracking-wide"
+                      title={p.name}
+                    >
+                      {p.name}
+                    </span>
+                    {isMe && (
+                      <span className="mt-0.5 text-[7px] uppercase bg-tertiary text-white border-[2px] border-black px-1.5 py-px font-bold rounded shadow-[1px_1px_0px_#000]">
+                        ME
+                      </span>
+                    )}
 
-                    <td className={`py-2.5 px-2 text-right font-extrabold ${
-                      idx === 0 ? 'text-amber-600' :
-                      idx === 1 ? 'text-zinc-500' :
-                      idx === 2 ? 'text-orange-500' : 'text-black'
-                    }`}>
-                      {(p.monthly_points ?? 0).toFixed(1)}
-                    </td>
-                  </tr>
+                    <div
+                      className={`mt-2 w-full rounded-t-md border-[3px] border-b-0 border-black bg-surface-alt flex flex-col items-center justify-start pt-1.5 sm:pt-2 ${meta.height} transition-all ${canClick ? 'group-hover:bg-white' : ''}`}
+                    >
+                      <span className={`font-black leading-none ${isGold ? 'text-lg sm:text-2xl' : 'text-base sm:text-xl'} ${meta.pts}`}>
+                        {(p.monthly_points ?? 0).toFixed(1)}
+                      </span>
+                      <span className="text-[7px] sm:text-[8px] font-mono font-bold text-text-muted uppercase tracking-widest">
+                        pts
+                      </span>
+                    </div>
+                  </button>
                 );
               })}
-            </tbody>
-          </table>
+            </div>
+          )}
+
+          {/* Full ranking list */}
+          {filtered.length === 0 ? (
+            <div className="py-10 text-center text-text-muted font-mono text-[10px]">
+              TIDAK ADA PESERTA YANG COCOK
+            </div>
+          ) : (
+            <table className="w-full text-left text-xs border-collapse font-mono">
+              <thead>
+                <tr className="border-b-[3px] border-black text-text-muted uppercase tracking-wider font-bold text-[10px]">
+                  <th className="py-2.5 px-2 text-center w-10">#</th>
+                  <th className="py-2.5 px-2">PLAYER</th>
+                  <th className="py-2.5 px-2 text-right">PTS (JULI)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y-[2px] divide-black text-black">
+                {top50.map((p, idx) => {
+                  const isSelected = selectedId === p.id;
+                  const isMe = myProfileId === p.id;
+                  const medal = idx < 3 ? MEDALS[idx] : null;
+                  const canClick = isFacilitator || isMe;
+
+                  // Find original rank from the full sorted list
+                  const originalRank = sorted.findIndex(item => item.id === p.id) + 1;
+
+                  return (
+                    <tr
+                      key={p.id}
+                      onClick={canClick ? () => onSelect(p.id) : undefined}
+                      className={`transition-all duration-200 ${
+                        canClick ? 'cursor-pointer' : 'cursor-default'
+                      } ${
+                        isSelected
+                          ? 'bg-primary/20 font-extrabold'
+                          : isMe
+                            ? `bg-tertiary/5 ${canClick ? 'hover:bg-tertiary/10' : ''}`
+                            : canClick ? 'hover:bg-surface-alt' : ''
+                      }`}
+                    >
+                      <td className="py-2.5 px-2 text-center">
+                        <span className="font-black text-text-muted text-[11px]">{originalRank}</span>
+                      </td>
+
+                      <td className="py-2.5 px-2">
+                        <div className="flex items-center gap-2.5">
+                          <Avatar p={p} className="w-8 h-8" textClass="text-[10px]" />
+                          <span className="font-extrabold text-black truncate max-w-[95px] sm:max-w-[150px]" title={p.name}>
+                            {p.name}
+                          </span>
+                          {medal && <span className="text-sm leading-none">{medal}</span>}
+                          {isMe && (
+                            <span className="text-[8px] uppercase bg-tertiary text-white border-[2px] border-black px-1.5 py-0.5 font-bold rounded shadow-[1px_1px_0px_#000]">
+                              ME
+                            </span>
+                          )}
+                        </div>
+                      </td>
+
+                      <td className={`py-2.5 px-2 text-right font-extrabold ${
+                        originalRank === 1 ? 'text-amber-600' :
+                        originalRank === 2 ? 'text-zinc-500' :
+                        originalRank === 3 ? 'text-orange-500' : 'text-black'
+                      }`}>
+                        {(p.monthly_points ?? 0).toFixed(1)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+
+          {showMyRankAtBottom && myParticipant && (
+            <div className="mt-4 pt-4 border-t-[3px] border-dashed border-black">
+              <div className="text-[9px] uppercase tracking-wider text-text-muted font-bold mb-2">
+                POSISI ANDA
+              </div>
+              <div 
+                onClick={isFacilitator || myProfileId === myParticipant.id ? () => onSelect(myParticipant.id) : undefined}
+                className={`flex items-center justify-between p-3 rounded-lg border-[3px] border-black bg-tertiary/10 shadow-[4px_4px_0px_#000] cursor-pointer hover:bg-tertiary/20 transition-all font-mono`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="font-black text-black text-sm">#{myIndex + 1}</span>
+                  <Avatar p={myParticipant} className="w-8 h-8" textClass="text-[10px]" />
+                  <span className="font-extrabold text-black uppercase tracking-wide truncate max-w-[150px]">
+                    {myParticipant.name}
+                  </span>
+                  <span className="text-[8px] uppercase bg-tertiary text-white border-[2px] border-black px-1.5 py-0.5 font-bold rounded shadow-[1px_1px_0px_#000]">
+                    ME
+                  </span>
+                </div>
+                <span className="font-black text-black text-sm">
+                  {(myParticipant.monthly_points ?? 0).toFixed(1)} PTS
+                </span>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

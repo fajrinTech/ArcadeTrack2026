@@ -224,7 +224,7 @@ export default function Home() {
                 participant={selectedParticipant} 
                 badges={badges} 
                 onResetSession={handleResetSession}
-                onSync={myProfileId === selectedParticipant.id ? () => handleSyncParticipant(selectedParticipant.id) : undefined}
+                onSync={myProfileId === selectedParticipant.id || myRole === 'facilitator' ? () => handleSyncParticipant(selectedParticipant.id) : undefined}
                 onOpenNotifications={() => setIsNotifOpen(true)}
               />
             )}

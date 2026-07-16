@@ -25,9 +25,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Format URL tidak valid. Gunakan format: https://www.skills.google/public_profiles/uuid' }, { status: 400 });
     }
 
-    // Sudah terdaftar → login kembali
+    // Sudah terdaftar → login kembali atau upgrade role jika fasilitator
     const exists = await getParticipantByUrl(targetUrl);
-    if (exists) return NextResponse.json({ ...exists, returning: true });
+    if (exists) {
+      if (role === 'facilitator' && exists.role !== 'facilitator') {
+        const updated = await updateParticipant(exists.id, { role: 'facilitator' });
+        return NextResponse.json({ ...(updated || exists), returning: true });
+      }
+      return NextResponse.json({ ...exists, returning: true });
+    }
 
     const newParticipant = await addParticipant({ name: '', profile_url: targetUrl, role });
 

@@ -117,26 +117,23 @@ export async function getBadges(participantId?: string): Promise<Badge[]> {
   return data ?? [];
 }
 
-// Simpan badge periode berjalan saja (hemat free tier), prune yang lama,
-// lalu hitung & simpan monthly_points ke participant. Upsert on
-// (participant_id, badge_name) supaya re-scrape tidak duplikat.
 export async function setBadges(
   participantId: string,
   newBadges: Omit<Badge, 'id' | 'participant_id' | 'scraped_at'>[]
 ): Promise<number> {
+  // Hapus semua badge lama milik peserta ini dari database agar sinkronisasi bersih
+  const { error: deleteErr } = await supabase
+    .from('badges').delete().eq('participant_id', participantId);
+  if (deleteErr) throw deleteErr;
+
   const current = newBadges.filter(b => b.earned_date >= ACTIVE_PERIOD_START);
 
   if (current.length > 0) {
     const rows = current.map(b => ({ ...b, participant_id: participantId }));
     const { error } = await supabase
-      .from('badges').upsert(rows, { onConflict: 'participant_id,badge_name' });
+      .from('badges').insert(rows);
     if (error) throw error;
   }
-
-  // Buang badge di luar periode berjalan (mis. sisa scrape lama).
-  const { error: pruneErr } = await supabase
-    .from('badges').delete().eq('participant_id', participantId).lt('earned_date', ACTIVE_PERIOD_START);
-  if (pruneErr) throw pruneErr;
 
   const games = current.filter(b => b.category === 'game').length;
   const skills = current.filter(b => b.category === 'skill_badge').length;
