@@ -83,19 +83,19 @@ export default function Home() {
     if (savedId) {
       setMyProfileId(savedId);
       setSelectedParticipantId(savedId);
+
+      // Auto-open notifications if there are unread ones
+      const latestNotifId = NOTIFICATIONS[0]?.id;
+      if (latestNotifId) {
+        const lastRead = localStorage.getItem('arcade_notif_last_read');
+        if (lastRead !== latestNotifId) {
+          setIsNotifOpen(true);
+        }
+      }
     }
     // Pre-fill link terakhir (cache) supaya login ulang lebih mudah.
     setProfileUrl(localStorage.getItem('lastProfileUrl') ?? '');
     fetchParticipants();
-
-    // Auto-open notifications if there are unread ones
-    const latestNotifId = NOTIFICATIONS[0]?.id;
-    if (latestNotifId) {
-      const lastRead = localStorage.getItem('arcade_notif_last_read');
-      if (lastRead !== latestNotifId) {
-        setIsNotifOpen(true);
-      }
-    }
   }, []);
 
   const handleCloseNotif = () => {
