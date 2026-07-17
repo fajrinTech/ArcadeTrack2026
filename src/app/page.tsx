@@ -11,18 +11,25 @@ import { UpdateIcon, ExclamationTriangleIcon, Cross2Icon } from '@radix-ui/react
 
 const NOTIFICATIONS = [
   {
+    id: '2026-07-17',
+    dateStr: '17 Jul 2026',
+    category: 'Fitur Baru',
+    title: 'Add New Feature & Perbaiki Bug',
+    content: 'Kami sangat menghargai masukan dan laporan kendala Anda demi menyempurnakan platform ini. Sekarang Anda bisa mengirimkan ide fitur baru atau laporan bug melalui formulir resmi kami.<br /><br />Silakan klik tautan berikut untuk mengisi formulir: <a href="https://zeff.my.id/feedback-tracker" target="_blank" rel="noopener noreferrer" class="text-tertiary hover:underline font-bold">Formulir Masukan & Bug Tracker</a>.'
+  },
+  {
     id: '2026-07-16',
     dateStr: '16 Jul 2026',
     category: 'Fitur Baru',
     title: 'Pencarian Peserta',
-    content: 'Sekarang Anda bisa mencari nama peserta secara langsung di Leaderboard. Ketik saja nama di kolom pencarian untuk mem-filter data secara real-time.\n\nUntuk menjaga visual tetap rapi, podium 3 besar akan otomatis disembunyikan selama Anda sedang melakukan pencarian.'
+    content: 'Sekarang Anda bisa mencari nama peserta secara langsung di Leaderboard. Ketik saja nama di kolom pencarian untuk mem-filter data secara real-time.<br /><br />Untuk menjaga visual tetap rapi, podium 3 besar akan otomatis disembunyikan selama Anda sedang melakukan pencarian.'
   },
   {
     id: '2026-07-15',
     dateStr: '15 Jul 2026',
     category: 'Update Sistem',
     title: 'Perbaikan Bug Minor',
-    content: 'Terima kasih banyak atas masukan dan laporan kendala yang Anda kirimkan. Kami memohon maaf atas ketidaknyamanan saat menggunakan platform ini sebelumnya.\n\nKami telah menyelesaikan perbaikan pada sistem perhitungan poin, penyaringan quest, serta validasi URL profil untuk memastikan data tracker berjalan dengan akurat dan lancar.'
+    content: 'Terima kasih banyak atas masukan dan laporan kendala yang Anda kirimkan. Kami memohon maaf atas ketidaknyamanan saat menggunakan platform ini sebelumnya.<br /><br />Kami telah menyelesaikan perbaikan pada sistem perhitungan poin, penyaringan quest, serta validasi URL profil untuk memastikan data tracker berjalan dengan akurat dan lancar.'
   }
 ];
 
@@ -80,7 +87,24 @@ export default function Home() {
     // Pre-fill link terakhir (cache) supaya login ulang lebih mudah.
     setProfileUrl(localStorage.getItem('lastProfileUrl') ?? '');
     fetchParticipants();
+
+    // Auto-open notifications if there are unread ones
+    const latestNotifId = NOTIFICATIONS[0]?.id;
+    if (latestNotifId) {
+      const lastRead = localStorage.getItem('arcade_notif_last_read');
+      if (lastRead !== latestNotifId) {
+        setIsNotifOpen(true);
+      }
+    }
   }, []);
+
+  const handleCloseNotif = () => {
+    setIsNotifOpen(false);
+    const latestNotifId = NOTIFICATIONS[0]?.id;
+    if (latestNotifId) {
+      localStorage.setItem('arcade_notif_last_read', latestNotifId);
+    }
+  };
 
   const fetchParticipantDetail = async (id: string) => {
     setIsLoadingDetail(true);
@@ -255,6 +279,7 @@ export default function Home() {
                 onResetSession={handleResetSession}
                 onSync={myProfileId === selectedParticipant.id || myRole === 'facilitator' ? () => handleSyncParticipant(selectedParticipant.id) : undefined}
                 onOpenNotifications={() => setIsNotifOpen(true)}
+                latestNotifId={NOTIFICATIONS[0]?.id}
               />
             )}
 
@@ -325,7 +350,7 @@ export default function Home() {
                 Notifikasi Program
               </h3>
               <button
-                onClick={() => setIsNotifOpen(false)}
+                onClick={handleCloseNotif}
                 className="p-1 border-[2.5px] border-black rounded bg-white hover:bg-secondary hover:text-white shadow-[2px_2px_0px_#000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_#000] transition-all"
               >
                 <Cross2Icon className="w-4 h-4" />
@@ -365,9 +390,10 @@ export default function Home() {
 
                     {/* Accordion Content */}
                     {isOpen && (
-                      <div className="border-t-[2px] border-black p-3 bg-white text-text-muted leading-normal sm:leading-relaxed whitespace-pre-line">
-                        {notif.content}
-                      </div>
+                      <div 
+                        className="border-t-[2px] border-black p-3 bg-white text-text-muted leading-normal sm:leading-relaxed whitespace-pre-line"
+                        dangerouslySetInnerHTML={{ __html: notif.content }}
+                      />
                     )}
                   </div>
                 );
@@ -376,7 +402,7 @@ export default function Home() {
 
             <div className="pt-2 shrink-0 border-t-[3px] border-black mt-2">
               <button
-                onClick={() => setIsNotifOpen(false)}
+                onClick={handleCloseNotif}
                 className="neobrutal-btn-primary w-full text-center py-1.5 sm:py-2 text-xs sm:text-sm"
               >
                 Paham & Tutup

@@ -10,18 +10,21 @@ interface ProfileHeaderProps {
   onResetSession: () => void;
   onSync?: () => Promise<void>;
   onOpenNotifications?: () => void;
+  latestNotifId?: string;
 }
 
-export default function ProfileHeader({ participant, badges, onResetSession, onSync, onOpenNotifications }: ProfileHeaderProps) {
+export default function ProfileHeader({ participant, badges, onResetSession, onSync, onOpenNotifications, latestNotifId }: ProfileHeaderProps) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
 
   useEffect(() => {
-    const lastRead = localStorage.getItem('arcade_notif_last_read');
-    if (lastRead !== '2026-07-16') {
-      setHasUnread(true);
+    if (latestNotifId) {
+      const lastRead = localStorage.getItem('arcade_notif_last_read');
+      if (lastRead !== latestNotifId) {
+        setHasUnread(true);
+      }
     }
-  }, []);
+  }, [latestNotifId]);
 
   const activeMonthName = 'Juli 2026';
   const activeMonthPrefix = '2026-07';
@@ -58,9 +61,9 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
             {participant.name}
           </h2>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-text-muted">
-            <a 
-              href={participant.profile_url} 
-              target="_blank" 
+            <a
+              href={participant.profile_url}
+              target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-tertiary hover:text-secondary transition-colors font-bold uppercase font-mono text-[10px]"
             >
@@ -78,10 +81,16 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
           </div>
         </div>
         <div className="font-mono text-[10px] space-y-3 flex flex-col md:items-end justify-between shrink-0">
-          <div className="space-y-1 text-text-muted font-bold">
-            <div className="flex items-center gap-2 md:justify-end">
-              <span className="uppercase tracking-wider">Status</span>
-              <span className="text-black uppercase tracking-widest bg-success border-[2px] border-black px-2 py-0.5 text-[9px] font-bold shadow-[1px_1px_0px_#000]">ONLINE</span>
+          <div className="space-y-2.5 text-text-muted font-bold">
+            <div className="flex items-center md:justify-end">
+              <a
+                href="https://zeff.my.id/feedback-tracker"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-secondary uppercase tracking-widest bg-zinc-300 border-[2px] border-black px-2 py-0.5 text-[9px] font-black shadow-[1px_1px_0px_#000] hover:bg-zinc-200 hover:-translate-y-0.5 transition-all inline-block"
+              >
+                Report & Feedback
+              </a>
             </div>
             <div>Periode: <span className="text-black">{activeMonthName}</span></div>
           </div>
@@ -109,7 +118,9 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
               onClick={() => {
                 onOpenNotifications?.();
                 setHasUnread(false);
-                localStorage.setItem('arcade_notif_last_read', '2026-07-16');
+                if (latestNotifId) {
+                  localStorage.setItem('arcade_notif_last_read', latestNotifId);
+                }
               }}
               title="Notifikasi Program"
               className="order-3 md:order-1 relative inline-flex items-center justify-center text-[9px] uppercase tracking-widest font-bold font-mono text-black bg-primary hover:bg-yellow-400 border-[3px] border-black rounded-lg w-8 h-8 md:w-auto md:px-3 md:py-1.5 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000]"

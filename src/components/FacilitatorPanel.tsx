@@ -103,7 +103,12 @@ export default function FacilitatorPanel({
         <span className="text-[10px] uppercase tracking-widest text-text-muted font-bold font-mono">
           GLOBAL LEADERBOARD
         </span>
-        <span className="w-3.5 h-3.5 rounded-full bg-success border-[2px] border-black shadow-[1px_1px_0px_#000] animate-subtle-pulse" />
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-mono font-bold text-text-muted">
+            {participants.length} PESERTA
+          </span>
+          <span className="w-3.5 h-3.5 rounded-full bg-success border-[2px] border-black shadow-[1px_1px_0px_#000] animate-subtle-pulse" />
+        </div>
       </div>
 
       {sorted.length > 0 && (
