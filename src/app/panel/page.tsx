@@ -646,11 +646,6 @@ export default function PanelFasilPage() {
                         <td className="py-3 px-2 font-extrabold">
                           <div className="flex flex-col">
                             <span>{p.name}</span>
-                            {p.email && (
-                              <span className="text-[9px] text-text-muted font-normal font-mono lowercase">
-                                {p.email}
-                              </span>
-                            )}
                             <span className="text-[8px] text-text-muted sm:hidden mt-0.5 font-bold uppercase">
                               Sync: {p.last_synced 
                                 ? new Date(p.last_synced).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
