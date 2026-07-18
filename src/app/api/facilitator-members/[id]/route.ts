@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getFacilitatorMember, updateFacilitatorMember, deleteFacilitatorMember } from '@/lib/db';
+import { getFacilitatorMember, updateFacilitatorMember, deleteFacilitatorMember, ACTIVE_PERIOD_START } from '@/lib/db';
 
 export async function DELETE(
   request: Request,
@@ -38,8 +38,8 @@ export async function POST(
 
     const scrapeData = await scrapeRes.json();
     
-    // Calculate new badge counts
-    const badges = scrapeData.badges || [];
+    // Calculate new badge counts (only for current active period)
+    const badges = (scrapeData.badges || []).filter((b: any) => b.earned_date >= ACTIVE_PERIOD_START);
     const gamesCount = badges.filter((b: any) => b.category === 'game').length;
     const skillsCount = badges.filter((b: any) => b.category === 'skill_badge').length;
     const monthlyPoints = gamesCount + skillsCount * 0.5;
