@@ -15,7 +15,7 @@ const NOTIFICATIONS = [
     dateStr: '18 Jul 2026',
     category: 'Perbaikan Sistem',
     title: 'Perbaikan Bug Sinkronisasi Poin & Badge Peserta',
-    content: 'Halo Fasilitator! Kami telah mengidentifikasi dan memperbaiki bug terkait ketidaksesuaian jumlah Game/Skill Badge pada tabel progres peserta bimbingan.<br /><br />Sebelumnya, sistem sinkronisasi panel menghitung seluruh badge secara historis (termasuk dari tahun 2025). Masalah ini telah diperbaiki sehingga sekarang Panel Fasilitator menyaring data secara akurat sesuai periode aktif berjalan (Juli 2026). Seluruh data yang sempat mengalami ketidaksesuaian kini telah otomatis dikoreksi di database.<br /><br />**Kami memohon maaf atas ketidaknyamanan yang ditimbulkan.**',
+    content: 'Halo Fasilitator! Kami telah mengidentifikasi dan memperbaiki bug terkait ketidaksesuaian jumlah Game/Skill Badge pada tabel progres peserta bimbingan.<br /><br />Sebelumnya, sistem sinkronisasi panel menghitung seluruh badge secara historis (termasuk dari tahun 2025). Masalah ini telah diperbaiki sehingga sekarang Panel Fasilitator menyaring data secara akurat sesuai periode aktif berjalan (13 Juli 2026). Seluruh data yang sempat mengalami ketidaksesuaian kini telah otomatis dikoreksi di database.<br /><br />Kami memohon maaf atas ketidaknyamanan yang ditimbulkan.',
     role: 'facilitator'
   },
   {
@@ -57,7 +57,7 @@ export default function Home() {
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
   const [badges, setBadges] = useState<Badge[]>([]);
   const [myRole, setMyRole] = useState<'facilitator' | 'participant' | null>(null);
-  
+
   const [currentView, setCurrentView] = useState<'dashboard' | 'leaderboard'>('dashboard');
 
   const [profileUrl, setProfileUrl] = useState('');
@@ -135,7 +135,7 @@ export default function Home() {
         const data = await res.json();
         setSelectedParticipant(data.participant);
         setBadges(data.badges);
-        
+
         const currentMyProfileId = myProfileId || localStorage.getItem('myProfileId');
         if (id === currentMyProfileId) {
           setMyRole(data.participant.role);
@@ -228,13 +228,13 @@ export default function Home() {
   return (
     <div className="min-h-dvh flex flex-col pb-12">
       <div className="flex-grow max-w-7xl w-full mx-auto px-4 md:px-6 py-6 relative z-10">
-        
+
         {isLoadingList ? (
           <DashboardSkeleton />
         ) : !myProfileId ? (
           <div className="max-w-md w-full mx-auto mt-8 md:mt-16 px-4 animate-scale-in">
             <div className="neobrutal-card text-center p-6 md:p-8 space-y-6">
-              
+
               <div className="space-y-3">
                 <div className="w-14 h-14 rounded-lg overflow-hidden border-[3px] border-black mx-auto shadow-[3px_3px_0px_#000]">
                   <img src="/500px.png" alt="Arcade Logo" className="w-full h-full object-cover" />
@@ -254,8 +254,8 @@ export default function Home() {
               <form onSubmit={handleLoginSubmit} className="space-y-4 text-left font-mono text-xs">
                 <div>
                   <label className="text-[10px] uppercase font-bold text-text-muted block mb-1.5">URL Profil Skills Boost</label>
-                  <input 
-                    type="url" 
+                  <input
+                    type="url"
                     value={profileUrl}
                     onChange={(e) => setProfileUrl(e.target.value)}
                     placeholder="https://www.skills.google/public_profiles/..."
@@ -272,8 +272,8 @@ export default function Home() {
                   </div>
                 )}
 
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={isSubmitting || !profileUrl}
                   className="neobrutal-btn-primary w-full flex items-center justify-center gap-2"
                 >
@@ -294,9 +294,9 @@ export default function Home() {
 
             {/* Profile Header (Moved to the very top when logged in) */}
             {selectedParticipant && !isLoadingDetail && (
-              <ProfileHeader 
-                participant={selectedParticipant} 
-                badges={badges} 
+              <ProfileHeader
+                participant={selectedParticipant}
+                badges={badges}
                 onResetSession={handleResetSession}
                 onSync={myProfileId === selectedParticipant.id || myRole === 'facilitator' ? () => handleSyncParticipant(selectedParticipant.id) : undefined}
                 onOpenNotifications={() => setIsNotifOpen(true)}
@@ -311,21 +311,19 @@ export default function Home() {
                   setCurrentView('dashboard');
                   if (myProfileId) setSelectedParticipantId(myProfileId);
                 }}
-                className={`flex-1 px-5 py-2.5 rounded-md text-xs uppercase font-bold tracking-wider transition-all duration-200 border-[3px] ${
-                  currentView === 'dashboard'
+                className={`flex-1 px-5 py-2.5 rounded-md text-xs uppercase font-bold tracking-wider transition-all duration-200 border-[3px] ${currentView === 'dashboard'
                     ? 'bg-primary text-black border-black shadow-[2px_2px_0px_#000] -translate-y-0.5'
                     : 'text-text-muted hover:text-black hover:bg-white border-transparent'
-                }`}
+                  }`}
               >
                 Dashboard
               </button>
               <button
                 onClick={() => setCurrentView('leaderboard')}
-                className={`flex-1 px-5 py-2.5 rounded-md text-xs uppercase font-bold tracking-wider transition-all duration-200 border-[3px] ${
-                  currentView === 'leaderboard'
+                className={`flex-1 px-5 py-2.5 rounded-md text-xs uppercase font-bold tracking-wider transition-all duration-200 border-[3px] ${currentView === 'leaderboard'
                     ? 'bg-tertiary text-white border-black shadow-[2px_2px_0px_#000] -translate-y-0.5'
                     : 'text-text-muted hover:text-black hover:bg-white border-transparent'
-                }`}
+                  }`}
               >
                 Leaderboard
               </button>
@@ -333,7 +331,7 @@ export default function Home() {
 
             {currentView === 'leaderboard' && (
               <div className="max-w-4xl mx-auto transition-all">
-                <LeaderboardPanel 
+                <LeaderboardPanel
                   participants={participants}
                   selectedId={selectedParticipantId}
                   myProfileId={myProfileId}
@@ -351,9 +349,9 @@ export default function Home() {
                 {isLoadingDetail || !selectedParticipant ? (
                   <DashboardSkeleton />
                 ) : (
-                  <Dashboard 
-                    participant={selectedParticipant} 
-                    badges={badges} 
+                  <Dashboard
+                    participant={selectedParticipant}
+                    badges={badges}
                   />
                 )}
               </div>
@@ -382,7 +380,7 @@ export default function Home() {
               {NOTIFICATIONS.filter(notif => !notif.role || notif.role === myRole).map((notif) => {
                 const isOpen = !!openNotifs[notif.id];
                 return (
-                  <div 
+                  <div
                     key={notif.id}
                     className="border-[2px] border-black bg-primary/10 rounded-lg shadow-[2px_2px_0px_#000] overflow-hidden flex flex-col"
                   >
@@ -411,7 +409,7 @@ export default function Home() {
 
                     {/* Accordion Content */}
                     {isOpen && (
-                      <div 
+                      <div
                         className="border-t-[2px] border-black p-3 bg-white text-text-muted leading-normal sm:leading-relaxed whitespace-pre-line"
                         dangerouslySetInnerHTML={{ __html: notif.content }}
                       />
