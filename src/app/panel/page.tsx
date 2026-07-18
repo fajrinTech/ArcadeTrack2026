@@ -282,16 +282,22 @@ export default function PanelFasilPage() {
   };
 
   const handleSyncAll = async () => {
-    if (participants.length === 0 || isSyncingAll) return;
+    // Saring dan batasi maksimal 100 (visibleCount) yang sedang ditampilkan untuk disinkronkan
+    const targetSyncs = participants
+      .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase().trim()))
+      .sort((a, b) => (b.monthly_points ?? 0) - (a.monthly_points ?? 0))
+      .slice(0, visibleCount);
+
+    if (targetSyncs.length === 0 || isSyncingAll) return;
     setIsSyncingAll(true);
-    setSyncProgress({ current: 0, total: participants.length });
+    setSyncProgress({ current: 0, total: targetSyncs.length });
 
     let successCount = 0;
     let failCount = 0;
 
-    for (let i = 0; i < participants.length; i++) {
-      const p = participants[i];
-      setSyncProgress({ current: i + 1, total: participants.length });
+    for (let i = 0; i < targetSyncs.length; i++) {
+      const p = targetSyncs[i];
+      setSyncProgress({ current: i + 1, total: targetSyncs.length });
       
       try {
         const res = await fetch(`/api/facilitator-members/${p.id}`, { method: 'POST' });
@@ -314,9 +320,9 @@ export default function PanelFasilPage() {
 
     setIsSyncingAll(false);
     if (failCount > 0) {
-      toast(`Sync semua selesai. Sukses: ${successCount}, Gagal: ${failCount}.`, 'info');
+      toast(`Sync selesai. Sukses: ${successCount}, Gagal: ${failCount}.`, 'info');
     } else {
-      toast(`Berhasil menyinkronkan semua ${successCount} peserta!`, 'success');
+      toast(`Berhasil menyinkronkan ${successCount} peserta!`, 'success');
     }
   };
 
