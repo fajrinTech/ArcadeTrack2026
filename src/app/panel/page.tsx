@@ -671,7 +671,7 @@ export default function PanelFasilPage() {
                           }
                         </td>
                         <td className="py-3 px-2 text-center">
-                          <div className="flex items-center justify-center gap-1.5">
+                          <div className="flex items-center justify-center">
                             <button
                               onClick={() => handleSyncParticipant(p.id)}
                               disabled={syncingId !== null}
@@ -685,14 +685,6 @@ export default function PanelFasilPage() {
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3m-3-3v12" />
                                 </svg>
                               )}
-                            </button>
-                            <button
-                              onClick={() => handleDeleteParticipant(p.id, p.name)}
-                              disabled={syncingId !== null}
-                              className="p-1.5 border-[2px] border-black rounded bg-white hover:bg-secondary hover:text-white shadow-[1.5px_1.5px_0px_#000] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-[1px_1px_0px_#000] transition-all disabled:opacity-50"
-                              title="Hapus Peserta"
-                            >
-                              <TrashIcon className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         </td>
