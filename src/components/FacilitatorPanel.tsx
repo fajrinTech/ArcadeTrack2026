@@ -52,6 +52,13 @@ export default function FacilitatorPanel({
   const [inputValue, setInputValue] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const isAdmin = useMemo(() => {
+    if (!myProfileId) return false;
+    if (myProfileId === 'a3961d06-d854-4348-9977-004d5a3dd8d8') return true;
+    const me = participants.find(p => p.id === myProfileId);
+    return me?.profile_url === 'https://www.skills.google/public_profiles/031574cc-02c5-4d38-80ce-cbb9bf95055c';
+  }, [myProfileId, participants]);
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setSearchQuery(inputValue);
@@ -137,7 +144,7 @@ export default function FacilitatorPanel({
                 if (!p) return <div key={`empty-${i}`} className="flex-1 w-0 max-w-[120px]" />;
                 const isMe = myProfileId === p.id;
                 const isGold = meta.rank === 0;
-                const canClick = false;
+                const canClick = isAdmin;
 
                 return (
                   <button
@@ -203,7 +210,7 @@ export default function FacilitatorPanel({
                 {top50.map((p, idx) => {
                   const isSelected = selectedId === p.id;
                   const isMe = myProfileId === p.id;
-                  const canClick = false;
+                  const canClick = isAdmin;
 
                   // Find original rank from the full sorted list
                   const originalRank = sorted.findIndex(item => item.id === p.id) + 1;
