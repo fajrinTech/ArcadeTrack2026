@@ -63,9 +63,25 @@ export async function getSkillBadges(): Promise<SkillBadge[]> {
 }
 
 export async function getParticipants(): Promise<Participant[]> {
-  const { data, error } = await supabase.from('participants').select('*');
-  if (error) throw error;
-  return data ?? [];
+  let allParticipants: Participant[] = [];
+  let from = 0;
+  const limit = 1000;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from('participants')
+      .select('*')
+      .range(from, from + limit - 1);
+
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+
+    allParticipants = allParticipants.concat(data);
+    if (data.length < limit) break;
+    from += limit;
+  }
+
+  return allParticipants;
 }
 
 export async function getParticipant(id: string): Promise<Participant | null> {
@@ -160,12 +176,26 @@ export interface FacilitatorMember {
 }
 
 export async function getFacilitatorMembers(facilitatorId: string): Promise<FacilitatorMember[]> {
-  const { data, error } = await supabase
-    .from('facilitator_members')
-    .select('*')
-    .eq('facilitator_id', facilitatorId);
-  if (error) throw error;
-  return data ?? [];
+  let allMembers: FacilitatorMember[] = [];
+  let from = 0;
+  const limit = 1000;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from('facilitator_members')
+      .select('*')
+      .eq('facilitator_id', facilitatorId)
+      .range(from, from + limit - 1);
+
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+
+    allMembers = allMembers.concat(data);
+    if (data.length < limit) break;
+    from += limit;
+  }
+
+  return allMembers;
 }
 
 export async function getFacilitatorMember(id: string): Promise<FacilitatorMember | null> {
