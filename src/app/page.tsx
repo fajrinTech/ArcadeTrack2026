@@ -11,6 +11,14 @@ import { UpdateIcon, ExclamationTriangleIcon, Cross2Icon } from '@radix-ui/react
 
 const NOTIFICATIONS = [
   {
+    id: '2026-07-18',
+    dateStr: '18 Jul 2026',
+    category: 'Fitur Fasil',
+    title: 'Rilis Panel Fasilitator & Sinkronisasi',
+    content: 'Halo Fasilitator! Kami telah merilis fitur Panel Fasilitator baru untuk memudahkan Anda mengelola peserta bimbingan.<br /><br />Di panel ini, Anda dapat:<br />1. Mengunggah file CSV dari Arcade Global untuk mengimpor daftar peserta bimbingan Anda secara massal.<br />2. Melihat progres milestone fasilitator secara real-time.<br />3. Menyinkronkan seluruh profil peserta bimbingan sekaligus dengan tombol "Sync Semua".<br />4. Menghapus atau menyinkronkan data peserta bimbingan secara individu.<br /><br />Untuk mengakses panel ini, pastikan Anda masuk menggunakan profil Google Skills Boost yang terdaftar sebagai fasilitator, kemudian klik tombol "Panel Fasil" di pojok kanan atas dashboard.',
+    role: 'facilitator'
+  },
+  {
     id: '2026-07-17',
     dateStr: '17 Jul 2026',
     category: 'Fitur Baru',
@@ -91,7 +99,8 @@ export default function Home() {
 
   useEffect(() => {
     if (myProfileId) {
-      const latestNotifId = NOTIFICATIONS[0]?.id;
+      const visibleNotifs = NOTIFICATIONS.filter(notif => !notif.role || notif.role === myRole);
+      const latestNotifId = visibleNotifs[0]?.id;
       if (latestNotifId) {
         const lastRead = localStorage.getItem('arcade_notif_last_read');
         if (lastRead !== latestNotifId) {
@@ -99,7 +108,7 @@ export default function Home() {
         }
       }
     }
-  }, [myProfileId]);
+  }, [myProfileId, myRole]);
 
   const handleCloseNotif = () => {
     setIsNotifOpen(false);
@@ -361,7 +370,7 @@ export default function Home() {
             </div>
 
             <div className="space-y-3 font-mono text-[11px] sm:text-xs text-left overflow-y-auto pr-1 py-2 flex-grow my-3">
-              {NOTIFICATIONS.map((notif) => {
+              {NOTIFICATIONS.filter(notif => !notif.role || notif.role === myRole).map((notif) => {
                 const isOpen = !!openNotifs[notif.id];
                 return (
                   <div 
