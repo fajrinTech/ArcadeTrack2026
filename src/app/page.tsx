@@ -11,6 +11,14 @@ import { UpdateIcon, ExclamationTriangleIcon, Cross2Icon } from '@radix-ui/react
 
 const NOTIFICATIONS = [
   {
+    id: '2026-07-18-bugfix',
+    dateStr: '18 Jul 2026',
+    category: 'Perbaikan Sistem',
+    title: 'Perbaikan Bug Sinkronisasi Poin & Badge Peserta',
+    content: 'Halo Fasilitator! Kami telah mengidentifikasi dan memperbaiki bug terkait ketidaksesuaian jumlah Game/Skill Badge pada tabel progres peserta bimbingan.<br /><br />Sebelumnya, sistem sinkronisasi panel menghitung seluruh badge secara historis (termasuk dari tahun 2025). Masalah ini telah diperbaiki sehingga sekarang Panel Fasilitator menyaring data secara akurat sesuai periode aktif berjalan (Juli 2026). Seluruh data yang sempat mengalami ketidaksesuaian kini telah otomatis dikoreksi di database.<br /><br />**Kami memohon maaf atas ketidaknyamanan yang ditimbulkan.**',
+    role: 'facilitator'
+  },
+  {
     id: '2026-07-18',
     dateStr: '18 Jul 2026',
     category: 'Fitur Fasil',
