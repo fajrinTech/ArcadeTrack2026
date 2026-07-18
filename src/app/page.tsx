@@ -112,7 +112,8 @@ export default function Home() {
 
   const handleCloseNotif = () => {
     setIsNotifOpen(false);
-    const latestNotifId = NOTIFICATIONS[0]?.id;
+    const visibleNotifs = NOTIFICATIONS.filter(notif => !notif.role || notif.role === myRole);
+    const latestNotifId = visibleNotifs[0]?.id;
     if (latestNotifId) {
       localStorage.setItem('arcade_notif_last_read', latestNotifId);
     }
