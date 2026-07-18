@@ -137,7 +137,7 @@ export default function FacilitatorPanel({
                 if (!p) return <div key={`empty-${i}`} className="flex-1 w-0 max-w-[120px]" />;
                 const isMe = myProfileId === p.id;
                 const isGold = meta.rank === 0;
-                const canClick = isFacilitator || isMe;
+                const canClick = false;
 
                 return (
                   <button
@@ -203,7 +203,7 @@ export default function FacilitatorPanel({
                 {top50.map((p, idx) => {
                   const isSelected = selectedId === p.id;
                   const isMe = myProfileId === p.id;
-                  const canClick = isFacilitator || isMe;
+                  const canClick = false;
 
                   // Find original rank from the full sorted list
                   const originalRank = sorted.findIndex(item => item.id === p.id) + 1;
@@ -262,8 +262,7 @@ export default function FacilitatorPanel({
                 POSISI ANDA
               </div>
               <div 
-                onClick={isFacilitator || myProfileId === myParticipant.id ? () => onSelect(myParticipant.id) : undefined}
-                className={`flex items-center justify-between p-3 rounded-lg border-[3px] border-black bg-tertiary/10 shadow-[4px_4px_0px_#000] cursor-pointer hover:bg-tertiary/20 transition-all font-mono`}
+                className="flex items-center justify-between p-3 rounded-lg border-[3px] border-black bg-tertiary/10 shadow-[4px_4px_0px_#000] font-mono transition-all cursor-default"
               >
                 <div className="flex items-center gap-3">
                   <span className="font-black text-black text-sm">#{myIndex + 1}</span>

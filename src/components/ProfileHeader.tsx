@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Participant, Badge } from '@/lib/db';
-import { ExternalLinkIcon, ExitIcon, UpdateIcon } from '@radix-ui/react-icons';
+import { ExternalLinkIcon, ExitIcon, UpdateIcon, GearIcon } from '@radix-ui/react-icons';
+import Link from 'next/link';
 
 interface ProfileHeaderProps {
   participant: Participant;
@@ -96,7 +97,17 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
           </div>
 
           <div className="flex items-center gap-2 md:justify-end">
+            {participant.role === 'facilitator' && (
+              <Link
+                href="/panel"
+                className="order-1 inline-flex items-center gap-1 text-[9px] uppercase tracking-widest font-bold font-mono text-black bg-primary hover:bg-yellow-400 border-[3px] border-black rounded-lg px-3 py-1.5 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000]"
+              >
+                <GearIcon className="w-3 h-3" />
+                <span>Panel Fasil</span>
+              </Link>
+            )}
             {onSync && (
+
               <button
                 onClick={handleSync}
                 disabled={isSyncing}
@@ -109,10 +120,11 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
             )}
             <button
               onClick={onResetSession}
-              className="order-2 md:order-3 inline-flex items-center gap-1 text-[9px] uppercase tracking-widest font-bold font-mono text-black bg-white hover:bg-secondary hover:text-white border-[3px] border-black rounded-lg px-3 py-1.5 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000]"
+              className="absolute top-4 right-4 md:static md:order-3 inline-flex items-center gap-1 text-[9px] uppercase tracking-widest font-bold font-mono text-black bg-white hover:bg-secondary hover:text-white border-[3px] border-black rounded-lg px-2.5 py-1.5 md:px-3 md:py-1.5 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000]"
             >
               <ExitIcon className="w-3 h-3" />
-              <span>Keluar Sesi</span>
+              <span className="hidden sm:inline">Keluar Sesi</span>
+              <span className="inline sm:hidden">Keluar</span>
             </button>
             <button
               onClick={() => {

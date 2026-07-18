@@ -145,3 +145,83 @@ export async function setBadges(
 
   return monthlyPoints;
 }
+
+export interface FacilitatorMember {
+  id: string;
+  facilitator_id: string;
+  name: string;
+  email?: string | null;
+  profile_url: string;
+  games_count: number;
+  skills_count: number;
+  monthly_points: number;
+  last_synced?: string | null;
+  created_at: string;
+}
+
+export async function getFacilitatorMembers(facilitatorId: string): Promise<FacilitatorMember[]> {
+  const { data, error } = await supabase
+    .from('facilitator_members')
+    .select('*')
+    .eq('facilitator_id', facilitatorId);
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function getFacilitatorMember(id: string): Promise<FacilitatorMember | null> {
+  const { data, error } = await supabase
+    .from('facilitator_members')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+export async function bulkUpsertFacilitatorMembers(
+  facilitatorId: string,
+  members: { name: string; email?: string; profile_url: string; games_count: number; skills_count: number; monthly_points: number }[]
+): Promise<FacilitatorMember[]> {
+  const rows = members.map(m => ({
+    facilitator_id: facilitatorId,
+    name: m.name || 'Google Cloud Learner',
+    email: m.email || null,
+    profile_url: normalizeProfileUrl(m.profile_url) || m.profile_url,
+    games_count: m.games_count,
+    skills_count: m.skills_count,
+    monthly_points: m.monthly_points,
+  }));
+
+  const { data, error } = await supabase
+    .from('facilitator_members')
+    .upsert(rows, { onConflict: 'facilitator_id,profile_url' })
+    .select();
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function updateFacilitatorMember(
+  id: string,
+  updates: Partial<FacilitatorMember>
+): Promise<FacilitatorMember | null> {
+  const { data, error } = await supabase
+    .from('facilitator_members')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteFacilitatorMember(id: string): Promise<boolean> {
+  const { error, count } = await supabase
+    .from('facilitator_members')
+    .delete({ count: 'exact' })
+    .eq('id', id);
+  if (error) throw error;
+  return (count ?? 0) > 0;
+}
+
+
