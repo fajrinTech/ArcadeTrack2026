@@ -98,7 +98,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (myProfileId) {
+    if (myProfileId && myRole !== null) {
       const visibleNotifs = NOTIFICATIONS.filter(notif => !notif.role || notif.role === myRole);
       const latestNotifId = visibleNotifs[0]?.id;
       if (latestNotifId) {
