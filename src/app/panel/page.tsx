@@ -55,6 +55,12 @@ function escapeExcelHtml(value: string | number): string {
 }
 
 function parseCSV(text: string): string[][] {
+  // Auto-detect delimiter: check first line for count of ',' vs ';'
+  const firstLine = text.split('\n')[0] || '';
+  const commaCount = (firstLine.match(/,/g) || []).length;
+  const semiCount = (firstLine.match(/;/g) || []).length;
+  const delimiter = semiCount > commaCount ? ';' : ',';
+
   const lines: string[][] = [];
   let row: string[] = [];
   let inQuotes = false;
@@ -71,7 +77,7 @@ function parseCSV(text: string): string[][] {
       } else {
         inQuotes = !inQuotes;
       }
-    } else if (char === ',' && !inQuotes) {
+    } else if (char === delimiter && !inQuotes) {
       row.push(currentVal.trim());
       currentVal = '';
     } else if ((char === '\r' || char === '\n') && !inQuotes) {
@@ -338,7 +344,11 @@ export default function PanelFasilPage() {
         const headers = lines[0].map(h => h.toLowerCase().trim());
         const nameIdx = headers.findIndex(h => h.includes('nama') || h.includes('name') || h.includes('learner'));
         const emailIdx = headers.findIndex(h => h.includes('email') || h.includes('surel'));
-        const urlIdx = headers.findIndex(h => h.includes('url') || h.includes('profile') || h.includes('profil') || h.includes('link'));
+        const urlIdx = headers.findIndex(h => 
+          (h.includes('url') || h.includes('profile') || h.includes('profil') || h.includes('link')) && 
+          !h.includes('status') && 
+          !h.includes('developer')
+        );
         const gamesIdx = headers.findIndex(h => (h.includes('game') || h.includes('games') || h.includes('arcade')) && !h.includes('nama') && !h.includes('name'));
         const skillsIdx = headers.findIndex(h => (h.includes('skill') || h.includes('keahlian') || h.includes('lencana')) && !h.includes('nama') && !h.includes('name') && !h.includes('gear') && !h.includes('url') && !h.includes('profil') && !h.includes('link'));
 
@@ -357,7 +367,7 @@ export default function PanelFasilPage() {
           if (row.length < urlIdx + 1) continue; // Skip empty rows
 
           const name = nameIdx !== -1 ? row[nameIdx] : 'Google Cloud Learner';
-          const email = emailIdx !== -1 ? row[emailIdx] : '';
+          const email = emailIdx !== -1 ? row[emailIdx].toLowerCase().trim() : '';
           const rawUrl = row[urlIdx] || '';
           const normalizedUrl = normalizeProfileUrlClient(rawUrl);
 
