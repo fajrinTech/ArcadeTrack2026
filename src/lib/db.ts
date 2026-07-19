@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto';
 // Server-only client (service_role). Never imported at runtime by client
 // components — they only import the types below, which are erased at compile.
 // ponytail: single shared client, no connection pool tuning until it matters.
-const supabase = createClient(
+export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
   { auth: { persistSession: false } }
