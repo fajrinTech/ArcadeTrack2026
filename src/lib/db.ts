@@ -212,15 +212,43 @@ export async function bulkUpsertFacilitatorMembers(
   facilitatorId: string,
   members: { name: string; email?: string; profile_url: string; games_count: number; skills_count: number; monthly_points: number }[]
 ): Promise<FacilitatorMember[]> {
-  const rows = members.map(m => ({
-    facilitator_id: facilitatorId,
-    name: m.name || 'Google Cloud Learner',
-    email: m.email || null,
-    profile_url: normalizeProfileUrl(m.profile_url) || m.profile_url,
-    games_count: m.games_count,
-    skills_count: m.skills_count,
-    monthly_points: m.monthly_points,
-  }));
+  // Fetch all existing members for this facilitator first
+  const existingMembers = await getFacilitatorMembers(facilitatorId);
+  const existingMap = new Map(
+    existingMembers.map(m => [normalizeProfileUrl(m.profile_url) || m.profile_url, m])
+  );
+
+  const rows = members.map(m => {
+    const normUrl = normalizeProfileUrl(m.profile_url) || m.profile_url;
+    const existing = existingMap.get(normUrl);
+
+    if (existing) {
+      // Preserve existing live scraped statistics and timestamps
+      return {
+        id: existing.id,
+        facilitator_id: facilitatorId,
+        name: m.name || existing.name,
+        email: m.email || existing.email,
+        profile_url: normUrl,
+        games_count: existing.games_count,
+        skills_count: existing.skills_count,
+        monthly_points: existing.monthly_points,
+        last_synced: existing.last_synced,
+      };
+    } else {
+      // New member: initialize counts to 0 and last_synced to null
+      return {
+        facilitator_id: facilitatorId,
+        name: m.name || 'Google Cloud Learner',
+        email: m.email || null,
+        profile_url: normUrl,
+        games_count: 0,
+        skills_count: 0,
+        monthly_points: 0,
+        last_synced: null,
+      };
+    }
+  });
 
   const { data, error } = await supabase
     .from('facilitator_members')
