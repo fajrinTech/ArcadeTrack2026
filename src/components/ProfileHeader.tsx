@@ -50,12 +50,17 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
         <div className="space-y-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[10px] uppercase tracking-widest text-tertiary font-bold font-mono">
-              Profil Peserta
+              Profil Peserta {participant.role !== 'facilitator' && <span className="hidden md:inline text-text-muted ml-1 lowercase font-normal">v1.2.0</span>}
             </span>
             {participant.role === 'facilitator' && (
-              <span className="text-[10px] uppercase tracking-wider bg-tertiary text-white border-[2.5px] border-black px-2 py-0.5 font-black shadow-[2px_2px_0px_#000] rounded">
-                Fasilitator
-              </span>
+              <>
+                <span className="text-[10px] uppercase tracking-wider bg-tertiary text-white border-[2.5px] border-black px-2 py-0.5 font-black shadow-[2px_2px_0px_#000] rounded">
+                  Fasilitator
+                </span>
+                <span className="hidden md:inline text-[10px] font-mono font-bold text-text-muted lowercase ml-0.5">
+                  v1.2.0
+                </span>
+              </>
             )}
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-black tracking-tight uppercase break-words" style={{ fontFamily: 'var(--font-sans)' }}>
@@ -145,6 +150,9 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
                 <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-secondary rounded-full border-[2px] border-black shadow-[1px_1px_0px_#000]" />
               )}
             </button>
+            <span className="order-4 md:hidden text-[10px] font-mono font-bold text-text-muted lowercase self-center ml-1">
+              v1.2.0
+            </span>
           </div>
         </div>
       </div>
