@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { randomUUID } from 'crypto';
 
 // Server-only client (service_role). Never imported at runtime by client
 // components — they only import the types below, which are erased at compile.
@@ -238,6 +239,7 @@ export async function bulkUpsertFacilitatorMembers(
     } else {
       // New member: initialize counts to 0 and last_synced to null
       return {
+        id: randomUUID(),
         facilitator_id: facilitatorId,
         name: m.name || 'Google Cloud Learner',
         email: m.email || null,
