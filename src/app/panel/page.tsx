@@ -1,15 +1,17 @@
 'use client';
 
+import ExcelJS from 'exceljs';
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/components/Toast';
-import { 
-  UpdateIcon, 
-  ExclamationTriangleIcon, 
-  CheckCircledIcon, 
-  ArrowLeftIcon, 
+import {
+  UpdateIcon,
+  ExclamationTriangleIcon,
+  CheckCircledIcon,
+  ArrowLeftIcon,
   UploadIcon,
   Cross2Icon,
-  TrashIcon
+  TrashIcon,
+  DownloadIcon
 } from '@radix-ui/react-icons';
 import Link from 'next/link';
 
@@ -44,6 +46,12 @@ function normalizeProfileUrlClient(url: string): string | null {
   const match = trimmed.match(/(?:skills\.google|cloudskillsboost\.google)\/public_profiles\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
   if (!match) return null;
   return `https://www.skills.google/public_profiles/${match[1].toLowerCase()}`;
+}
+
+function escapeExcelHtml(value: string | number): string {
+  const text = String(value);
+  const safeText = /^[=+\-@]/.test(text) ? `'${text}` : text;
+  return safeText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function parseCSV(text: string): string[][] {
@@ -90,6 +98,7 @@ function parseCSV(text: string): string[][] {
 export default function PanelFasilPage() {
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
 
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -110,6 +119,7 @@ export default function PanelFasilPage() {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [isSyncingAll, setIsSyncingAll] = useState(false);
   const [syncProgress, setSyncProgress] = useState({ current: 0, total: 0 });
@@ -121,6 +131,17 @@ export default function PanelFasilPage() {
 
   useEffect(() => {
     checkAuth();
+  }, []);
+
+  useEffect(() => {
+    const closeExportMenu = (event: MouseEvent) => {
+      if (!exportMenuRef.current?.contains(event.target as Node)) {
+        setIsExportMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', closeExportMenu);
+    return () => document.removeEventListener('mousedown', closeExportMenu);
   }, []);
 
   const checkAuth = async () => {
@@ -162,6 +183,140 @@ export default function PanelFasilPage() {
     } finally {
       setLoadingList(false);
     }
+  };
+
+  const handleExportCSV = async () => {
+    if (participants.length === 0) return;
+
+    const totalGames = participants.reduce((sum, p) => sum + (p.games_count || 0), 0);
+    const totalSkills = participants.reduce((sum, p) => sum + (p.skills_count || 0), 0);
+    const totalPoints = participants.reduce((sum, p) => sum + (p.monthly_points || 0), 0);
+    const dateStr = new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('Laporan Progres');
+
+    ws.columns = [
+      { width: 6 }, { width: 22 }, { width: 26 }, { width: 32 },
+      { width: 12 }, { width: 12 }, { width: 12 },
+      { width: 3 },  // H = spacer
+      { width: 16 }, { width: 16 }, { width: 16 }, // I, J, K (merged label)
+      { width: 12 }, // L = total
+    ];
+
+    // ===== Tabel Peserta (A-G) =====
+    ws.mergeCells('A1:G1');
+    ws.getCell('A1').value = 'LAPORAN PROGRES PESERTA BIMBINGAN ARCADE';
+    ws.getCell('A1').font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 14 };
+    ws.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F2937' } };
+    ws.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+
+    ws.mergeCells('A2:G2');
+
+    ws.mergeCells('A3:G3');
+    ws.getCell('A3').value = `Fasilitator: ${facilName} | Ekspor: ${dateStr}`;
+    ws.getCell('A3').font = { italic: true, color: { argb: 'FF4B5563' } };
+    ws.getCell('A3').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
+    ws.getCell('A3').alignment = { horizontal: 'center' };
+
+    ws.mergeCells('A4:G4');
+    ws.getCell('A4').value = `Total Peserta: ${participants.length}    Total Game Badges: ${totalGames}    Total Skill Badges: ${totalSkills}`;
+    ws.getCell('A4').font = { bold: true, color: { argb: 'FF16A34A' } };
+    ws.getCell('A4').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDCFCE7' } };
+    ws.getCell('A4').alignment = { horizontal: 'center' };
+
+    const headerRow = ws.getRow(7);
+    ['No', 'Nama Peserta', 'Email', 'Profile URL', 'Poin Arcade', 'Games Count', 'Skills Count'].forEach((label, i) => {
+      const cell = headerRow.getCell(i + 1);
+      cell.value = label;
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    });
+    headerRow.commit();
+
+    participants.forEach((p, idx) => {
+      const bg = idx % 2 === 0 ? 'FFFFFFFF' : 'FFF3F4F6';
+      const row = ws.getRow(8 + idx);
+      row.getCell(1).value = idx + 1;
+      row.getCell(2).value = p.name;
+      row.getCell(3).value = p.email || '';
+      row.getCell(4).value = p.profile_url;
+      row.getCell(5).value = Number((p.monthly_points ?? 0).toFixed(1));
+      row.getCell(6).value = p.games_count;
+      row.getCell(7).value = p.skills_count;
+
+      for (let c = 1; c <= 7; c++) {
+        row.getCell(c).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+      }
+      row.getCell(5).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF9C3' } };
+      row.getCell(5).font = { bold: true, color: { argb: 'FF92400E' } };
+      row.getCell(2).font = { bold: true };
+      row.getCell(4).font = { color: { argb: 'FF2563EB' }, underline: true };
+      row.commit();
+    });
+
+    // = Tabel Ringkasan (I-L) =
+    ws.getCell('H1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F2937' } };
+
+    ws.mergeCells('I1:L1');
+    ws.getCell('I1').value = 'RINGKASAN PROGRES PESERTA';
+    ws.getCell('I1').font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+    ws.getCell('I1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F2937' } };
+    ws.getCell('I1').alignment = { horizontal: 'center', vertical: 'middle' };
+
+    ws.mergeCells('I2:L2');
+
+    ws.mergeCells('I3:K3');
+    ws.getCell('I3').value = 'Metrik';
+    ws.getCell('L3').value = 'Total';
+    ['I3', 'L3'].forEach((addr) => {
+      const cell = ws.getCell(addr);
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } };
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    });
+
+    const summaryRows: [string, number, boolean][] = [
+      ['Jumlah peserta yang terdaftar', participants.length, false],
+      ['Total Game Badges', totalGames, false],
+      ['Total Skill Badges', totalSkills, false],
+      ['Total Points Peserta', Number(totalPoints.toFixed(1)), true],
+    ];
+
+    summaryRows.forEach(([label, value, isTotal], idx) => {
+      const r = 4 + idx;
+      ws.mergeCells(`I${r}:K${r}`);
+      const labelCell = ws.getCell(`I${r}`);
+      const valueCell = ws.getCell(`L${r}`);
+      labelCell.value = label;
+      valueCell.value = value;
+
+      const bg = isTotal ? 'FFFEF9C3' : (idx % 2 === 0 ? 'FFFFFFFF' : 'FFF3F4F6');
+      const fontColor = isTotal ? 'FF92400E' : 'FF000000';
+
+      labelCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+      valueCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+      labelCell.font = { color: { argb: fontColor }, bold: isTotal };
+      valueCell.font = { color: { argb: fontColor }, bold: true };
+      labelCell.alignment = { horizontal: 'center', vertical: 'middle' };
+      valueCell.alignment = { horizontal: 'center', vertical: 'middle' };
+    });
+
+    // freeze: baris judul+header (1-4)
+    ws.views = [{ state: 'frozen', ySplit: 7 }];
+
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Progres_${facilName.trim().replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '_') || 'Fasilitator'}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast('Laporan Excel berhasil diunduh!', 'success');
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -298,7 +453,7 @@ export default function PanelFasilPage() {
     for (let i = 0; i < targetSyncs.length; i++) {
       const p = targetSyncs[i];
       setSyncProgress({ current: i + 1, total: targetSyncs.length });
-      
+
       try {
         const res = await fetch(`/api/facilitator-members/${p.id}`, { method: 'POST' });
         if (res.ok) {
@@ -410,11 +565,11 @@ export default function PanelFasilPage() {
   return (
     <div className="min-h-dvh flex flex-col pb-12 font-mono">
       <div className="max-w-4xl w-full mx-auto px-4 py-6 space-y-6 relative z-10">
-        
+
         {/* Header / Nav */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface p-4 border-[3px] border-black rounded-lg shadow-[4px_4px_0px_#000] animate-fade-slide-up">
+          <div className="relative z-20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface p-4 border-[3px] border-black rounded-lg shadow-[4px_4px_0px_#000] animate-fade-slide-up">
           <div className="flex items-center gap-3">
-            <Link 
+            <Link
               href="/"
               className="p-2 border-[2.5px] border-black rounded bg-white hover:bg-surface-alt active:translate-x-[1.5px] active:translate-y-[1.5px] active:shadow-[1.5px_1.5px_0px_#000] shadow-[3px_3px_0px_#000] transition-all"
               title="Kembali ke Dashboard"
@@ -434,9 +589,9 @@ export default function PanelFasilPage() {
               <button
                 onClick={handleSyncAll}
                 disabled={isSyncingAll || syncingId !== null || isImporting}
-                className="neobrutal-btn-secondary !bg-secondary hover:!bg-secondary-dark flex items-center gap-2 py-3 px-4 text-xs font-bold text-white shadow-[4px_4px_0px_#000] border-[3px] border-black rounded-lg transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000] disabled:opacity-50 w-full sm:w-auto justify-center"
+                className="neobrutal-btn-secondary !bg-secondary hover:!bg-secondary-dark flex items-center gap-1.5 !py-2 !px-3 text-xs font-bold text-white shadow-[3px_3px_0px_#000] border-[2.5px] border-black rounded transition-all active:translate-x-[1.5px] active:translate-y-[1.5px] active:shadow-[1.5px_1.5px_0px_#000] disabled:opacity-50 w-full sm:w-auto justify-center whitespace-nowrap"
               >
-                <UpdateIcon className={`w-4 h-4 ${isSyncingAll ? 'animate-spin' : ''}`} />
+                <UpdateIcon className={`w-3.5 h-3.5 ${isSyncingAll ? 'animate-spin' : ''}`} />
                 {isSyncingAll ? (
                   <span>SYNC ({syncProgress.current}/{syncProgress.total})</span>
                 ) : (
@@ -447,20 +602,33 @@ export default function PanelFasilPage() {
                 )}
               </button>
             )}
-            
-            <input 
-              type="file" 
-              accept=".csv" 
+
+            {participants.length > 0 && (
+              <div ref={exportMenuRef} className="relative z-30 w-full sm:w-auto">
+                <button
+                  onClick={handleExportCSV}
+                  disabled={isSyncingAll || syncingId !== null || isImporting}
+                  className="neobrutal-btn-secondary !bg-[#4CAF50] hover:!bg-[#388E3C] !text-white flex items-center gap-1.5 !py-2 !px-3 text-xs font-bold shadow-[3px_3px_0px_#000] border-[2.5px] border-black rounded transition-all active:translate-x-[1.5px] active:translate-y-[1.5px] active:shadow-[1.5px_1.5px_0px_#000] disabled:opacity-50 w-full sm:w-auto justify-center whitespace-nowrap"
+                >
+                  <DownloadIcon className="w-3.5 h-3.5" />
+                  <span>EXPORT</span>
+                </button>
+              </div>    
+            )}
+
+            <input
+              type="file"
+              accept=".csv"
               ref={fileInputRef}
-              onChange={handleFileUpload} 
-              className="hidden" 
+              onChange={handleFileUpload}
+              className="hidden"
               id="csv-file-upload"
             />
-            <label 
+            <label
               htmlFor="csv-file-upload"
-              className="neobrutal-btn-primary flex items-center gap-2 cursor-pointer justify-center w-full sm:w-auto"
+              className="neobrutal-btn-primary flex items-center gap-1.5 cursor-pointer justify-center w-full sm:w-auto !py-2 !px-3 text-xs font-bold shadow-[3px_3px_0px_#000] border-[2.5px] border-black rounded transition-all active:translate-x-[1.5px] active:translate-y-[1.5px] active:shadow-[1.5px_1.5px_0px_#000] whitespace-nowrap"
             >
-              <UploadIcon className="w-4 h-4" />
+              <UploadIcon className="w-3.5 h-3.5" />
               <span>UPLOAD CSV ARCADE</span>
             </label>
           </div>
@@ -544,8 +712,8 @@ export default function PanelFasilPage() {
               const currentTotal = totalGames + totalSkills;
               const percent = Math.min(100, Math.round((currentTotal / m.target) * 100));
               return (
-                <div 
-                  key={m.number} 
+                <div
+                  key={m.number}
                   className="p-3.5 border-[2.5px] border-black rounded-lg bg-surface-alt flex flex-col justify-between gap-3 font-mono shadow-[3px_3px_0px_#000]"
                 >
                   <div className="space-y-1">
@@ -561,11 +729,11 @@ export default function PanelFasilPage() {
                       Mendorong {m.gamesTarget} Arcade Game & {m.skillsTarget} Skill Badge
                     </p>
                   </div>
-                  
+
                   <div className="space-y-1.5">
                     {/* Progress Bar Container with matching colored border */}
                     <div className={`w-full h-4 rounded-full border-[2.5px] ${m.borderColor} bg-white overflow-hidden p-0.5 shadow-[1.5px_1.5px_0px_#000]`}>
-                      <div 
+                      <div
                         className={`h-full rounded-full ${m.barColor} transition-all duration-500`}
                         style={{ width: `${percent}%` }}
                       />
@@ -590,7 +758,7 @@ export default function PanelFasilPage() {
               Daftar Progres Peserta Bimbingan
             </span>
             {totalBimbingan > 0 && (
-              <input 
+              <input
                 type="text"
                 placeholder="Cari nama peserta..."
                 value={searchQuery}
@@ -647,7 +815,7 @@ export default function PanelFasilPage() {
                           <div className="flex flex-col">
                             <span>{p.name}</span>
                             <span className="text-[8px] text-text-muted sm:hidden mt-0.5 font-bold uppercase">
-                              Sync: {p.last_synced 
+                              Sync: {p.last_synced
                                 ? new Date(p.last_synced).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
                                 : 'Belum'
                               }
@@ -655,9 +823,9 @@ export default function PanelFasilPage() {
                           </div>
                         </td>
                         <td className="py-3 px-2 hidden sm:table-cell text-text-muted truncate max-w-[200px]" title={p.profile_url}>
-                          <a 
-                            href={p.profile_url} 
-                            target="_blank" 
+                          <a
+                            href={p.profile_url}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="hover:text-tertiary hover:underline"
                           >
@@ -671,7 +839,7 @@ export default function PanelFasilPage() {
                           </div>
                         </td>
                         <td className="py-3 px-2 text-center text-[10px] text-text-muted hidden sm:table-cell">
-                          {p.last_synced 
+                          {p.last_synced
                             ? new Date(p.last_synced).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
                             : 'Belum Sinkron'
                           }
@@ -719,7 +887,7 @@ export default function PanelFasilPage() {
       {isModalOpen && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-3 bg-black/60 backdrop-blur-xs animate-fade-in pointer-events-auto">
           <div className="neobrutal-card max-w-sm sm:max-w-md w-full !p-4 sm:!p-6 flex flex-col animate-scale-in bg-white shadow-[4px_4px_0px_#000] sm:shadow-[8px_8px_0px_#000] max-h-[90vh] overflow-y-auto">
-            
+
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b-[3px] border-black pb-3 shrink-0">
               <h3 className="text-base font-black text-black uppercase">
