@@ -45,6 +45,26 @@ export default function MentorMonitorPage() {
 
   const [activeTab, setActiveTab] = useState<'unsynced' | 'recent'>('unsynced');
 
+  const [systemLock, setSystemLock] = useState<{ locked: boolean; by?: string }>({ locked: false });
+
+  const checkSyncLock = async () => {
+    try {
+      const res = await fetch('/api/sync-lock');
+      if (res.ok) {
+        const data = await res.json();
+        setSystemLock(data);
+      }
+    } catch (err) {
+      console.error('Error checking sync lock:', err);
+    }
+  };
+
+  useEffect(() => {
+    checkSyncLock();
+    const interval = setInterval(checkSyncLock, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -107,31 +127,87 @@ export default function MentorMonitorPage() {
 
   const handleSyncAllUnsynced = async () => {
     if (unsyncedList.length === 0 || isSyncingAll) return;
+
+    // Acquire lock (always allows force override since holder is 'Mentor Utama')
+    try {
+      const lockRes = await fetch('/api/sync-lock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'acquire', holder: 'Mentor Utama' })
+      });
+      if (lockRes.ok) {
+        const lockData = await lockRes.json();
+        if (!lockData.success) {
+          toast(`Gagal mengamankan sinkronisasi.`, 'error');
+          return;
+        }
+      } else {
+        toast('Gagal mengamankan sinkronisasi sistem.', 'error');
+        return;
+      }
+    } catch (err) {
+      toast('Gagal terhubung ke sistem penguncian.', 'error');
+      return;
+    }
+
     setIsSyncingAll(true);
     setSyncProgress({ current: 0, total: unsyncedList.length });
 
     let successCount = 0;
     let failCount = 0;
 
-    for (let i = 0; i < unsyncedList.length; i++) {
-      const p = unsyncedList[i];
-      setSyncProgress({ current: i + 1, total: unsyncedList.length });
+    try {
+      for (let i = 0; i < unsyncedList.length; i++) {
+        const p = unsyncedList[i];
+        setSyncProgress({ current: i + 1, total: unsyncedList.length });
 
-      try {
-        const res = await fetch(`/api/facilitator-members/${p.id}`, { method: 'POST' });
-        if (res.ok) {
-          successCount++;
-        } else {
+        // Heartbeat lock check
+        try {
+          const hbRes = await fetch('/api/sync-lock', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'heartbeat', holder: 'Mentor Utama' })
+          });
+          if (hbRes.ok) {
+            const hbData = await hbRes.json();
+            if (!hbData.success) {
+              break;
+            }
+          } else {
+            break;
+          }
+        } catch (hbErr) {
+          break;
+        }
+
+        try {
+          const res = await fetch(`/api/facilitator-members/${p.id}`, { method: 'POST' });
+          if (res.ok) {
+            successCount++;
+          } else {
+            failCount++;
+          }
+        } catch (err) {
           failCount++;
         }
-      } catch (err) {
-        failCount++;
       }
+    } finally {
+      setIsSyncingAll(false);
+      // Release lock
+      try {
+        await fetch('/api/sync-lock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'release', holder: 'Mentor Utama' })
+        });
+      } catch (releaseErr) {
+        console.error('Error releasing lock:', releaseErr);
+      }
+      
+      checkSyncLock();
+      toast(`Sync semua selesai! Sukses: ${successCount}, Gagal: ${failCount}`, 'info');
+      fetchMonitorData(myId);
     }
-
-    setIsSyncingAll(false);
-    toast(`Sync semua selesai! Sukses: ${successCount}, Gagal: ${failCount}`, 'info');
-    fetchMonitorData(myId);
   };
 
   if (loadingAuth) {

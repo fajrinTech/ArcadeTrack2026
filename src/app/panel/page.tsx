@@ -65,6 +65,32 @@ export default function PanelFasilPage() {
   const [isSyncingAll, setIsSyncingAll] = useState(false);
   const [syncProgress, setSyncProgress] = useState({ current: 0, total: 0 });
   const [visibleCount, setVisibleCount] = useState(100);
+  const [systemLock, setSystemLock] = useState<{ locked: boolean; by?: string }>({ locked: false });
+
+  const checkSyncLock = async () => {
+    try {
+      const res = await fetch('/api/sync-lock');
+      if (res.ok) {
+        const data = await res.json();
+        setSystemLock(data);
+      }
+    } catch (err) {
+      console.error('Error checking sync lock:', err);
+    }
+  };
+
+  useEffect(() => {
+    checkSyncLock();
+    const interval = setInterval(checkSyncLock, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (isSyncingAll && systemLock.locked && systemLock.by !== facilName) {
+      setIsSyncingAll(false);
+      toast('Sinkronisasi dihentikan oleh Mentor Utama.', 'error');
+    }
+  }, [systemLock, isSyncingAll, facilName]);
 
   useEffect(() => {
     setVisibleCount(100);
@@ -374,40 +400,106 @@ export default function PanelFasilPage() {
       .slice(0, 100);
 
     if (targetSyncs.length === 0 || isSyncingAll) return;
+
+    // Acquire lock
+    try {
+      const lockRes = await fetch('/api/sync-lock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'acquire', holder: facilName })
+      });
+      if (lockRes.ok) {
+        const lockData = await lockRes.json();
+        if (!lockData.success) {
+          toast(`Gagal: Sinkronisasi sedang dilakukan oleh ${lockData.lockedBy || 'peserta lain'}`, 'error');
+          return;
+        }
+      } else {
+        toast('Gagal mengamankan sinkronisasi sistem.', 'error');
+        return;
+      }
+    } catch (err) {
+      toast('Gagal terhubung ke sistem penguncian.', 'error');
+      return;
+    }
+
     setIsSyncingAll(true);
     setSyncProgress({ current: 0, total: targetSyncs.length });
 
     let successCount = 0;
     let failCount = 0;
+    let lockLost = false;
 
-    for (let i = 0; i < targetSyncs.length; i++) {
-      const p = targetSyncs[i];
-      setSyncProgress({ current: i + 1, total: targetSyncs.length });
+    try {
+      for (let i = 0; i < targetSyncs.length; i++) {
+        const p = targetSyncs[i];
+        setSyncProgress({ current: i + 1, total: targetSyncs.length });
 
-      try {
-        const res = await fetch(`/api/facilitator-members/${p.id}`, { method: 'POST' });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.member) {
-            successCount++;
-            setParticipants(prev => prev.map(item => item.id === p.id ? data.member : item));
+        // Heartbeat lock check
+        try {
+          const hbRes = await fetch('/api/sync-lock', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'heartbeat', holder: facilName })
+          });
+          if (hbRes.ok) {
+            const hbData = await hbRes.json();
+            if (!hbData.success) {
+              lockLost = true;
+              break;
+            }
+          } else {
+            lockLost = true;
+            break;
+          }
+        } catch (hbErr) {
+          lockLost = true;
+          break;
+        }
+
+        try {
+          const res = await fetch(`/api/facilitator-members/${p.id}`, { method: 'POST' });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.member) {
+              successCount++;
+              setParticipants(prev => prev.map(item => item.id === p.id ? data.member : item));
+            } else {
+              failCount++;
+            }
           } else {
             failCount++;
           }
-        } else {
+        } catch (err) {
+          console.error(`Error syncing participant ${p.name}:`, err);
           failCount++;
         }
-      } catch (err) {
-        console.error(`Error syncing participant ${p.name}:`, err);
-        failCount++;
       }
-    }
+    } finally {
+      setIsSyncingAll(false);
+      // Release lock
+      try {
+        await fetch('/api/sync-lock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'release', holder: facilName })
+        });
+      } catch (releaseErr) {
+        console.error('Error releasing lock:', releaseErr);
+      }
+      
+      // Update lock state immediately
+      checkSyncLock();
 
-    setIsSyncingAll(false);
-    if (failCount > 0) {
-      toast(`Sync selesai. Sukses: ${successCount}, Gagal: ${failCount}.`, 'info');
-    } else {
-      toast(`Berhasil menyinkronkan ${successCount} peserta!`, 'success');
+      if (lockLost) {
+        toast('Sinkronisasi dihentikan oleh Mentor Utama.', 'error');
+      } else {
+        if (failCount > 0) {
+          toast(`Sync selesai. Sukses: ${successCount}, Gagal: ${failCount}.`, 'info');
+        } else {
+          toast(`Berhasil menyinkronkan ${successCount} peserta!`, 'success');
+        }
+      }
     }
   };
 
@@ -507,6 +599,7 @@ export default function PanelFasilPage() {
           onExportCSV={handleExportCSV}
           onFileUpload={handleFileUpload}
           fileInputRef={fileInputRef}
+          systemLock={systemLock}
         />
 
         <StatsCards
