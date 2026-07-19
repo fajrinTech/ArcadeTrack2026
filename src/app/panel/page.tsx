@@ -360,10 +360,18 @@ export default function PanelFasilPage() {
   };
 
   const handleSyncAll = async () => {
-    const targetSyncs = participants
+    // Prioritaskan peserta yang belum pernah di-sync (last_synced null),
+    // diikuti oleh yang paling lama belum di-sync (last_synced paling tua).
+    // Batasi maksimal 100 per sekali batch sync agar tidak kena timeout/rate limit.
+    const targetSyncs = [...participants]
       .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase().trim()))
-      .sort((a, b) => (b.monthly_points ?? 0) - (a.monthly_points ?? 0))
-      .slice(0, visibleCount);
+      .sort((a, b) => {
+        if (!a.last_synced && b.last_synced) return -1;
+        if (a.last_synced && !b.last_synced) return 1;
+        if (!a.last_synced && !b.last_synced) return 0;
+        return new Date(a.last_synced!).getTime() - new Date(b.last_synced!).getTime();
+      })
+      .slice(0, 100);
 
     if (targetSyncs.length === 0 || isSyncingAll) return;
     setIsSyncingAll(true);
