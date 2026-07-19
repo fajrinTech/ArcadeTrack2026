@@ -59,11 +59,23 @@ export default function MentorMonitorPage() {
     }
   };
 
+  const [prevLocked, setPrevLocked] = useState(false);
+
   useEffect(() => {
     checkSyncLock();
     const interval = setInterval(checkSyncLock, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (prevLocked && !systemLock.locked) {
+      toast('System berhasil sync', 'success');
+      if (myId) {
+        fetchMonitorData(myId);
+      }
+    }
+    setPrevLocked(!!systemLock.locked);
+  }, [systemLock.locked, prevLocked, myId]);
 
   useEffect(() => {
     checkAuth();

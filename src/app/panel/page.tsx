@@ -79,6 +79,8 @@ export default function PanelFasilPage() {
     }
   };
 
+  const [prevLocked, setPrevLocked] = useState(false);
+
   useEffect(() => {
     checkSyncLock();
     const interval = setInterval(checkSyncLock, 10000);
@@ -86,9 +88,19 @@ export default function PanelFasilPage() {
   }, []);
 
   useEffect(() => {
+    if (prevLocked && !systemLock.locked) {
+      toast('System berhasil sync', 'success');
+      if (facilId) {
+        fetchFacilitatorMembers(facilId);
+      }
+    }
+    setPrevLocked(!!systemLock.locked);
+  }, [systemLock.locked, prevLocked, facilId]);
+
+  useEffect(() => {
     if (isSyncingAll && systemLock.locked && systemLock.by !== facilName) {
       setIsSyncingAll(false);
-      toast('Sinkronisasi dihentikan oleh Mentor Utama.', 'error');
+      toast('Sinkronisasi dihentikan oleh System.', 'error');
     }
   }, [systemLock, isSyncingAll, facilName]);
 
@@ -283,9 +295,9 @@ export default function PanelFasilPage() {
         const headers = lines[0].map(h => h.toLowerCase().trim());
         const nameIdx = headers.findIndex(h => h.includes('nama') || h.includes('name') || h.includes('learner'));
         const emailIdx = headers.findIndex(h => h.includes('email') || h.includes('surel'));
-        const urlIdx = headers.findIndex(h => 
-          (h.includes('url') || h.includes('profile') || h.includes('profil') || h.includes('link')) && 
-          !h.includes('status') && 
+        const urlIdx = headers.findIndex(h =>
+          (h.includes('url') || h.includes('profile') || h.includes('profil') || h.includes('link')) &&
+          !h.includes('status') &&
           !h.includes('developer')
         );
         const gamesIdx = headers.findIndex(h => (h.includes('game') || h.includes('games') || h.includes('arcade')) && !h.includes('nama') && !h.includes('name'));
@@ -487,12 +499,12 @@ export default function PanelFasilPage() {
       } catch (releaseErr) {
         console.error('Error releasing lock:', releaseErr);
       }
-      
+
       // Update lock state immediately
       checkSyncLock();
 
       if (lockLost) {
-        toast('Sinkronisasi dihentikan oleh Mentor Utama.', 'error');
+        toast('Sinkronisasi dihentikan oleh System.', 'error');
       } else {
         if (failCount > 0) {
           toast(`Sync selesai. Sukses: ${successCount}, Gagal: ${failCount}.`, 'info');
