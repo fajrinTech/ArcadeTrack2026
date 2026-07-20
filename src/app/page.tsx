@@ -8,6 +8,7 @@ import LeaderboardPanel from '@/components/FacilitatorPanel';
 import { useToast } from '@/components/Toast';
 import { Participant, Badge } from '@/lib/db';
 import { UpdateIcon, ExclamationTriangleIcon, Cross2Icon } from '@radix-ui/react-icons';
+import ConfirmModal from './panel/components/ConfirmModal';
 
 const NOTIFICATIONS = [
   {
@@ -68,6 +69,23 @@ export default function Home() {
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [openNotifs, setOpenNotifs] = useState<Record<string, boolean>>({});
+
+  // Confirm Modal State
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    type?: 'info' | 'warning' | 'danger' | 'success';
+    onConfirm: () => void;
+    showCancel?: boolean;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
 
   useEffect(() => {
     if (isNotifOpen) {
@@ -214,15 +232,23 @@ export default function Home() {
   };
 
   const handleResetSession = () => {
-    if (confirm('Apakah Anda yakin ingin keluar sesi ini? Profil Anda tidak akan terhapus dari sistem, dan link Anda tetap tersimpan untuk memudahkan masuk kembali.')) {
-      localStorage.removeItem('myProfileId'); // link (lastProfileUrl) sengaja dipertahankan
-      setMyProfileId(null);
-      setSelectedParticipantId(null);
-      setSelectedParticipant(null);
-      setBadges([]);
-      setMyRole(null);
-      setCurrentView('dashboard');
-    }
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Keluar Sesi',
+      message: 'Apakah Anda yakin ingin keluar sesi ini? Profil Anda tidak akan terhapus dari sistem, dan tautan Anda tetap tersimpan untuk memudahkan masuk kembali.',
+      confirmText: 'Keluar Sesi',
+      type: 'warning',
+      onConfirm: () => {
+        setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+        localStorage.removeItem('myProfileId'); // link (lastProfileUrl) sengaja dipertahankan
+        setMyProfileId(null);
+        setSelectedParticipantId(null);
+        setSelectedParticipant(null);
+        setBadges([]);
+        setMyRole(null);
+        setCurrentView('dashboard');
+      }
+    });
   };
 
   return (
@@ -430,6 +456,18 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        confirmText={confirmConfig.confirmText}
+        cancelText={confirmConfig.cancelText}
+        type={confirmConfig.type}
+        onConfirm={confirmConfig.onConfirm}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+        showCancel={confirmConfig.showCancel}
+      />
     </div>
   );
 }
