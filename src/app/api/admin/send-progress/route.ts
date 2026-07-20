@@ -41,12 +41,13 @@ export async function POST(request: Request) {
     }
 
     const origin = new URL(request.url).origin;
-    const results = await Promise.all(
-      membersWithEmail.map(async (m) => {
-        // Generate Live Dashboard Link based on the facilitator page context or login profile ID
-        const dashboardUrl = `${origin}/?profile_id=${m.id}`;
+    const results = [];
 
-        const htmlContent = `
+    for (const m of membersWithEmail) {
+      // Generate Live Dashboard Link based on the facilitator page context or login profile ID
+      const dashboardUrl = `${origin}/?profile_id=${m.id}`;
+
+      const htmlContent = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -110,37 +111,39 @@ export async function POST(request: Request) {
   </div>
 </body>
 </html>
-        `;
+      `;
 
-        try {
-          const recipient = process.env.TEST_RECEIVER_EMAIL || m.email;
-          const res = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${resendApiKey}`
-            },
-            body: JSON.stringify({
-              from: senderEmail,
-              to: [recipient],
-              subject: `Progres Google Arcade 2026 - ${m.name}`,
-              html: htmlContent
-            })
-          });
+      try {
+        const recipient = process.env.TEST_RECEIVER_EMAIL || m.email;
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${resendApiKey}`
+          },
+          body: JSON.stringify({
+            from: senderEmail,
+            to: [recipient],
+            subject: `Progres Google Arcade 2026 - ${m.name}`,
+            html: htmlContent
+          })
+        });
 
-          if (res.ok) {
-            return { success: true, email: m.email };
-          } else {
-            const errBody = await res.text();
-            console.error(`Resend API Error for ${m.email}:`, errBody);
-            return { success: false, email: m.email, error: errBody };
-          }
-        } catch (err: any) {
-          console.error(`Fetch Error for ${m.email}:`, err);
-          return { success: false, email: m.email, error: err.message };
+        if (res.ok) {
+          results.push({ success: true, email: m.email });
+        } else {
+          const errBody = await res.text();
+          console.error(`Resend API Error for ${m.email}:`, errBody);
+          results.push({ success: false, email: m.email, error: errBody });
         }
-      })
-    );
+      } catch (err: any) {
+        console.error(`Fetch Error for ${m.email}:`, err);
+        results.push({ success: false, email: m.email, error: err.message });
+      }
+
+      // Jeda 150ms untuk menghindari rate limit Resend (maks 10 request / detik)
+      await new Promise(resolve => setTimeout(resolve, 150));
+    }
 
     const successCount = results.filter(r => r.success).length;
     const failCount = results.filter(r => !r.success).length;
