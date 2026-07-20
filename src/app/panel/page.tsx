@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/components/Toast';
-import { UpdateIcon } from '@radix-ui/react-icons';
+import { UpdateIcon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 
 // Subcomponents
@@ -71,6 +71,7 @@ export default function PanelFasilPage() {
   const [systemLock, setSystemLock] = useState<{ locked: boolean; by?: string }>({ locked: false });
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
+  const [showSessionExpired, setShowSessionExpired] = useState(false);
 
   // Confirm Modal State
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -179,6 +180,11 @@ export default function PanelFasilPage() {
     setLoadingList(true);
     try {
       const res = await fetch(`/api/facilitator-members?facilitator_id=${facilitatorId}`);
+      if (res.status === 401) {
+        setShowSessionExpired(true);
+        setLoadingList(false);
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setParticipants(data.members || []);
@@ -504,6 +510,7 @@ export default function PanelFasilPage() {
       }
     } finally {
       setIsSyncingAll(false);
+      await fetchFacilitatorMembers(facilId);
       if (failCount > 0) {
         toast(`Sync selesai. Sukses: ${successCount}, Gagal: ${failCount}.`, 'info');
       } else {
@@ -748,6 +755,33 @@ export default function PanelFasilPage() {
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmImport}
       />
+
+      {showSessionExpired && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="neobrutal-card max-w-sm w-full text-center space-y-5 animate-scale-in">
+            <div className="w-14 h-14 rounded-lg bg-secondary/10 border-[3px] border-secondary flex items-center justify-center mx-auto">
+              <ExclamationTriangleIcon className="w-7 h-7 text-secondary" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-xl font-black uppercase text-black">Pembaruan Keamanan Penting</h2>
+              <p className="text-sm text-text-muted leading-relaxed">
+                Sistem telah diperbarui untuk keamanan yang lebih baik.
+                Silakan login kembali untuk melanjutkan.
+              </p>
+            </div>
+            <button
+              onClick={async () => {
+                await fetch('/api/participants', { method: 'DELETE' }).catch(() => {});
+                localStorage.removeItem('myProfileId');
+                window.location.href = '/';
+              }}
+              className="neobrutal-btn-primary w-full"
+            >
+              Login Kembali
+            </button>
+          </div>
+        </div>
+      )}
 
       <ConfirmModal
         isOpen={confirmConfig.isOpen}
