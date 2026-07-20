@@ -66,6 +66,7 @@ export default function PanelFasilPage() {
   const [syncProgress, setSyncProgress] = useState({ current: 0, total: 0 });
   const [visibleCount, setVisibleCount] = useState(100);
   const [systemLock, setSystemLock] = useState<{ locked: boolean; by?: string }>({ locked: false });
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   const checkSyncLock = async () => {
     try {
@@ -515,6 +516,42 @@ export default function PanelFasilPage() {
     }
   };
 
+  const handleSendEmailProgress = async () => {
+    const hasEmails = participants.some(p => p.email && p.email.trim() !== '');
+    if (!hasEmails) {
+      toast('Tidak ada peserta dengan alamat email terdaftar.', 'error');
+      return;
+    }
+
+    if (!confirm('Apakah Anda yakin ingin mengirim laporan progres mingguan ke semua email peserta?')) return;
+
+    setIsSendingEmail(true);
+    try {
+      const res = await fetch('/api/admin/send-progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ facilitator_id: facilId })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          toast(`Laporan dikirim! Sukses: ${data.sent}, Gagal: ${data.failed}`, 'success');
+        } else {
+          throw new Error(data.error || 'Gagal mengirim email.');
+        }
+      } else {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Terjadi kesalahan server.');
+      }
+    } catch (err: any) {
+      console.error('Send progress email error:', err);
+      toast(err.message || 'Gagal mengirim email progres.', 'error');
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
   const handleSyncParticipant = async (id: string) => {
     setSyncingId(id);
     try {
@@ -612,6 +649,8 @@ export default function PanelFasilPage() {
           onFileUpload={handleFileUpload}
           fileInputRef={fileInputRef}
           systemLock={systemLock}
+          onSendEmailProgress={handleSendEmailProgress}
+          isSendingEmail={isSendingEmail}
         />
 
         <StatsCards

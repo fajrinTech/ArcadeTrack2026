@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeftIcon, UpdateIcon, DownloadIcon, UploadIcon } from '@radix-ui/react-icons';
+import { ArrowLeftIcon, UpdateIcon, DownloadIcon, UploadIcon, EnvelopeClosedIcon } from '@radix-ui/react-icons';
 import React from 'react';
 
 interface HeaderNavProps {
@@ -16,6 +16,8 @@ interface HeaderNavProps {
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   systemLock?: { locked: boolean; by?: string };
+  onSendEmailProgress: () => void;
+  isSendingEmail: boolean;
 }
 
 export default function HeaderNav({
@@ -29,7 +31,9 @@ export default function HeaderNav({
   onExportCSV,
   onFileUpload,
   fileInputRef,
-  systemLock
+  systemLock,
+  onSendEmailProgress,
+  isSendingEmail
 }: HeaderNavProps) {
   const isSystemLocked = systemLock?.locked && systemLock?.by !== facilName;
 
@@ -74,6 +78,17 @@ export default function HeaderNav({
 
         {hasParticipants && (
           <button
+            onClick={onSendEmailProgress}
+            disabled={isSyncingAll || syncingId !== null || isImporting || isSendingEmail}
+            className="neobrutal-btn-secondary !bg-[#E1EFFE] !text-[#1E429F] hover:!bg-[#C3DDFD] flex items-center gap-1.5 !py-2 !px-3 text-xs font-bold shadow-[3px_3px_0px_#000] border-[2.5px] border-black rounded transition-all active:translate-x-[1.5px] active:translate-y-[1.5px] active:shadow-[1.5px_1.5px_0px_#000] disabled:opacity-50 w-full sm:w-auto justify-center whitespace-nowrap"
+          >
+            <EnvelopeClosedIcon className={`w-3.5 h-3.5 ${isSendingEmail ? 'animate-pulse' : ''}`} />
+            <span>{isSendingEmail ? 'KIRIM...' : 'EMAIL PROGRES'}</span>
+          </button>
+        )}
+
+        {hasParticipants && (
+          <button
             onClick={onExportCSV}
             disabled={isSyncingAll || syncingId !== null || isImporting}
             className="neobrutal-btn-secondary !bg-[#4CAF50] hover:!bg-[#388E3C] !text-white flex items-center gap-1.5 !py-2 !px-3 text-xs font-bold shadow-[3px_3px_0px_#000] border-[2.5px] border-black rounded transition-all active:translate-x-[1.5px] active:translate-y-[1.5px] active:shadow-[1.5px_1.5px_0px_#000] disabled:opacity-50 w-full sm:w-auto justify-center whitespace-nowrap"
@@ -96,7 +111,7 @@ export default function HeaderNav({
           className="neobrutal-btn-primary flex items-center gap-1.5 cursor-pointer justify-center w-full sm:w-auto !py-2 !px-3 text-xs font-bold shadow-[3px_3px_0px_#000] border-[2.5px] border-black rounded transition-all active:translate-x-[1.5px] active:translate-y-[1.5px] active:shadow-[1.5px_1.5px_0px_#000] whitespace-nowrap"
         >
           <UploadIcon className="w-3.5 h-3.5" />
-          <span>UPLOAD CSV ARCADE</span>
+          <span>UPLOAD CSV</span>
         </label>
       </div>
     </div>
