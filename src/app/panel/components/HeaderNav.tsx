@@ -37,7 +37,7 @@ export default function HeaderNav({
   isSendingEmail,
   showEmailProgress
 }: HeaderNavProps) {
-  const isSystemLocked = systemLock?.locked && systemLock?.by !== facilName;
+  const isSystemLocked = systemLock?.locked && systemLock?.by === 'Mentor Utama';
 
   return (
     <div className="relative z-20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface p-4 border-[3px] border-black rounded-lg shadow-[4px_4px_0px_#000] animate-fade-slide-up">

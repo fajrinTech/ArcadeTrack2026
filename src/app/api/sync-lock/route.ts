@@ -37,6 +37,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Input tidak valid.' }, { status: 400 });
     }
 
+    if (action === 'acquire' || action === 'heartbeat') {
+      if (holder !== 'Mentor Utama') {
+        return NextResponse.json({ success: false, error: 'Hanya Mentor Utama yang dapat mengunci sistem.' });
+      }
+    }
+
     const isMentor = holder === 'Mentor Utama';
 
     // Get current lock status
