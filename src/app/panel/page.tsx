@@ -68,6 +68,7 @@ export default function PanelFasilPage() {
   const [visibleCount, setVisibleCount] = useState(100);
   const [systemLock, setSystemLock] = useState<{ locked: boolean; by?: string }>({ locked: false });
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
 
   const checkSyncLock = async () => {
     try {
@@ -554,6 +555,42 @@ export default function PanelFasilPage() {
     }
   };
 
+  const handleSendEmailSingle = async (participantId: string, participantName: string) => {
+    const participant = participants.find(p => p.id === participantId);
+    if (!participant || !participant.email || participant.email.trim() === '') {
+      toast('Peserta tidak memiliki alamat email terdaftar.', 'error');
+      return;
+    }
+
+    if (!confirm(`Apakah Anda yakin ingin mengirim laporan progres mingguan ke email ${participantName}?`)) return;
+
+    setSendingEmailId(participantId);
+    try {
+      const res = await fetch('/api/admin/send-progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ facilitator_id: facilId, participant_id: participantId })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.sent > 0) {
+          toast(`Laporan progres berhasil dikirim ke ${participantName}!`, 'success');
+        } else {
+          throw new Error(data.error || 'Gagal mengirim email.');
+        }
+      } else {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Terjadi kesalahan server.');
+      }
+    } catch (err: any) {
+      console.error('Send single progress email error:', err);
+      toast(err.message || `Gagal mengirim email progres ke ${participantName}.`, 'error');
+    } finally {
+      setSendingEmailId(null);
+    }
+  };
+
   const handleSyncParticipant = async (id: string) => {
     setSyncingId(id);
     try {
@@ -680,6 +717,9 @@ export default function PanelFasilPage() {
           syncingId={syncingId}
           onSyncParticipant={handleSyncParticipant}
           onDeleteParticipant={handleDeleteParticipant}
+          showEmailProgress={facilProfileUrl === 'https://www.skills.google/public_profiles/031574cc-02c5-4d38-80ce-cbb9bf95055c'}
+          onSendEmailSingle={handleSendEmailSingle}
+          sendingEmailId={sendingEmailId}
         />
 
       </div>

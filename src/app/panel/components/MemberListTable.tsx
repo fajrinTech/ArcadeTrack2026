@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { UpdateIcon, TrashIcon } from '@radix-ui/react-icons';
+import { UpdateIcon, TrashIcon, EnvelopeClosedIcon } from '@radix-ui/react-icons';
 
 interface FacilitatorMember {
   id: string;
@@ -25,6 +25,9 @@ interface MemberListTableProps {
   syncingId: string | null;
   onSyncParticipant: (id: string) => void;
   onDeleteParticipant: (id: string, name: string) => void;
+  showEmailProgress?: boolean;
+  onSendEmailSingle?: (id: string, name: string) => void;
+  sendingEmailId?: string | null;
 }
 
 export default function MemberListTable({
@@ -38,7 +41,10 @@ export default function MemberListTable({
   onLoadMore,
   syncingId,
   onSyncParticipant,
-  onDeleteParticipant
+  onDeleteParticipant,
+  showEmailProgress,
+  onSendEmailSingle,
+  sendingEmailId
 }: MemberListTableProps) {
   return (
     <div className="neobrutal-card space-y-4 animate-fade-slide-up">
@@ -137,7 +143,7 @@ export default function MemberListTable({
                       <div className="flex items-center justify-center gap-1.5">
                         <button
                           onClick={() => onSyncParticipant(p.id)}
-                          disabled={syncingId !== null}
+                          disabled={syncingId !== null || sendingEmailId !== null}
                           className="p-1.5 border-[2px] border-black rounded bg-white hover:bg-tertiary hover:text-white shadow-[1.5px_1.5px_0px_#000] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-[1px_1px_0px_#000] transition-all disabled:opacity-50"
                           title="Scrape & Sinkronisasi"
                         >
@@ -149,14 +155,29 @@ export default function MemberListTable({
                             </svg>
                           )}
                         </button>
-                        <button
-                          onClick={() => onDeleteParticipant(p.id, p.name)}
-                          disabled={syncingId !== null}
-                          className="p-1.5 border-[2px] border-black rounded bg-white hover:bg-secondary hover:text-white shadow-[1.5px_1.5px_0px_#000] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-[1px_1px_0px_#000] transition-all disabled:opacity-50"
-                          title="Hapus Peserta"
-                        >
-                          <TrashIcon className="w-3.5 h-3.5" />
-                        </button>
+                        {showEmailProgress && onSendEmailSingle ? (
+                          <button
+                            onClick={() => onSendEmailSingle(p.id, p.name)}
+                            disabled={syncingId !== null || sendingEmailId !== null}
+                            className="p-1.5 border-[2px] border-black rounded bg-white hover:bg-[#E1EFFE] hover:text-[#1E429F] shadow-[1.5px_1.5px_0px_#000] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-[1px_1px_0px_#000] transition-all disabled:opacity-50"
+                            title="Kirim Email Progres"
+                          >
+                            {sendingEmailId === p.id ? (
+                              <UpdateIcon className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <EnvelopeClosedIcon className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => onDeleteParticipant(p.id, p.name)}
+                            disabled={syncingId !== null}
+                            className="p-1.5 border-[2px] border-black rounded bg-white hover:bg-secondary hover:text-white shadow-[1.5px_1.5px_0px_#000] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-[1px_1px_0px_#000] transition-all disabled:opacity-50"
+                            title="Hapus Peserta"
+                          >
+                            <TrashIcon className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

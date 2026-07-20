@@ -3,7 +3,7 @@ import { supabase, getFacilitatorMembers } from '@/lib/db';
 
 export async function POST(request: Request) {
   try {
-    const { facilitator_id } = await request.json();
+    const { facilitator_id, participant_id } = await request.json();
 
     if (!facilitator_id) {
       return NextResponse.json({ error: 'facilitator_id wajib diisi.' }, { status: 400 });
@@ -36,14 +36,23 @@ export async function POST(request: Request) {
     const members = await getFacilitatorMembers(facilitator_id);
     const membersWithEmail = members.filter(m => m.email && m.email.trim() !== '');
 
-    if (membersWithEmail.length === 0) {
-      return NextResponse.json({ success: true, sent: 0, failed: 0, message: 'Tidak ada peserta dengan alamat email terdaftar.' });
+    const testReceiver = process.env.TEST_RECEIVER_EMAIL;
+    let targetMembers = testReceiver
+      ? membersWithEmail.filter(m => m.email === testReceiver)
+      : membersWithEmail;
+
+    if (participant_id) {
+      targetMembers = targetMembers.filter(m => m.id === participant_id);
+    }
+
+    if (targetMembers.length === 0) {
+      return NextResponse.json({ success: true, sent: 0, failed: 0, message: 'Tidak ada peserta dengan alamat email yang cocok untuk dikirimi.' });
     }
 
     const origin = new URL(request.url).origin;
     const results = [];
 
-    for (const m of membersWithEmail) {
+    for (const m of targetMembers) {
       // Generate Live Dashboard Link based on the facilitator page context or login profile ID
       const dashboardUrl = `${origin}/?profile_id=${m.id}`;
 
@@ -152,7 +161,7 @@ export async function POST(request: Request) {
       success: true,
       sent: successCount,
       failed: failCount,
-      total: membersWithEmail.length,
+      total: targetMembers.length,
       results
     });
 
