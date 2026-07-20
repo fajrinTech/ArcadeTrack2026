@@ -113,6 +113,7 @@ export async function POST(request: Request) {
         `;
 
         try {
+          const recipient = process.env.TEST_RECEIVER_EMAIL || m.email;
           const res = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: {
@@ -121,7 +122,7 @@ export async function POST(request: Request) {
             },
             body: JSON.stringify({
               from: senderEmail,
-              to: [m.email],
+              to: [recipient],
               subject: `Progres Google Arcade 2026 - ${m.name}`,
               html: htmlContent
             })
