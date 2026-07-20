@@ -37,12 +37,16 @@ export async function POST(request: Request) {
     const membersWithEmail = members.filter(m => m.email && m.email.trim() !== '');
 
     const testReceiver = process.env.TEST_RECEIVER_EMAIL;
-    let targetMembers = testReceiver
-      ? membersWithEmail.filter(m => m.email === testReceiver)
-      : membersWithEmail;
+    let targetMembers = [];
 
     if (participant_id) {
-      targetMembers = targetMembers.filter(m => m.id === participant_id);
+      // Individual: process only the chosen participant
+      targetMembers = membersWithEmail.filter(m => m.id === participant_id);
+    } else {
+      // Global: if test mode is active, only process the test receiver's record
+      targetMembers = testReceiver
+        ? membersWithEmail.filter(m => m.email === testReceiver)
+        : membersWithEmail;
     }
 
     if (targetMembers.length === 0) {
