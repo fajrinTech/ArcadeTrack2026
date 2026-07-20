@@ -36,21 +36,14 @@ export async function POST(request: Request) {
     const members = await getFacilitatorMembers(facilitator_id);
     const membersWithEmail = members.filter(m => m.email && m.email.trim() !== '');
 
-    const testReceiver = process.env.TEST_RECEIVER_EMAIL;
-    let targetMembers = [];
-
+    // 2. Fetch target members
+    let targetMembers = membersWithEmail;
     if (participant_id) {
-      // Individual: process only the chosen participant
       targetMembers = membersWithEmail.filter(m => m.id === participant_id);
-    } else {
-      // Global: if test mode is active, only process the test receiver's record
-      targetMembers = testReceiver
-        ? membersWithEmail.filter(m => m.email === testReceiver)
-        : membersWithEmail;
     }
 
     if (targetMembers.length === 0) {
-      return NextResponse.json({ success: true, sent: 0, failed: 0, message: 'Tidak ada peserta dengan alamat email yang cocok untuk dikirimi.' });
+      return NextResponse.json({ success: true, sent: 0, failed: 0, message: 'Tidak ada peserta dengan alamat email terdaftar.' });
     }
 
     const origin = new URL(request.url).origin;
@@ -127,7 +120,6 @@ export async function POST(request: Request) {
       `;
 
       try {
-        const recipient = process.env.TEST_RECEIVER_EMAIL || m.email;
         const res = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
@@ -136,7 +128,7 @@ export async function POST(request: Request) {
           },
           body: JSON.stringify({
             from: senderEmail,
-            to: [recipient],
+            to: [m.email],
             subject: `Progres Google Arcade 2026 - ${m.name}`,
             html: htmlContent
           })
