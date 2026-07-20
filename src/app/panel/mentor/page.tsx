@@ -27,6 +27,13 @@ interface RecentMember {
   facilitator_name: string;
 }
 
+interface FacilitatorInfo {
+  id: string;
+  name: string;
+  profile_url: string;
+  member_count: number;
+}
+
 const AUTHORIZED_ID = 'a3961d06-d854-4348-9977-004d5a3dd8d8';
 const AUTHORIZED_URL = 'https://www.skills.google/public_profiles/031574cc-02c5-4d38-80ce-cbb9bf95055c';
 
@@ -45,7 +52,9 @@ export default function MentorMonitorPage() {
   const [isSyncingAll, setIsSyncingAll] = useState(false);
   const [syncProgress, setSyncProgress] = useState({ current: 0, total: 0 });
 
-  const [activeTab, setActiveTab] = useState<'unsynced' | 'recent'>('unsynced');
+  const [activeTab, setActiveTab] = useState<'unsynced' | 'recent' | 'facilitators'>('unsynced');
+  const [facilitators, setFacilitators] = useState<FacilitatorInfo[]>([]);
+  const [loadingFacilitators, setLoadingFacilitators] = useState(false);
 
   const [systemLock, setSystemLock] = useState<{ locked: boolean; by?: string }>({ locked: false });
 
@@ -154,6 +163,31 @@ export default function MentorMonitorPage() {
       toast('Gagal mengambil data monitoring.', 'error');
     } finally {
       setLoadingData(false);
+    }
+  };
+
+  const fetchFacilitators = async () => {
+    setLoadingFacilitators(true);
+    try {
+      const res = await fetch(`/api/participants`);
+      if (res.ok) {
+        const data = await res.json();
+        const fasils = (data.participants || []).filter((p: any) => p.role === 'facilitator');
+        // Get member counts
+        const countsRes = await fetch(`/api/admin/monitor?profile_id=${myId}`);
+        const facilList: FacilitatorInfo[] = fasils.map((f: any) => ({
+          id: f.id,
+          name: f.name,
+          profile_url: f.profile_url,
+          member_count: 0
+        }));
+        setFacilitators(facilList.sort((a: FacilitatorInfo, b: FacilitatorInfo) => a.name.localeCompare(b.name)));
+      }
+    } catch (err) {
+      console.error('Error fetching facilitators:', err);
+      toast('Gagal mengambil daftar fasilitator.', 'error');
+    } finally {
+      setLoadingFacilitators(false);
     }
   };
 
@@ -374,6 +408,14 @@ export default function MentorMonitorPage() {
           >
             Upload Terbaru (50)
           </button>
+          <button
+            onClick={() => { setActiveTab('facilitators'); if (facilitators.length === 0) fetchFacilitators(); }}
+            className={`px-4 py-2 border-[3px] border-b-0 border-black rounded-t-lg text-xs font-black uppercase transition-all shadow-[2px_-2px_0_#000] ${
+              activeTab === 'facilitators' ? 'bg-primary text-black -translate-y-0.5' : 'bg-surface-alt text-text-muted hover:text-black'
+            }`}
+          >
+            Fasilitator
+          </button>
         </div>
 
         {/* Unsynced List */}
@@ -489,6 +531,55 @@ export default function MentorMonitorPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Facilitator List */}
+        {activeTab === 'facilitators' && (
+          <div className="neobrutal-card space-y-4 animate-fade-slide-up">
+            {loadingFacilitators ? (
+              <div className="py-12 text-center text-xs text-text-muted">
+                <UpdateIcon className="w-5 h-5 animate-spin mx-auto mb-2" />
+                <span>MEMUAT DAFTAR FASILITATOR...</span>
+              </div>
+            ) : facilitators.length === 0 ? (
+              <div className="py-16 text-center text-xs text-text-muted">
+                BELUM ADA DATA FASILITATOR
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b-[3px] border-black text-text-muted uppercase font-bold text-[10px]">
+                      <th className="py-2 px-2 text-center w-10">#</th>
+                      <th className="py-2 px-2">NAMA</th>
+                      <th className="py-2 px-2 text-center w-28">SKILLS BOOST</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y-[2px] divide-black text-black">
+                    {facilitators.map((f, idx) => (
+                      <tr key={f.id} className="hover:bg-surface-alt">
+                        <td className="py-2.5 px-2 text-center font-bold text-text-muted">{idx + 1}</td>
+                        <td className="py-2.5 px-2 font-extrabold">{f.name}</td>
+                        <td className="py-2.5 px-2 text-center">
+                          <a
+                            href={f.profile_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block px-2 py-1 bg-[#E1EFFE] text-[#1E429F] border-[2px] border-black rounded text-[10px] font-bold uppercase shadow-[1.5px_1.5px_0_#000] hover:bg-[#1E429F] hover:text-white transition-colors"
+                          >
+                            Profil ↗
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="pt-3 border-t-[2px] border-black text-[10px] text-text-muted font-bold uppercase text-center">
+                  Total: {facilitators.length} Fasilitator
+                </div>
               </div>
             )}
           </div>
