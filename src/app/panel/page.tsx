@@ -11,6 +11,8 @@ import StatsCards from './components/StatsCards';
 import MilestoneProgress from './components/MilestoneProgress';
 import MemberListTable from './components/MemberListTable';
 import ImportCSVModal from './components/ImportCSVModal';
+import ConfirmModal from './components/ConfirmModal';
+import { APP_VERSION } from '@/lib/version';
 
 // Utilities
 import { parseCSV, escapeExcelHtml, normalizeProfileUrlClient } from './utils';
@@ -70,12 +72,44 @@ export default function PanelFasilPage() {
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
 
+  // Confirm Modal State
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    type?: 'info' | 'warning' | 'danger' | 'success';
+    onConfirm: () => void;
+    showCancel?: boolean;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
+
   const checkSyncLock = async () => {
     try {
       const res = await fetch('/api/sync-lock');
       if (res.ok) {
         const data = await res.json();
         setSystemLock(data);
+
+        // Auto-update notification modal
+        if (data.version && data.version !== APP_VERSION) {
+          setConfirmConfig({
+            isOpen: true,
+            title: 'Pembaruan Sistem Tersedia',
+            message: `Sistem versi terbaru (${data.version}) telah dirilis untuk perbaikan performa & bug sinkronisasi. Silakan klik tombol di bawah untuk memuat ulang halaman.`,
+            confirmText: 'Muat Ulang Halaman',
+            type: 'warning',
+            showCancel: false,
+            onConfirm: () => {
+              window.location.reload();
+            }
+          });
+        }
       }
     } catch (err) {
       console.error('Error checking sync lock:', err);
@@ -485,33 +519,41 @@ export default function PanelFasilPage() {
       return;
     }
 
-    if (!confirm('Apakah Anda yakin ingin mengirim laporan progres mingguan ke semua email peserta?')) return;
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Kirim Email Massal',
+      message: 'Apakah Anda yakin ingin mengirim laporan progres mingguan ke SEMUA email peserta bimbingan Anda?',
+      confirmText: 'Kirim Sekarang',
+      type: 'info',
+      onConfirm: async () => {
+        setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+        setIsSendingEmail(true);
+        try {
+          const res = await fetch('/api/admin/send-progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ facilitator_id: facilId })
+          });
 
-    setIsSendingEmail(true);
-    try {
-      const res = await fetch('/api/admin/send-progress', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ facilitator_id: facilId })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success) {
-          toast(`Laporan dikirim! Sukses: ${data.sent}, Gagal: ${data.failed}`, 'success');
-        } else {
-          throw new Error(data.error || 'Gagal mengirim email.');
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success) {
+              toast(`Laporan dikirim! Sukses: ${data.sent}, Gagal: ${data.failed}`, 'success');
+            } else {
+              throw new Error(data.error || 'Gagal mengirim email.');
+            }
+          } else {
+            const errData = await res.json();
+            throw new Error(errData.error || 'Terjadi kesalahan server.');
+          }
+        } catch (err: any) {
+          console.error('Send progress email error:', err);
+          toast(err.message || 'Gagal mengirim email progres.', 'error');
+        } finally {
+          setIsSendingEmail(false);
         }
-      } else {
-        const errData = await res.json();
-        throw new Error(errData.error || 'Terjadi kesalahan server.');
       }
-    } catch (err: any) {
-      console.error('Send progress email error:', err);
-      toast(err.message || 'Gagal mengirim email progres.', 'error');
-    } finally {
-      setIsSendingEmail(false);
-    }
+    });
   };
 
   const handleSendEmailSingle = async (participantId: string, participantName: string) => {
@@ -521,33 +563,41 @@ export default function PanelFasilPage() {
       return;
     }
 
-    if (!confirm(`Apakah Anda yakin ingin mengirim laporan progres mingguan ke email ${participantName}?`)) return;
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Kirim Email Peserta',
+      message: `Apakah Anda yakin ingin mengirim laporan progres mingguan ke email ${participantName}?`,
+      confirmText: 'Kirim Email',
+      type: 'info',
+      onConfirm: async () => {
+        setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+        setSendingEmailId(participantId);
+        try {
+          const res = await fetch('/api/admin/send-progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ facilitator_id: facilId, participant_id: participantId })
+          });
 
-    setSendingEmailId(participantId);
-    try {
-      const res = await fetch('/api/admin/send-progress', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ facilitator_id: facilId, participant_id: participantId })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.sent > 0) {
-          toast(`Laporan progres berhasil dikirim ke ${participantName}!`, 'success');
-        } else {
-          throw new Error(data.error || 'Gagal mengirim email.');
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.sent > 0) {
+              toast(`Laporan progres berhasil dikirim ke ${participantName}!`, 'success');
+            } else {
+              throw new Error(data.error || 'Gagal mengirim email.');
+            }
+          } else {
+            const errData = await res.json();
+            throw new Error(errData.error || 'Terjadi kesalahan server.');
+          }
+        } catch (err: any) {
+          console.error('Send single progress email error:', err);
+          toast(err.message || `Gagal mengirim email progres ke ${participantName}.`, 'error');
+        } finally {
+          setSendingEmailId(null);
         }
-      } else {
-        const errData = await res.json();
-        throw new Error(errData.error || 'Terjadi kesalahan server.');
       }
-    } catch (err: any) {
-      console.error('Send single progress email error:', err);
-      toast(err.message || `Gagal mengirim email progres ke ${participantName}.`, 'error');
-    } finally {
-      setSendingEmailId(null);
-    }
+    });
   };
 
   const handleSyncParticipant = async (id: string) => {
@@ -568,19 +618,27 @@ export default function PanelFasilPage() {
   };
 
   const handleDeleteParticipant = async (id: string, name: string) => {
-    if (!confirm(`Apakah Anda yakin ingin menghapus peserta "${name}"?`)) return;
-
-    try {
-      const res = await fetch(`/api/facilitator-members/${id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Gagal menghapus peserta.');
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Hapus Peserta',
+      message: `Apakah Anda yakin ingin menghapus peserta "${name}" dari daftar bimbingan Anda? Tindakan ini tidak dapat dibatalkan.`,
+      confirmText: 'Hapus',
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+        try {
+          const res = await fetch(`/api/facilitator-members/${id}`, { method: 'DELETE' });
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Gagal menghapus peserta.');
+          }
+          toast('Peserta berhasil dihapus.', 'success');
+          fetchFacilitatorMembers(facilId);
+        } catch (err: any) {
+          toast(err.message || 'Gagal menghapus peserta.', 'error');
+        }
       }
-      toast('Peserta berhasil dihapus.', 'success');
-      fetchFacilitatorMembers(facilId);
-    } catch (err: any) {
-      toast(err.message || 'Gagal menghapus peserta.', 'error');
-    }
+    });
   };
 
   const filteredParticipants = participants
@@ -689,6 +747,18 @@ export default function PanelFasilPage() {
         modalStats={modalStats}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmImport}
+      />
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        confirmText={confirmConfig.confirmText}
+        cancelText={confirmConfig.cancelText}
+        type={confirmConfig.type}
+        onConfirm={confirmConfig.onConfirm}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+        showCancel={confirmConfig.showCancel}
       />
     </div>
   );

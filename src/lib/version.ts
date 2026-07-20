@@ -1,0 +1,1 @@
+export const APP_VERSION = '1.3.0'; // Updated on Jul 20, 2026

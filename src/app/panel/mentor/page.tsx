@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/components/Toast';
 import { ArrowLeftIcon, UpdateIcon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
+import ConfirmModal from '../components/ConfirmModal';
+import { APP_VERSION } from '@/lib/version';
 
 interface UnsyncedMember {
   id: string;
@@ -47,12 +49,44 @@ export default function MentorMonitorPage() {
 
   const [systemLock, setSystemLock] = useState<{ locked: boolean; by?: string }>({ locked: false });
 
+  // Confirm Modal State
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    type?: 'info' | 'warning' | 'danger' | 'success';
+    onConfirm: () => void;
+    showCancel?: boolean;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
+
   const checkSyncLock = async () => {
     try {
       const res = await fetch('/api/sync-lock');
       if (res.ok) {
         const data = await res.json();
         setSystemLock(data);
+
+        // Auto-update notification modal
+        if (data.version && data.version !== APP_VERSION) {
+          setConfirmConfig({
+            isOpen: true,
+            title: 'Pembaruan Sistem Tersedia',
+            message: `Sistem versi terbaru (${data.version}) telah dirilis untuk perbaikan performa & bug sinkronisasi. Silakan klik tombol di bawah untuk memuat ulang halaman.`,
+            confirmText: 'Muat Ulang Halaman',
+            type: 'warning',
+            showCancel: false,
+            onConfirm: () => {
+              window.location.reload();
+            }
+          });
+        }
       }
     } catch (err) {
       console.error('Error checking sync lock:', err);
@@ -461,6 +495,18 @@ export default function MentorMonitorPage() {
         )}
 
       </div>
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        confirmText={confirmConfig.confirmText}
+        cancelText={confirmConfig.cancelText}
+        type={confirmConfig.type}
+        onConfirm={confirmConfig.onConfirm}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+        showCancel={confirmConfig.showCancel}
+      />
     </div>
   );
 }

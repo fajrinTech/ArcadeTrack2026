@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/db';
+import { APP_VERSION } from '@/lib/version';
 
 export async function GET() {
   try {
@@ -18,11 +19,11 @@ export async function GET() {
 
       // Lock expires after 30 seconds of inactivity
       if (ageInSeconds < 30) {
-        return NextResponse.json({ locked: true, by: data.value });
+        return NextResponse.json({ locked: true, by: data.value, version: APP_VERSION });
       }
     }
 
-    return NextResponse.json({ locked: false });
+    return NextResponse.json({ locked: false, version: APP_VERSION });
   } catch (error: any) {
     console.error('GET sync lock error:', error);
     return NextResponse.json({ error: 'Gagal mengecek status lock.' }, { status: 500 });
