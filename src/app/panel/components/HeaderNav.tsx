@@ -18,6 +18,7 @@ interface HeaderNavProps {
   systemLock?: { locked: boolean; by?: string };
   onSendEmailProgress: () => void;
   isSendingEmail: boolean;
+  showEmailProgress?: boolean;
 }
 
 export default function HeaderNav({
@@ -33,7 +34,8 @@ export default function HeaderNav({
   fileInputRef,
   systemLock,
   onSendEmailProgress,
-  isSendingEmail
+  isSendingEmail,
+  showEmailProgress
 }: HeaderNavProps) {
   const isSystemLocked = systemLock?.locked && systemLock?.by !== facilName;
 
@@ -76,7 +78,7 @@ export default function HeaderNav({
           </button>
         )}
 
-        {hasParticipants && (
+        {hasParticipants && showEmailProgress && (
           <button
             onClick={onSendEmailProgress}
             disabled={isSyncingAll || syncingId !== null || isImporting || isSendingEmail}

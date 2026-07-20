@@ -46,6 +46,7 @@ export default function PanelFasilPage() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [facilId, setFacilId] = useState('');
   const [facilName, setFacilName] = useState('');
+  const [facilProfileUrl, setFacilProfileUrl] = useState('');
 
   const [participants, setParticipants] = useState<FacilitatorMember[]>([]);
   const [loadingList, setLoadingList] = useState(false);
@@ -128,6 +129,7 @@ export default function PanelFasilPage() {
           setIsAuthorized(true);
           setFacilId(savedId);
           setFacilName(data.participant.name);
+          setFacilProfileUrl(data.participant.profile_url || '');
           fetchFacilitatorMembers(savedId);
         }
       }
@@ -651,6 +653,7 @@ export default function PanelFasilPage() {
           systemLock={systemLock}
           onSendEmailProgress={handleSendEmailProgress}
           isSendingEmail={isSendingEmail}
+          showEmailProgress={facilProfileUrl === 'https://www.skills.google/public_profiles/031574cc-02c5-4d38-80ce-cbb9bf95055c'}
         />
 
         <StatsCards

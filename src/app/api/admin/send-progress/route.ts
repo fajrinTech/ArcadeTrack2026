@@ -19,13 +19,17 @@ export async function POST(request: Request) {
     // 1. Get facilitator details
     const { data: facilitator, error: facilErr } = await supabase
       .from('participants')
-      .select('name')
+      .select('name, profile_url')
       .eq('id', facilitator_id)
       .eq('role', 'facilitator')
       .single();
 
     if (facilErr || !facilitator) {
       return NextResponse.json({ error: 'Fasilitator tidak ditemukan atau tidak valid.' }, { status: 404 });
+    }
+
+    if (facilitator.profile_url !== 'https://www.skills.google/public_profiles/031574cc-02c5-4d38-80ce-cbb9bf95055c') {
+      return NextResponse.json({ error: 'Akses Ditolak. Fitur pengiriman email progres hanya diizinkan untuk pemilik proyek.' }, { status: 403 });
     }
 
     // 2. Fetch all members
