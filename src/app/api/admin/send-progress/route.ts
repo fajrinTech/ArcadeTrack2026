@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, sent: 0, failed: 0, message: 'Tidak ada peserta dengan alamat email terdaftar.' });
     }
 
-    const origin = new URL(request.url).origin;
+    const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://arcade-track2026.vercel.app';
     const results = [];
 
     for (const m of targetMembers) {
