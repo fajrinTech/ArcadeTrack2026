@@ -77,6 +77,7 @@ export default function Home() {
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [openNotifs, setOpenNotifs] = useState<Record<string, boolean>>({});
+  const [isMaintenance, setIsMaintenance] = useState(false);
 
   // Confirm Modal State
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -119,6 +120,24 @@ export default function Home() {
       setIsLoadingList(false);
     }
   };
+
+  const checkSyncLock = async () => {
+    try {
+      const res = await fetch('/api/sync-lock');
+      if (res.ok) {
+        const data = await res.json();
+        setIsMaintenance(!!data.maintenance);
+      }
+    } catch (err) {
+      console.error('Error checking sync lock:', err);
+    }
+  };
+
+  useEffect(() => {
+    checkSyncLock();
+    const interval = setInterval(checkSyncLock, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const savedId = localStorage.getItem('myProfileId');
@@ -271,6 +290,26 @@ export default function Home() {
       }
     });
   };
+
+  if (isMaintenance && myProfileId !== 'a3961d06-d854-4348-9977-004d5a3dd8d8') {
+    return (
+      <div className="min-h-dvh flex flex-col justify-center items-center pb-12 px-4 font-mono bg-white text-black">
+        <div className="max-w-md w-full animate-scale-in">
+          <div className="neobrutal-card text-center p-6 md:p-8 space-y-6 border-[3px] border-black shadow-[4px_4px_0_#000]">
+            <div className="w-14 h-14 rounded-lg overflow-hidden border-[3px] border-black mx-auto shadow-[3px_3px_0px_#000] flex items-center justify-center bg-yellow-300 text-2xl">
+              🛠
+            </div>
+            <h2 className="text-2xl font-extrabold text-black uppercase">
+              Pemeliharaan Sistem
+            </h2>
+            <p className="text-sm text-text-muted leading-relaxed font-bold">
+              Aplikasi ini sedang dalam proses pemeliharaan berkala oleh Mentor Utama. Silakan kembali beberapa saat lagi. Terima kasih!
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh flex flex-col pb-12">

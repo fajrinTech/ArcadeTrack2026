@@ -63,7 +63,7 @@ export default function MentorMonitorPage() {
     profileUrl: string;
   }
 
-  const [activeTab, setActiveTab] = useState<'unsynced' | 'recent' | 'facilitators' | 'feedback'>('unsynced');
+  const [activeTab, setActiveTab] = useState<'unsynced' | 'recent' | 'facilitators' | 'feedback' | 'audit_logs'>('unsynced');
   const [facilitators, setFacilitators] = useState<FacilitatorInfo[]>([]);
   const [loadingFacilitators, setLoadingFacilitators] = useState(false);
 
@@ -71,6 +71,11 @@ export default function MentorMonitorPage() {
   const [loadingFeedback, setLoadingFeedback] = useState(false);
   const [feedbackSearchQuery, setFeedbackSearchQuery] = useState('');
   const [selectedFeedback, setSelectedFeedback] = useState<FeedbackItem | null>(null);
+
+  // Advanced States
+  const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [loadingAuditLogs, setLoadingAuditLogs] = useState(false);
 
   const [systemLock, setSystemLock] = useState<{ locked: boolean; by?: string }>({ locked: false });
   const [showSessionExpired, setShowSessionExpired] = useState(false);
@@ -98,6 +103,7 @@ export default function MentorMonitorPage() {
       if (res.ok) {
         const data = await res.json();
         setSystemLock(data);
+        setMaintenanceEnabled(!!data.maintenance);
 
         // Auto-update notification modal
         if (data.version && data.version !== APP_VERSION) {
@@ -116,6 +122,42 @@ export default function MentorMonitorPage() {
       }
     } catch (err) {
       console.error('Error checking sync lock:', err);
+    }
+  };
+
+  const fetchAuditLogs = async () => {
+    setLoadingAuditLogs(true);
+    try {
+      const res = await fetch('/api/admin/audit-logs');
+      if (res.ok) {
+        const data = await res.json();
+        setAuditLogs(data.logs || []);
+      }
+    } catch (err) {
+      console.error('Error fetching audit logs:', err);
+      toast('Gagal mengambil audit logs.', 'error');
+    } finally {
+      setLoadingAuditLogs(false);
+    }
+  };
+
+  const toggleMaintenanceMode = async (enabled: boolean) => {
+    try {
+      const res = await fetch('/api/admin/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled })
+      });
+      if (res.ok) {
+        setMaintenanceEnabled(enabled);
+        toast(enabled ? 'Mode Pemeliharaan diaktifkan!' : 'Mode Pemeliharaan dimatikan!', 'success');
+      } else {
+        const err = await res.json();
+        toast(err.error || 'Gagal mengubah status pemeliharaan.', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      toast('Terjadi kesalahan koneksi.', 'error');
     }
   };
 
@@ -460,6 +502,15 @@ export default function MentorMonitorPage() {
               {systemLock.locked && systemLock.by === 'Mentor Utama' ? '🔓' : '🔒'}
             </button>
             <button
+              onClick={() => toggleMaintenanceMode(!maintenanceEnabled)}
+              className={`p-2 border-[2.5px] border-black rounded hover:bg-surface-alt active:translate-x-[1.5px] active:translate-y-[1.5px] active:shadow-[1.5px_1.5px_0px_#000] shadow-[3px_3px_0px_#000] transition-all disabled:opacity-50 text-[10px] font-black uppercase flex items-center gap-1 ${
+                maintenanceEnabled ? 'bg-yellow-300 text-black font-extrabold' : 'bg-white text-text-muted hover:text-black font-extrabold'
+              }`}
+              title={maintenanceEnabled ? 'Matikan Mode Pemeliharaan' : 'Aktifkan Mode Pemeliharaan'}
+            >
+              ⚙️ {maintenanceEnabled ? 'MAINTENANCE: ON' : 'MAINTENANCE: OFF'}
+            </button>
+            <button
               onClick={() => fetchMonitorData(myId)}
               disabled={loadingData || isSyncingAll}
               className="p-2 border-[2.5px] border-black rounded bg-white hover:bg-surface-alt active:translate-x-[1.5px] active:translate-y-[1.5px] active:shadow-[1.5px_1.5px_0px_#000] shadow-[3px_3px_0px_#000] transition-all"
@@ -535,6 +586,14 @@ export default function MentorMonitorPage() {
             }`}
           >
             Masukan & Bug
+          </button>
+          <button
+            onClick={() => { setActiveTab('audit_logs'); fetchAuditLogs(); }}
+            className={`px-4 py-2 border-[3px] border-b-0 border-black rounded-t-lg text-xs font-black uppercase transition-all shadow-[2px_-2px_0_#000] ${
+              activeTab === 'audit_logs' ? 'bg-primary text-black -translate-y-0.5' : 'bg-surface-alt text-text-muted hover:text-black'
+            }`}
+          >
+            Audit Logs
           </button>
         </div>
 
@@ -782,6 +841,83 @@ export default function MentorMonitorPage() {
                           </td>
                         </tr>
                       ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+        {/* Audit Logs List */}
+        {activeTab === 'audit_logs' && (
+          <div className="neobrutal-card space-y-4 animate-fade-slide-up bg-white text-black">
+            <div className="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
+              <span className="text-xs font-black uppercase text-black">
+                Log Aktivitas Sistem (Audit Logs)
+              </span>
+              <div className="flex gap-2">
+                <a
+                  href={`/api/admin/audit-logs?format=csv`}
+                  download
+                  className="neobrutal-btn-secondary !bg-[#4CAF50] hover:!bg-[#388E3C] !text-white flex items-center gap-1.5 !py-2 !px-3 text-xs font-bold shadow-[3px_3px_0px_#000] border-[2.5px] border-black rounded w-full sm:w-auto justify-center whitespace-nowrap"
+                >
+                  EXPORT LOGS CSV
+                </a>
+                <button
+                  onClick={fetchAuditLogs}
+                  disabled={loadingAuditLogs}
+                  className="neobrutal-btn-secondary !bg-white hover:!bg-surface-alt !text-black flex items-center gap-1.5 !py-2 !px-3 text-xs font-bold shadow-[3px_3px_0px_#000] border-[2.5px] border-black rounded w-full sm:w-auto justify-center whitespace-nowrap"
+                >
+                  <UpdateIcon className={`w-3.5 h-3.5 ${loadingAuditLogs ? 'animate-spin' : ''}`} />
+                  <span>REFRESH</span>
+                </button>
+              </div>
+            </div>
+
+            {loadingAuditLogs ? (
+              <div className="py-12 text-center text-xs text-text-muted">
+                <UpdateIcon className="w-5 h-5 animate-spin mx-auto mb-2" />
+                <span>MEMUAT AUDIT LOGS...</span>
+              </div>
+            ) : auditLogs.length === 0 ? (
+              <div className="py-16 text-center text-xs text-text-muted">
+                BELUM ADA DATA AKTIVITAS
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b-[3px] border-black text-text-muted uppercase font-bold text-[10px]">
+                      <th className="py-2.5 px-2 text-center w-10">#</th>
+                      <th className="py-2.5 px-2 w-40">WAKTU</th>
+                      <th className="py-2.5 px-2 w-44">AKTOR</th>
+                      <th className="py-2.5 px-2 w-48">AKSI</th>
+                      <th className="py-2.5 px-2">DETAIL</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y-[2px] divide-black text-black">
+                    {auditLogs.map((log, idx) => (
+                      <tr key={log.id} className="hover:bg-surface-alt align-top">
+                        <td className="py-2.5 px-2 text-center font-bold text-text-muted">{idx + 1}</td>
+                        <td className="py-2.5 px-2 text-text-muted text-[10px] whitespace-nowrap">
+                          {new Date(log.created_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}
+                        </td>
+                        <td className="py-2.5 px-2 font-extrabold">{log.actor_name || 'System'}</td>
+                        <td className="py-2.5 px-2 font-black text-tertiary">
+                          <span className={`inline-block px-1.5 py-0.5 rounded border-[1.5px] border-black text-[9px] font-black uppercase ${
+                            log.action.toLowerCase().includes('rollback') || log.action.toLowerCase().includes('delete')
+                              ? 'bg-red-100 text-red-700'
+                              : log.action.toLowerCase().includes('upload')
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-blue-100 text-blue-700'
+                          }`}>
+                            {log.action}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-2 text-xs font-mono break-all font-bold text-text-muted">
+                          {JSON.stringify(log.details)}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

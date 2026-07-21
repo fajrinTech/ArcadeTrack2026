@@ -11,6 +11,7 @@ interface FacilitatorMember {
   skills_count: number;
   monthly_points: number;
   last_synced?: string | null;
+  sync_status?: 'belum' | 'sukses' | 'gagal' | 'pending';
 }
 
 interface MemberListTableProps {
@@ -96,50 +97,78 @@ export default function MemberListTable({
                   <th className="py-2.5 px-2">NAMA PESERTA</th>
                   <th className="py-2.5 px-2 hidden sm:table-cell">PROFILE URL</th>
                   <th className="py-2.5 px-2 text-center w-28">POIN ARCADE</th>
+                  <th className="py-2.5 px-2 text-center w-24">STATUS</th>
                   <th className="py-2.5 px-2 text-center w-36 hidden sm:table-cell">SYNC TERAKHIR</th>
                   <th className="py-2.5 px-2 text-center w-24">AKSI</th>
                 </tr>
               </thead>
               <tbody className="divide-y-[2px] divide-black text-black">
-                {displayedParticipants.map((p, idx) => (
-                  <tr key={p.id} className="hover:bg-surface-alt transition-colors">
-                    <td className="py-3 px-2 text-center font-bold text-text-muted">
-                      {idx + 1}
-                    </td>
-                    <td className="py-3 px-2 font-extrabold">
-                      <div className="flex flex-col">
-                        <span>{p.name}</span>
-                        <span className="text-[8px] text-text-muted sm:hidden mt-0.5 font-bold uppercase">
-                          Sync: {p.last_synced
-                            ? new Date(p.last_synced).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
-                            : 'Belum'
-                          }
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-2 hidden sm:table-cell text-text-muted truncate max-w-[200px]" title={p.profile_url}>
-                      <a
-                        href={p.profile_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hover:text-tertiary hover:underline"
-                      >
-                        {p.profile_url}
-                      </a>
-                    </td>
-                    <td className="py-3 px-2 text-center font-black text-sm">
-                      {(p.monthly_points ?? 0).toFixed(1)}
-                      <div className="text-[8px] text-text-muted font-bold mt-0.5">
-                        {p.games_count} G / {p.skills_count} S
-                      </div>
-                    </td>
-                    <td className="py-3 px-2 text-center text-[10px] text-text-muted hidden sm:table-cell">
-                      {p.last_synced
-                        ? new Date(p.last_synced).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
-                        : 'Belum Sinkron'
-                      }
-                    </td>
-                    <td className="py-3 px-2 text-center">
+                {displayedParticipants.map((p, idx) => {
+                  const isPending = syncingId === p.id;
+                  const currentStatus = isPending ? 'pending' : (p.sync_status || 'belum');
+
+                  return (
+                    <tr key={p.id} className="hover:bg-surface-alt transition-colors">
+                      <td className="py-3 px-2 text-center font-bold text-text-muted">
+                        {idx + 1}
+                      </td>
+                      <td className="py-3 px-2 font-extrabold">
+                        <div className="flex flex-col">
+                          <span>{p.name}</span>
+                          <span className="text-[8px] text-text-muted sm:hidden mt-0.5 font-bold uppercase">
+                            Sync: {p.last_synced
+                              ? new Date(p.last_synced).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+                              : 'Belum'
+                            }
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 hidden sm:table-cell text-text-muted truncate max-w-[200px]" title={p.profile_url}>
+                        <a
+                          href={p.profile_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-tertiary hover:underline"
+                        >
+                          {p.profile_url}
+                        </a>
+                      </td>
+                      <td className="py-3 px-2 text-center font-black text-sm">
+                        {(p.monthly_points ?? 0).toFixed(1)}
+                        <div className="text-[8px] text-text-muted font-bold mt-0.5">
+                          {p.games_count} G / {p.skills_count} S
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 text-center">
+                        {currentStatus === 'pending' && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[#E1EFFE] text-[#1E429F] border-[1.5px] border-black rounded text-[8px] font-black uppercase">
+                            <UpdateIcon className="w-2.5 h-2.5 animate-spin" />
+                            PENDING
+                          </span>
+                        )}
+                        {currentStatus === 'sukses' && (
+                          <span className="inline-block px-1.5 py-0.5 bg-[#DEF7EC] text-[#03543F] border-[1.5px] border-black rounded text-[8px] font-black uppercase">
+                            SUKSES
+                          </span>
+                        )}
+                        {currentStatus === 'gagal' && (
+                          <span className="inline-block px-1.5 py-0.5 bg-[#FDE8E8] text-[#9B1C1C] border-[1.5px] border-black rounded text-[8px] font-black uppercase">
+                            GAGAL
+                          </span>
+                        )}
+                        {currentStatus === 'belum' && (
+                          <span className="inline-block px-1.5 py-0.5 bg-[#FEF08A] text-[#713F12] border-[1.5px] border-black rounded text-[8px] font-black uppercase">
+                            BELUM
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 px-2 text-center text-[10px] text-text-muted hidden sm:table-cell">
+                        {p.last_synced
+                          ? new Date(p.last_synced).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+                          : 'Belum Sinkron'
+                        }
+                      </td>
+                      <td className="py-3 px-2 text-center">
                       <div className="flex items-center justify-center gap-1.5">
                         <button
                           onClick={() => onSyncParticipant(p.id)}
@@ -181,7 +210,8 @@ export default function MemberListTable({
                       </div>
                     </td>
                   </tr>
-                ))}
+                );
+              })}
               </tbody>
             </table>
           </div>

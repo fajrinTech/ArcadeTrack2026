@@ -6,25 +6,32 @@ const FAJRIN_ID = 'a3961d06-d854-4348-9977-004d5a3dd8d8';
 
 export async function GET() {
   try {
-    const { data, error } = await supabase
+    const { data: settings, error } = await supabase
       .from('system_settings')
       .select('*')
-      .eq('key', 'sync_lock')
-      .maybeSingle();
+      .in('key', ['sync_lock', 'maintenance_mode']);
 
     if (error) throw error;
 
-    if (data) {
-      const updatedAt = new Date(data.updated_at).getTime();
+    const lockSetting = settings?.find(s => s.key === 'sync_lock');
+    const maintenanceSetting = settings?.find(s => s.key === 'maintenance_mode');
+
+    const maintenance = maintenanceSetting?.value === 'true';
+    let locked = false;
+    let by = '';
+
+    if (lockSetting) {
+      const updatedAt = new Date(lockSetting.updated_at).getTime();
       const now = Date.now();
       const ageInSeconds = (now - updatedAt) / 1000;
 
       if (ageInSeconds < 30) {
-        return NextResponse.json({ locked: true, by: data.value, version: APP_VERSION });
+        locked = true;
+        by = lockSetting.value;
       }
     }
 
-    return NextResponse.json({ locked: false, version: APP_VERSION });
+    return NextResponse.json({ locked, by, maintenance, version: APP_VERSION });
   } catch (error: any) {
     console.error('GET sync lock error:', error);
     return NextResponse.json({ error: 'Gagal mengecek status lock.' }, { status: 500 });

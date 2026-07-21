@@ -28,6 +28,8 @@ interface FacilitatorMember {
   monthly_points: number;
   last_synced?: string | null;
   created_at: string;
+  created_by_batch_id?: string | null;
+  sync_status?: 'belum' | 'sukses' | 'gagal' | 'pending';
 }
 
 interface ParsedMember {
@@ -73,6 +75,20 @@ export default function PanelFasilPage() {
   const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
   const [showSessionExpired, setShowSessionExpired] = useState(false);
 
+  // Advanced States
+  const [uploadFilename, setUploadFilename] = useState('');
+  interface UploadBatch {
+    id: string;
+    facilitator_id: string;
+    filename: string;
+    records_count: number;
+    status: 'completed' | 'rolled_back';
+    uploaded_at: string;
+  }
+  const [uploadHistory, setUploadHistory] = useState<UploadBatch[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [isMaintenance, setIsMaintenance] = useState(false);
+
   // Confirm Modal State
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
@@ -96,6 +112,7 @@ export default function PanelFasilPage() {
       if (res.ok) {
         const data = await res.json();
         setSystemLock(data);
+        setIsMaintenance(!!data.maintenance);
 
         // Auto-update notification modal
         if (data.version && data.version !== APP_VERSION) {
@@ -172,6 +189,7 @@ export default function PanelFasilPage() {
           setFacilName(data.participant.name);
           setFacilProfileUrl(data.participant.profile_url || '');
           fetchFacilitatorMembers(savedId);
+          fetchUploadHistory(savedId);
         }
       }
     } catch (err) {
@@ -179,6 +197,55 @@ export default function PanelFasilPage() {
     } finally {
       setLoadingAuth(false);
     }
+  };
+
+  const fetchUploadHistory = async (facilitatorId: string) => {
+    setLoadingHistory(true);
+    try {
+      const res = await fetch(`/api/facilitator-members/upload-history?facilitator_id=${facilitatorId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setUploadHistory(data.history || []);
+      }
+    } catch (err) {
+      console.error('Error fetching upload history:', err);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  const handleRollbackUpload = async (batchId: string, filename: string) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Rollback Unggahan CSV',
+      message: `Apakah Anda yakin ingin melakukan rollback untuk file "${filename}"? Tindakan ini akan menghapus seluruh data peserta BARU yang di-import dari file ini. Data lama yang diperbarui tidak akan dihapus.`,
+      confirmText: 'Ya, Hapus Data Baru',
+      cancelText: 'Batal',
+      type: 'danger',
+      showCancel: true,
+      onConfirm: async () => {
+        setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+        try {
+          const res = await fetch('/api/facilitator-members/rollback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ facilitator_id: facilId, batch_id: batchId })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            toast(`Rollback sukses! Menghapus ${data.deletedCount} peserta baru.`, 'success');
+            fetchFacilitatorMembers(facilId);
+            fetchUploadHistory(facilId);
+          } else {
+            const err = await res.json();
+            toast(err.error || 'Gagal rollback.', 'error');
+          }
+        } catch (err) {
+          console.error(err);
+          toast('Terjadi kesalahan saat rollback.', 'error');
+        }
+      }
+    });
   };
 
   const fetchFacilitatorMembers = async (facilitatorId: string) => {
@@ -329,6 +396,8 @@ export default function PanelFasilPage() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setUploadFilename(file.name);
+
     const reader = new FileReader();
     reader.onload = async (e) => {
       const text = e.target?.result as string;
@@ -426,7 +495,7 @@ export default function PanelFasilPage() {
       const res = await fetch('/api/facilitator-members', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ facilitator_id: facilId, members: parsedData })
+        body: JSON.stringify({ facilitator_id: facilId, members: parsedData, filename: uploadFilename })
       });
 
       if (!res.ok) {
@@ -438,6 +507,7 @@ export default function PanelFasilPage() {
       toast(`Berhasil mengimpor/memperbarui ${data.count} peserta!`, 'success');
       setIsModalOpen(false);
       fetchFacilitatorMembers(facilId);
+      fetchUploadHistory(facilId);
     } catch (err: any) {
       console.error(err);
       toast(err.message || 'Terjadi kesalahan saat mengimpor.', 'error');
@@ -671,6 +741,26 @@ export default function PanelFasilPage() {
     );
   }
 
+  if (isMaintenance) {
+    return (
+      <div className="min-h-dvh flex flex-col justify-center items-center pb-12 px-4 font-mono bg-white text-black">
+        <div className="max-w-md w-full animate-scale-in">
+          <div className="neobrutal-card text-center p-6 md:p-8 space-y-6">
+            <div className="w-14 h-14 rounded-lg overflow-hidden border-[3px] border-black mx-auto shadow-[3px_3px_0px_#000] flex items-center justify-center bg-yellow-300 text-2xl">
+              🛠
+            </div>
+            <h2 className="text-2xl font-extrabold text-black uppercase">
+              Pemeliharaan Sistem
+            </h2>
+            <p className="text-sm text-text-muted leading-relaxed font-bold">
+              Aplikasi ini sedang dalam proses pemeliharaan berkala oleh Mentor Utama. Silakan kembali beberapa saat lagi. Terima kasih!
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!isAuthorized) {
     return (
       <div className="min-h-dvh flex flex-col justify-center items-center pb-12 px-4">
@@ -753,6 +843,74 @@ export default function PanelFasilPage() {
           onSendEmailSingle={handleSendEmailSingle}
           sendingEmailId={sendingEmailId}
         />
+
+        {/* Riwayat Unggahan CSV & Rollback */}
+        {(totalBimbingan > 0 || uploadHistory.length > 0) && (
+          <div className="neobrutal-card space-y-4 animate-fade-slide-up">
+            <span className="text-xs font-black uppercase text-black block border-b-[2px] border-black pb-2">
+              Riwayat Unggahan CSV & Rollback
+            </span>
+            
+            {loadingHistory ? (
+              <div className="py-6 text-center text-xs text-text-muted">
+                <UpdateIcon className="w-4 h-4 animate-spin mx-auto mb-1" />
+                <span>MEMUAT RIWAYAT...</span>
+              </div>
+            ) : uploadHistory.length === 0 ? (
+              <div className="py-8 text-center text-xs text-text-muted uppercase font-bold">
+                Belum ada riwayat unggahan CSV.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b-[3px] border-black text-text-muted uppercase font-bold text-[10px]">
+                      <th className="py-2.5 px-2">NAMA FILE</th>
+                      <th className="py-2.5 px-2 text-center w-36">TANGGAL UNGGAH</th>
+                      <th className="py-2.5 px-2 text-center w-24">JUMLAH DATA</th>
+                      <th className="py-2.5 px-2 text-center w-24">STATUS</th>
+                      <th className="py-2.5 px-2 text-center w-24">AKSI</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y-[2px] divide-black text-black">
+                    {uploadHistory.map((h) => (
+                      <tr key={h.id} className="hover:bg-surface-alt transition-colors">
+                        <td className="py-2.5 px-2 font-bold truncate max-w-[200px]" title={h.filename}>{h.filename}</td>
+                        <td className="py-2.5 px-2 text-center text-text-muted text-[10px]">
+                          {new Date(h.uploaded_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}
+                        </td>
+                        <td className="py-2.5 px-2 text-center font-black">{h.records_count}</td>
+                        <td className="py-2.5 px-2 text-center">
+                          {h.status === 'completed' ? (
+                            <span className="inline-block px-1.5 py-0.5 bg-[#DEF7EC] text-[#03543F] border-[1.5px] border-black rounded text-[8px] font-black uppercase">
+                              Sukses
+                            </span>
+                          ) : (
+                            <span className="inline-block px-1.5 py-0.5 bg-[#FDE8E8] text-[#9B1C1C] border-[1.5px] border-black rounded text-[8px] font-black uppercase">
+                              Rolled Back
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-2.5 px-2 text-center">
+                          {h.status === 'completed' ? (
+                            <button
+                              onClick={() => handleRollbackUpload(h.id, h.filename)}
+                              className="px-2 py-0.5 bg-secondary text-white border-[2px] border-black rounded text-[8px] font-black uppercase shadow-[1.5px_1.5px_0_#000] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-[1px_1px_0_#000] transition-all hover:bg-secondary/90"
+                            >
+                              ROLLBACK
+                            </button>
+                          ) : (
+                            <span className="text-[10px] text-text-muted font-bold">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
       </div>
 

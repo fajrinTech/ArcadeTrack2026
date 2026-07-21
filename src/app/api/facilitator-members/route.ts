@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { facilitator_id, members } = await request.json();
+    const { facilitator_id, members, filename } = await request.json();
 
     if (!facilitator_id || !Array.isArray(members)) {
       return NextResponse.json({ error: 'Data input tidak valid.' }, { status: 400 });
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
-    const result = await bulkUpsertFacilitatorMembers(facilitator_id, members);
+    const result = await bulkUpsertFacilitatorMembers(facilitator_id, members, filename);
     return NextResponse.json({ success: true, count: result.length, members: result });
   } catch (error: any) {
     console.error('POST bulk facilitator members error:', error);

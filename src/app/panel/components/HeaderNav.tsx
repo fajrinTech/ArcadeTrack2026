@@ -38,6 +38,35 @@ export default function HeaderNav({
   showEmailProgress
 }: HeaderNavProps) {
   const isSystemLocked = systemLock?.locked && systemLock?.by === 'Mentor Utama';
+  const [showChangelog, setShowChangelog] = React.useState(false);
+
+  const changelogs = [
+    {
+      version: 'v1.4.7',
+      date: '21 Jul 2026',
+      changes: [
+        'Menambahkan tab "Masukan & Bug" real-time dari Google Sheet.',
+        'Sistem layout tabel feedback ter-truncate dengan detail pembaca pop-up modal.',
+        'Menambahkan fitur Rollback batch CSV, Audit Log, dan Mode Pemeliharaan (Maintenance).'
+      ]
+    },
+    {
+      version: 'v1.4.6',
+      date: '21 Jul 2026',
+      changes: [
+        'Optimasi bypass scraper IP public rate-limit secara internal.',
+        'Menerapkan sequential delay 500ms dan retry sync otomatis untuk ketahanan tinggi.'
+      ]
+    },
+    {
+      version: 'v1.4.5',
+      date: '21 Jul 2026',
+      changes: [
+        'Pemberlakuan auto-logout & pembersihan sesi lama untuk keamanan data.',
+        'Mencegah freeze/layar blank saat cookie sesi kedaluwarsa.'
+      ]
+    }
+  ];
 
   return (
     <div className="relative z-20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface p-4 border-[3px] border-black rounded-lg shadow-[4px_4px_0px_#000] animate-fade-slide-up">
@@ -50,7 +79,16 @@ export default function HeaderNav({
           <ArrowLeftIcon className="w-4 h-4 text-black" />
         </Link>
         <div>
-          <h1 className="text-lg font-black uppercase text-black">Panel Fasilitator</h1>
+          <h1 className="text-lg font-black uppercase text-black flex items-center gap-2">
+            Panel Fasilitator
+            <button
+              onClick={() => setShowChangelog(true)}
+              className="text-[9px] px-1.5 py-0.5 bg-primary text-black border-[1.5px] border-black rounded shadow-[1px_1px_0_#000] hover:bg-primary-dark transition-colors font-bold uppercase tracking-wider"
+              title="Lihat Log Pembaruan"
+            >
+              v1.4.7 ℹ
+            </button>
+          </h1>
           <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider">
             Fasil: {facilName || 'Google Cloud Facilitator'}
           </p>
@@ -116,6 +154,48 @@ export default function HeaderNav({
           <span>UPLOAD CSV</span>
         </label>
       </div>
+
+      {/* Changelog Modal */}
+      {showChangelog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="neobrutal-card max-w-md w-full p-6 space-y-4 animate-scale-in text-black bg-white">
+            <div className="flex justify-between items-center border-b-[2.5px] border-black pb-2.5">
+              <h3 className="font-black uppercase text-sm">Changelog Sistem</h3>
+              <button
+                onClick={() => setShowChangelog(false)}
+                className="p-1 border-[2.5px] border-black rounded bg-white hover:bg-surface-alt active:translate-x-[0.5px] active:translate-y-[0.5px] text-xs font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="max-h-[300px] overflow-y-auto space-y-4 pr-1">
+              {changelogs.map((log) => (
+                <div key={log.version} className="border-[2px] border-black p-3 bg-surface-alt rounded">
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="px-2 py-0.5 bg-primary border-[1.5px] border-black rounded text-[10px] font-black">{log.version}</span>
+                    <span className="text-[10px] text-text-muted font-bold">{log.date}</span>
+                  </div>
+                  <ul className="list-disc pl-4 text-xs font-bold space-y-1 text-black">
+                    {log.changes.map((change, i) => (
+                      <li key={i}>{change}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end pt-2 border-t-[2px] border-black">
+              <button
+                onClick={() => setShowChangelog(false)}
+                className="neobrutal-btn-primary text-xs font-bold !py-1.5 !px-3 shadow-[2.5px_2.5px_0_#000] border-[2px] border-black rounded active:translate-x-[0.5px] active:translate-y-[0.5px]"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

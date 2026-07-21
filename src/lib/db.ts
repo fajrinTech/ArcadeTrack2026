@@ -229,6 +229,8 @@ export interface FacilitatorMember {
   monthly_points: number;
   last_synced?: string | null;
   created_at: string;
+  created_by_batch_id?: string | null;
+  sync_status?: 'belum' | 'sukses' | 'gagal' | 'pending';
 }
 
 export async function getFacilitatorMembers(facilitatorId: string): Promise<FacilitatorMember[]> {
@@ -266,15 +268,42 @@ export async function getFacilitatorMember(id: string): Promise<FacilitatorMembe
 
 export async function bulkUpsertFacilitatorMembers(
   facilitatorId: string,
-  members: { name: string; email?: string; profile_url: string; games_count: number; skills_count: number; monthly_points: number }[]
+  members: { name: string; email?: string; profile_url: string; games_count: number; skills_count: number; monthly_points: number }[],
+  filename?: string
 ): Promise<FacilitatorMember[]> {
+  // Deduplicate input members by profile_url to ensure idempotency
+  const seenUrls = new Set<string>();
+  const uniqueMembers = members.filter(m => {
+    const normUrl = normalizeProfileUrl(m.profile_url) || m.profile_url;
+    if (seenUrls.has(normUrl)) return false;
+    seenUrls.add(normUrl);
+    return true;
+  });
+
   // Fetch all existing members for this facilitator first
   const existingMembers = await getFacilitatorMembers(facilitatorId);
   const existingMap = new Map(
     existingMembers.map(m => [normalizeProfileUrl(m.profile_url) || m.profile_url, m])
   );
 
-  const rows = members.map(m => {
+  let batchId: string | null = null;
+  if (filename) {
+    const { data: batchData, error: batchErr } = await supabase
+      .from('upload_history')
+      .insert({
+        facilitator_id: facilitatorId,
+        filename,
+        records_count: uniqueMembers.length,
+        status: 'completed'
+      })
+      .select('id')
+      .single();
+
+    if (batchErr) throw batchErr;
+    batchId = batchData?.id || null;
+  }
+
+  const rows = uniqueMembers.map(m => {
     const normUrl = normalizeProfileUrl(m.profile_url) || m.profile_url;
     const existing = existingMap.get(normUrl);
 
@@ -290,6 +319,8 @@ export async function bulkUpsertFacilitatorMembers(
         skills_count: existing.skills_count,
         monthly_points: existing.monthly_points,
         last_synced: existing.last_synced,
+        created_by_batch_id: existing.created_by_batch_id,
+        sync_status: existing.sync_status || 'belum'
       };
     } else {
       // New member: initialize counts to 0 and last_synced to null
@@ -303,6 +334,8 @@ export async function bulkUpsertFacilitatorMembers(
         skills_count: 0,
         monthly_points: 0,
         last_synced: null,
+        created_by_batch_id: batchId,
+        sync_status: 'belum'
       };
     }
   });
@@ -313,6 +346,15 @@ export async function bulkUpsertFacilitatorMembers(
     .select();
 
   if (error) throw error;
+
+  if (filename && batchId) {
+    await createAuditLog(facilitatorId, 'Upload CSV', {
+      filename,
+      count: uniqueMembers.length,
+      batch_id: batchId
+    });
+  }
+
   return data ?? [];
 }
 
@@ -337,6 +379,31 @@ export async function deleteFacilitatorMember(id: string): Promise<boolean> {
     .eq('id', id);
   if (error) throw error;
   return (count ?? 0) > 0;
+}
+
+export async function createAuditLog(
+  actorId: string | null,
+  action: string,
+  details?: any
+): Promise<void> {
+  let actorName = 'System';
+  if (actorId) {
+    const { data } = await supabase
+      .from('participants')
+      .select('name')
+      .eq('id', actorId)
+      .maybeSingle();
+    if (data?.name) {
+      actorName = data.name;
+    }
+  }
+
+  await supabase.from('audit_logs').insert({
+    actor_id: actorId,
+    actor_name: actorName,
+    action,
+    details
+  });
 }
 
 
