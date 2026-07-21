@@ -348,6 +348,48 @@ export default function MentorMonitorPage() {
 
           <div className="flex items-center gap-2">
             <button
+              onClick={async () => {
+                if (systemLock.locked && systemLock.by === 'Mentor Utama') {
+                  try {
+                    const res = await fetch('/api/sync-lock', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ action: 'release', holder: 'Mentor Utama' })
+                    });
+                    if (res.ok) {
+                      toast('Sync sudah dibuka. Fasilitator bisa sync lagi.', 'success');
+                      fetchMonitorData(myId);
+                      checkSyncLock();
+                    }
+                  } catch { toast('Gagal membuka lock.', 'error'); }
+                } else {
+                  try {
+                    const res = await fetch('/api/sync-lock', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ action: 'acquire', holder: 'Mentor Utama' })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                      toast('Sync terkunci. Fasilitator tidak bisa sync sampai kamu buka.', 'info');
+                      checkSyncLock();
+                    } else {
+                      toast('Gagal mengunci sync.', 'error');
+                    }
+                  } catch { toast('Gagal mengunci sync.', 'error'); }
+                }
+              }}
+              disabled={isSyncingAll}
+              className={`p-2 border-[2.5px] border-black rounded hover:bg-surface-alt active:translate-x-[1.5px] active:translate-y-[1.5px] active:shadow-[1.5px_1.5px_0px_#000] shadow-[3px_3px_0px_#000] transition-all disabled:opacity-50 ${
+                systemLock.locked && systemLock.by === 'Mentor Utama'
+                  ? 'bg-secondary text-white'
+                  : 'bg-white text-black'
+              }`}
+              title={systemLock.locked && systemLock.by === 'Mentor Utama' ? 'Buka Lock Sync' : 'Kunci Sync Global'}
+            >
+              {systemLock.locked && systemLock.by === 'Mentor Utama' ? '🔓' : '🔒'}
+            </button>
+            <button
               onClick={() => fetchMonitorData(myId)}
               disabled={loadingData || isSyncingAll}
               className="p-2 border-[2.5px] border-black rounded bg-white hover:bg-surface-alt active:translate-x-[1.5px] active:translate-y-[1.5px] active:shadow-[1.5px_1.5px_0px_#000] shadow-[3px_3px_0px_#000] transition-all"
