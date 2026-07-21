@@ -70,6 +70,7 @@ export default function MentorMonitorPage() {
   const [feedbackList, setFeedbackList] = useState<FeedbackItem[]>([]);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
   const [feedbackSearchQuery, setFeedbackSearchQuery] = useState('');
+  const [selectedFeedback, setSelectedFeedback] = useState<FeedbackItem | null>(null);
 
   const [systemLock, setSystemLock] = useState<{ locked: boolean; by?: string }>({ locked: false });
   const [showSessionExpired, setShowSessionExpired] = useState(false);
@@ -742,9 +743,9 @@ export default function MentorMonitorPage() {
                       <th className="py-2 px-2 text-center w-10">#</th>
                       <th className="py-2 px-2 w-32">WAKTU</th>
                       <th className="py-2 px-2 w-36">PENGIRIM</th>
-                      <th className="py-2 px-2 w-44">KATEGORI</th>
-                      <th className="py-2 px-2">DETAIL DESKRIPSI</th>
-                      <th className="py-2 px-2 text-center w-24">PROFIL</th>
+                      <th className="py-2 px-2 w-40">KATEGORI</th>
+                      <th className="py-2 px-2">DETAIL MASUKAN</th>
+                      <th className="py-2 px-2 text-center w-24">AKSI</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y-[2px] divide-black text-black">
@@ -755,7 +756,7 @@ export default function MentorMonitorPage() {
                         f.type.toLowerCase().includes(feedbackSearchQuery.toLowerCase().trim())
                       )
                       .map((f, idx) => (
-                        <tr key={f.id} className="hover:bg-surface-alt align-top">
+                        <tr key={f.id} className="hover:bg-surface-alt">
                           <td className="py-2.5 px-2 text-center font-bold text-text-muted">{idx + 1}</td>
                           <td className="py-2.5 px-2 text-text-muted text-[10px] whitespace-nowrap">{f.timestamp}</td>
                           <td className="py-2.5 px-2 font-extrabold">{f.name}</td>
@@ -770,20 +771,14 @@ export default function MentorMonitorPage() {
                               {f.type}
                             </span>
                           </td>
-                          <td className="py-2.5 px-2 text-black leading-relaxed whitespace-pre-line">{f.description}</td>
+                          <td className="py-2.5 px-2 text-text-muted truncate max-w-[280px]" title="Klik tombol BACA untuk melihat pesan lengkap">{f.description}</td>
                           <td className="py-2.5 px-2 text-center">
-                            {f.profileUrl && f.profileUrl.startsWith('http') ? (
-                              <a
-                                href={f.profileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-block px-2 py-1 bg-[#E1EFFE] text-[#1E429F] border-[2px] border-black rounded text-[10px] font-bold uppercase shadow-[1.5px_1.5px_0_#000] hover:bg-[#1E429F] hover:text-white transition-colors"
-                              >
-                                Profil ↗
-                              </a>
-                            ) : (
-                              <span className="text-[10px] text-text-muted font-bold">—</span>
-                            )}
+                            <button
+                              onClick={() => setSelectedFeedback(f)}
+                              className="px-2 py-0.5 bg-primary text-black border-[2px] border-black rounded text-[9px] font-black uppercase shadow-[1.5px_1.5px_0_#000] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-[1px_1px_0_#000] transition-all hover:bg-primary/90"
+                            >
+                              BACA
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -807,6 +802,57 @@ export default function MentorMonitorPage() {
         onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
         showCancel={confirmConfig.showCancel}
       />
+
+      {selectedFeedback && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="neobrutal-card max-w-lg w-full p-6 space-y-4 animate-scale-in text-black bg-white">
+            <div className="flex justify-between items-start border-b-[2.5px] border-black pb-3">
+              <div>
+                <span className={`inline-block px-1.5 py-0.5 rounded border-[1.5px] border-black text-[9px] font-black uppercase ${
+                  selectedFeedback.type.toLowerCase().includes('bug') || selectedFeedback.type.toLowerCase().includes('kendala')
+                    ? 'bg-red-100 text-red-700'
+                    : selectedFeedback.type.toLowerCase().includes('fitur')
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-blue-100 text-blue-700'
+                }`}>
+                  {selectedFeedback.type}
+                </span>
+                <h3 className="text-sm font-black uppercase mt-1">Masukan dari {selectedFeedback.name}</h3>
+                <span className="text-[10px] text-text-muted font-bold">{selectedFeedback.timestamp}</span>
+              </div>
+              <button
+                onClick={() => setSelectedFeedback(null)}
+                className="p-1.5 border-[2px] border-black rounded bg-white hover:bg-surface-alt active:translate-x-[0.5px] active:translate-y-[0.5px] text-xs font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="max-h-[300px] overflow-y-auto border-[2.5px] border-black p-4 bg-surface-alt rounded text-xs leading-relaxed whitespace-pre-wrap font-bold">
+              {selectedFeedback.description}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t-[2.5px] border-black">
+              {selectedFeedback.profileUrl && selectedFeedback.profileUrl.startsWith('http') && (
+                <a
+                  href={selectedFeedback.profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="neobrutal-btn-secondary !bg-[#E1EFFE] !text-[#1E429F] hover:!bg-[#C3DDFD] text-xs font-bold inline-flex items-center gap-1 !py-2 !px-3 shadow-[3px_3px_0px_#000] border-[2.5px] border-black rounded active:translate-x-[1px] active:translate-y-[1px]"
+                >
+                  Profil GCSB ↗
+                </a>
+              )}
+              <button
+                onClick={() => setSelectedFeedback(null)}
+                className="neobrutal-btn-primary text-xs font-bold !py-2 !px-4 shadow-[3px_3px_0px_#000] border-[2.5px] border-black rounded active:translate-x-[1px] active:translate-y-[1px]"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showSessionExpired && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
