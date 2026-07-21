@@ -157,6 +157,17 @@ export default function Home() {
     setIsLoadingDetail(true);
     try {
       const res = await fetch(`/api/participants/${id}`);
+      if (res.status === 401) {
+        // Session expired/invalid
+        localStorage.removeItem('myProfileId');
+        setMyProfileId(null);
+        setSelectedParticipantId(null);
+        setSelectedParticipant(null);
+        setBadges([]);
+        setMyRole(null);
+        setCurrentView('dashboard');
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setSelectedParticipant(data.participant);

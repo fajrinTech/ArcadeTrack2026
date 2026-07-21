@@ -59,6 +59,7 @@ export default function MentorMonitorPage() {
   const [loadingFacilitators, setLoadingFacilitators] = useState(false);
 
   const [systemLock, setSystemLock] = useState<{ locked: boolean; by?: string }>({ locked: false });
+  const [showSessionExpired, setShowSessionExpired] = useState(false);
 
   // Confirm Modal State
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -135,6 +136,11 @@ export default function MentorMonitorPage() {
 
     try {
       const res = await fetch(`/api/participants/${savedId}`);
+      if (res.status === 401) {
+        setShowSessionExpired(true);
+        setLoadingAuth(false);
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         if (data.participant && data.participant.id === AUTHORIZED_ID && data.participant.profile_url === AUTHORIZED_URL) {
@@ -674,6 +680,33 @@ export default function MentorMonitorPage() {
         onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
         showCancel={confirmConfig.showCancel}
       />
+
+      {showSessionExpired && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="neobrutal-card max-w-sm w-full text-center space-y-5 animate-scale-in">
+            <div className="w-14 h-14 rounded-lg bg-secondary/10 border-[3px] border-secondary flex items-center justify-center mx-auto">
+              <ExclamationTriangleIcon className="w-7 h-7 text-secondary" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-xl font-black uppercase text-black">Pembaruan Keamanan Penting</h2>
+              <p className="text-sm text-text-muted leading-relaxed">
+                Sistem telah diperbarui untuk keamanan yang lebih baik.
+                Silakan login kembali untuk melanjutkan.
+              </p>
+            </div>
+            <button
+              onClick={async () => {
+                await fetch('/api/participants', { method: 'DELETE' }).catch(() => {});
+                localStorage.removeItem('myProfileId');
+                window.location.href = '/';
+              }}
+              className="neobrutal-btn-primary w-full"
+            >
+              Login Kembali
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
