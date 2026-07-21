@@ -54,9 +54,22 @@ export default function MentorMonitorPage() {
   const [syncProgress, setSyncProgress] = useState({ current: 0, total: 0 });
   const [syncStatusText, setSyncStatusText] = useState('');
 
-  const [activeTab, setActiveTab] = useState<'unsynced' | 'recent' | 'facilitators'>('unsynced');
+  interface FeedbackItem {
+    id: string;
+    timestamp: string;
+    name: string;
+    type: string;
+    description: string;
+    profileUrl: string;
+  }
+
+  const [activeTab, setActiveTab] = useState<'unsynced' | 'recent' | 'facilitators' | 'feedback'>('unsynced');
   const [facilitators, setFacilitators] = useState<FacilitatorInfo[]>([]);
   const [loadingFacilitators, setLoadingFacilitators] = useState(false);
+
+  const [feedbackList, setFeedbackList] = useState<FeedbackItem[]>([]);
+  const [loadingFeedback, setLoadingFeedback] = useState(false);
+  const [feedbackSearchQuery, setFeedbackSearchQuery] = useState('');
 
   const [systemLock, setSystemLock] = useState<{ locked: boolean; by?: string }>({ locked: false });
   const [showSessionExpired, setShowSessionExpired] = useState(false);
@@ -211,6 +224,22 @@ export default function MentorMonitorPage() {
       toast('Gagal menyinkronkan data.', 'error');
     } finally {
       setSyncingId(null);
+    }
+  };
+
+  const fetchFeedback = async () => {
+    setLoadingFeedback(true);
+    try {
+      const res = await fetch('/api/admin/feedback');
+      if (res.ok) {
+        const data = await res.json();
+        setFeedbackList(data.feedback || []);
+      }
+    } catch (err) {
+      console.error('Error fetching feedback:', err);
+      toast('Gagal mengambil masukan dari Google Sheet.', 'error');
+    } finally {
+      setLoadingFeedback(false);
     }
   };
 
@@ -498,6 +527,14 @@ export default function MentorMonitorPage() {
           >
             Fasilitator
           </button>
+          <button
+            onClick={() => { setActiveTab('feedback'); fetchFeedback(); }}
+            className={`px-4 py-2 border-[3px] border-b-0 border-black rounded-t-lg text-xs font-black uppercase transition-all shadow-[2px_-2px_0_#000] ${
+              activeTab === 'feedback' ? 'bg-primary text-black -translate-y-0.5' : 'bg-surface-alt text-text-muted hover:text-black'
+            }`}
+          >
+            Masukan & Bug
+          </button>
         </div>
 
         {/* Unsynced List */}
@@ -662,6 +699,96 @@ export default function MentorMonitorPage() {
                 <div className="pt-3 border-t-[2px] border-black text-[10px] text-text-muted font-bold uppercase text-center">
                   Total: {facilitators.length} Fasilitator
                 </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Feedback List */}
+        {activeTab === 'feedback' && (
+          <div className="neobrutal-card space-y-4 animate-fade-slide-up">
+            <div className="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
+              <input
+                type="text"
+                placeholder="CARI MASUKAN ATAU NAMA..."
+                value={feedbackSearchQuery}
+                onChange={(e) => setFeedbackSearchQuery(e.target.value)}
+                className="neobrutal-input flex-grow !py-2 !px-3 text-xs"
+              />
+              <button
+                onClick={fetchFeedback}
+                disabled={loadingFeedback}
+                className="neobrutal-btn-secondary !bg-white hover:!bg-surface-alt !text-black flex items-center gap-1.5 !py-2 !px-3 text-xs font-bold shadow-[3px_3px_0px_#000] border-[2.5px] border-black rounded w-full sm:w-auto justify-center whitespace-nowrap"
+              >
+                <UpdateIcon className={`w-3.5 h-3.5 ${loadingFeedback ? 'animate-spin' : ''}`} />
+                <span>REFRESH</span>
+              </button>
+            </div>
+
+            {loadingFeedback ? (
+              <div className="py-12 text-center text-xs text-text-muted">
+                <UpdateIcon className="w-5 h-5 animate-spin mx-auto mb-2" />
+                <span>MEMUAT DATA MASUKAN...</span>
+              </div>
+            ) : feedbackList.length === 0 ? (
+              <div className="py-16 text-center text-xs text-text-muted">
+                BELUM ADA DATA MASUKAN
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b-[3px] border-black text-text-muted uppercase font-bold text-[10px]">
+                      <th className="py-2 px-2 text-center w-10">#</th>
+                      <th className="py-2 px-2 w-32">WAKTU</th>
+                      <th className="py-2 px-2 w-36">PENGIRIM</th>
+                      <th className="py-2 px-2 w-44">KATEGORI</th>
+                      <th className="py-2 px-2">DETAIL DESKRIPSI</th>
+                      <th className="py-2 px-2 text-center w-24">PROFIL</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y-[2px] divide-black text-black">
+                    {feedbackList
+                      .filter(f => 
+                        f.name.toLowerCase().includes(feedbackSearchQuery.toLowerCase().trim()) ||
+                        f.description.toLowerCase().includes(feedbackSearchQuery.toLowerCase().trim()) ||
+                        f.type.toLowerCase().includes(feedbackSearchQuery.toLowerCase().trim())
+                      )
+                      .map((f, idx) => (
+                        <tr key={f.id} className="hover:bg-surface-alt align-top">
+                          <td className="py-2.5 px-2 text-center font-bold text-text-muted">{idx + 1}</td>
+                          <td className="py-2.5 px-2 text-text-muted text-[10px] whitespace-nowrap">{f.timestamp}</td>
+                          <td className="py-2.5 px-2 font-extrabold">{f.name}</td>
+                          <td className="py-2.5 px-2 font-bold text-tertiary">
+                            <span className={`inline-block px-1.5 py-0.5 rounded border-[1.5px] border-black text-[9px] font-black uppercase ${
+                              f.type.toLowerCase().includes('bug') || f.type.toLowerCase().includes('kendala')
+                                ? 'bg-red-100 text-red-700'
+                                : f.type.toLowerCase().includes('fitur')
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-blue-100 text-blue-700'
+                            }`}>
+                              {f.type}
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-2 text-black leading-relaxed whitespace-pre-line">{f.description}</td>
+                          <td className="py-2.5 px-2 text-center">
+                            {f.profileUrl && f.profileUrl.startsWith('http') ? (
+                              <a
+                                href={f.profileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block px-2 py-1 bg-[#E1EFFE] text-[#1E429F] border-[2px] border-black rounded text-[10px] font-bold uppercase shadow-[1.5px_1.5px_0_#000] hover:bg-[#1E429F] hover:text-white transition-colors"
+                              >
+                                Profil ↗
+                              </a>
+                            ) : (
+                              <span className="text-[10px] text-text-muted font-bold">—</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
