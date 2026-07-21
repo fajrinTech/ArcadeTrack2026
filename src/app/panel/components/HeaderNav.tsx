@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ArrowLeftIcon, UpdateIcon, DownloadIcon, UploadIcon, EnvelopeClosedIcon } from '@radix-ui/react-icons';
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 interface HeaderNavProps {
   facilName: string;
@@ -39,6 +40,11 @@ export default function HeaderNav({
 }: HeaderNavProps) {
   const isSystemLocked = systemLock?.locked && systemLock?.by === 'Mentor Utama';
   const [showChangelog, setShowChangelog] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const changelogs = [
     {
@@ -156,7 +162,7 @@ export default function HeaderNav({
       </div>
 
       {/* Changelog Modal */}
-      {showChangelog && (
+      {showChangelog && mounted && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="neobrutal-card max-w-md w-full p-6 space-y-4 animate-scale-in text-black bg-white">
             <div className="flex justify-between items-center border-b-[2.5px] border-black pb-2.5">
@@ -194,7 +200,8 @@ export default function HeaderNav({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
