@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/db';
+import { supabase, getSessionParticipantId } from '@/lib/db';
 
 const FAJRIN_ID = 'a3961d06-d854-4348-9977-004d5a3dd8d8';
 const FAJRIN_URL = 'https://www.skills.google/public_profiles/031574cc-02c5-4d38-80ce-cbb9bf95055c';
@@ -11,6 +11,12 @@ export async function GET(request: Request) {
 
     if (!profileId) {
       return NextResponse.json({ error: 'Akses Ditolak.' }, { status: 403 });
+    }
+
+    // Guard: session harus Fajrin
+    const sessionUserId = getSessionParticipantId(request);
+    if (!sessionUserId || sessionUserId !== FAJRIN_ID) {
+      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
     // Double-check authorization on database
@@ -87,6 +93,15 @@ export async function GET(request: Request) {
       facilitator_name: m.participants?.name || 'Unknown'
     }));
 
+    // 6. Get all unsynced IDs for unlimited sync mass loops
+    const { data: allUnsyncedData, error: allUnsyncedErr } = await supabase
+      .from('facilitator_members')
+      .select('id')
+      .is('last_synced', null);
+
+    if (allUnsyncedErr) throw allUnsyncedErr;
+    const allUnsyncedIds = (allUnsyncedData || []).map((m: any) => m.id);
+
     return NextResponse.json({
       stats: {
         total: totalCount || 0,
@@ -94,7 +109,8 @@ export async function GET(request: Request) {
         recent24h: recentCount || 0
       },
       unsyncedList: unsyncedMapped,
-      recentList: recentMapped
+      recentList: recentMapped,
+      allUnsyncedIds
     });
 
   } catch (error: any) {

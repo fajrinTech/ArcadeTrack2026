@@ -1,8 +1,16 @@
 import { NextResponse } from 'next/server';
-import { supabase, getFacilitatorMembers } from '@/lib/db';
+import { supabase, getFacilitatorMembers, getSessionParticipantId } from '@/lib/db';
+
+const FAJRIN_ID = 'a3961d06-d854-4348-9977-004d5a3dd8d8';
 
 export async function POST(request: Request) {
   try {
+    // Guard: hanya Fajrin
+    const sessionUserId = getSessionParticipantId(request);
+    if (!sessionUserId || sessionUserId !== FAJRIN_ID) {
+      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+    }
+
     const { facilitator_id, participant_id } = await request.json();
 
     if (!facilitator_id) {
@@ -50,7 +58,6 @@ export async function POST(request: Request) {
     const results = [];
 
     for (const m of targetMembers) {
-      // Generate Live Dashboard Link based on the facilitator page context or login profile ID
       const dashboardUrl = `${origin}/?profile_id=${m.id}`;
 
       const htmlContent = `
@@ -146,7 +153,6 @@ export async function POST(request: Request) {
         results.push({ success: false, email: m.email, error: err.message });
       }
 
-      // Jeda 150ms untuk menghindari rate limit Resend (maks 10 request / detik)
       await new Promise(resolve => setTimeout(resolve, 150));
     }
 

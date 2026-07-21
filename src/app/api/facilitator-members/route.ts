@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getFacilitatorMembers, bulkUpsertFacilitatorMembers } from '@/lib/db';
+import { getFacilitatorMembers, bulkUpsertFacilitatorMembers, getSessionParticipantId } from '@/lib/db';
 
 export async function GET(request: Request) {
   try {
@@ -8,6 +8,12 @@ export async function GET(request: Request) {
 
     if (!facilitatorId) {
       return NextResponse.json({ error: 'facilitator_id wajib diisi.' }, { status: 400 });
+    }
+
+    // Guard: session harus valid dan facilitator_id harus milik user yang login
+    const sessionUserId = getSessionParticipantId(request);
+    if (!sessionUserId || sessionUserId !== facilitatorId) {
+      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
     const members = await getFacilitatorMembers(facilitatorId);
@@ -24,6 +30,12 @@ export async function POST(request: Request) {
 
     if (!facilitator_id || !Array.isArray(members)) {
       return NextResponse.json({ error: 'Data input tidak valid.' }, { status: 400 });
+    }
+
+    // Guard: session harus valid dan facilitator_id harus milik user yang login
+    const sessionUserId = getSessionParticipantId(request);
+    if (!sessionUserId || sessionUserId !== facilitator_id) {
+      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
     const result = await bulkUpsertFacilitatorMembers(facilitator_id, members);

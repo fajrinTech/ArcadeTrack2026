@@ -8,13 +8,14 @@ import Link from 'next/link';
 export default function GateFasilPage() {
   const toast = useToast();
   const [profileUrl, setProfileUrl] = useState('');
+  const [facilCode, setFacilCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!profileUrl) return;
+    if (!profileUrl || !facilCode) return;
 
     setErrorMsg(null);
     setSuccessMsg(null);
@@ -24,18 +25,22 @@ export default function GateFasilPage() {
       const res = await fetch('/api/participants', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile_url: profileUrl, role: 'facilitator' })
+        body: JSON.stringify({ profile_url: profileUrl, role: 'facilitator', facil_code: facilCode })
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Gagal mendaftarkan fasilitator. Pastikan URL profil Google Cloud Skills Boost Anda valid dan disetel ke Publik.');
+        const data = await res.json();
+        setErrorMsg(data.error || 'Gagal mendaftar sebagai fasilitator.');
+        return;
       }
 
       const data = await res.json();
-      setSuccessMsg(`Berhasil mendaftarkan/upgrade "${data.name}" sebagai Fasilitator!`);
+      setSuccessMsg(data.returning ? 'Login berhasil! Mengalihkan ke panel...' : 'Registrasi fasilitator berhasil! Mengalihkan ke panel...');
       toast('Registrasi Fasilitator sukses.', 'success');
-      setProfileUrl('');
+      
+      setTimeout(() => {
+        window.location.href = '/panel';
+      }, 1000);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Koneksi bermasalah. Silakan coba lagi.');
       toast('Registrasi Fasilitator gagal.', 'error');
@@ -62,7 +67,7 @@ export default function GateFasilPage() {
           </div>
 
           <p className="text-sm text-text-muted leading-relaxed max-w-xs mx-auto">
-            Masukkan URL profil Google Cloud Skills Boost yang akan dijadikan/di-upgrade menjadi <strong>Fasilitator</strong> pada sistem ini.
+            Masukkan URL profil Google Cloud Skills Boost dan kode akses untuk mendaftar sebagai <strong>Fasilitator</strong> pada sistem ini.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4 text-left font-mono text-xs">
@@ -73,6 +78,19 @@ export default function GateFasilPage() {
                 value={profileUrl}
                 onChange={(e) => setProfileUrl(e.target.value)}
                 placeholder="https://www.skills.google/public_profiles/..."
+                disabled={isSubmitting}
+                className="neobrutal-input"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="text-[10px] uppercase font-bold text-text-muted block mb-1.5">Kode Akses Fasilitator</label>
+              <input 
+                type="password" 
+                value={facilCode}
+                onChange={(e) => setFacilCode(e.target.value)}
+                placeholder="Masukkan kode akses"
                 disabled={isSubmitting}
                 className="neobrutal-input"
                 required
@@ -95,7 +113,7 @@ export default function GateFasilPage() {
 
             <button 
               type="submit" 
-              disabled={isSubmitting || !profileUrl}
+              disabled={isSubmitting || !profileUrl || !facilCode}
               className="neobrutal-btn-primary w-full flex items-center justify-center gap-2"
             >
               {isSubmitting ? (

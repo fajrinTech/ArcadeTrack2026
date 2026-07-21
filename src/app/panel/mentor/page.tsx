@@ -47,10 +47,12 @@ export default function MentorMonitorPage() {
   const [stats, setStats] = useState({ total: 0, unsynced: 0, recent24h: 0 });
   const [unsyncedList, setUnsyncedList] = useState<UnsyncedMember[]>([]);
   const [recentList, setRecentList] = useState<RecentMember[]>([]);
+  const [allUnsyncedIds, setAllUnsyncedIds] = useState<string[]>([]);
 
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [isSyncingAll, setIsSyncingAll] = useState(false);
   const [syncProgress, setSyncProgress] = useState({ current: 0, total: 0 });
+  const [syncStatusText, setSyncStatusText] = useState('');
 
   const [activeTab, setActiveTab] = useState<'unsynced' | 'recent' | 'facilitators'>('unsynced');
   const [facilitators, setFacilitators] = useState<FacilitatorInfo[]>([]);
@@ -157,6 +159,7 @@ export default function MentorMonitorPage() {
         setStats(data.stats);
         setUnsyncedList(data.unsyncedList);
         setRecentList(data.recentList);
+        setAllUnsyncedIds(data.allUnsyncedIds || []);
       }
     } catch (err) {
       console.error('Error fetching monitor stats:', err);
@@ -206,7 +209,7 @@ export default function MentorMonitorPage() {
   };
 
   const handleSyncAllUnsynced = async () => {
-    if (unsyncedList.length === 0 || isSyncingAll) return;
+    if (allUnsyncedIds.length === 0 || isSyncingAll) return;
 
     // Acquire lock (always allows force override since holder is 'Mentor Utama')
     try {
@@ -231,48 +234,79 @@ export default function MentorMonitorPage() {
     }
 
     setIsSyncingAll(true);
-    setSyncProgress({ current: 0, total: unsyncedList.length });
+    setSyncStatusText(`Memulai...`);
 
     let successCount = 0;
     let failCount = 0;
+    const failedIds: string[] = [];
 
-    try {
-      for (let i = 0; i < unsyncedList.length; i++) {
-        const p = unsyncedList[i];
-        setSyncProgress({ current: i + 1, total: unsyncedList.length });
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-        // Heartbeat lock check
-        try {
-          const hbRes = await fetch('/api/sync-lock', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'heartbeat', holder: 'Mentor Utama' })
-          });
-          if (hbRes.ok) {
-            const hbData = await hbRes.json();
-            if (!hbData.success) {
+    const syncBatch = async (ids: string[], isRetry: boolean) => {
+      for (let i = 0; i < ids.length; i++) {
+        const id = ids[i];
+        const currentCount = i + 1;
+        const totalCount = ids.length;
+
+        if (isRetry) {
+          setSyncStatusText(`RETRYING (${currentCount}/${totalCount}) ✅ | ${failCount} gagal`);
+        } else {
+          setSyncStatusText(`SYNCING (${currentCount}/${totalCount}) ✅ | ${failCount} gagal`);
+        }
+
+        // Heartbeat lock check every 5 items
+        if (i % 5 === 0) {
+          try {
+            const hbRes = await fetch('/api/sync-lock', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'heartbeat', holder: 'Mentor Utama' })
+            });
+            if (hbRes.ok) {
+              const hbData = await hbRes.json();
+              if (!hbData.success) break;
+            } else {
               break;
             }
-          } else {
+          } catch (hbErr) {
             break;
           }
-        } catch (hbErr) {
-          break;
         }
 
         try {
-          const res = await fetch(`/api/facilitator-members/${p.id}`, { method: 'POST' });
+          const res = await fetch(`/api/facilitator-members/${id}`, { method: 'POST' });
           if (res.ok) {
             successCount++;
           } else {
             failCount++;
+            if (!isRetry) failedIds.push(id);
           }
         } catch (err) {
           failCount++;
+          if (!isRetry) failedIds.push(id);
         }
+
+        // Jeda 500ms agar Google tidak memblokir IP
+        await delay(500);
+      }
+    };
+
+    try {
+      // Putaran 1
+      await syncBatch(allUnsyncedIds, false);
+
+      // Putaran 2: Auto-retry jika ada yang gagal
+      if (failedIds.length > 0) {
+        setSyncStatusText(`Mencoba ulang ${failedIds.length} data gagal...`);
+        await delay(1000);
+        const firstPassFailedCount = failCount;
+        failCount = 0;
+        await syncBatch(failedIds, true);
+        failCount = firstPassFailedCount - (successCount - (allUnsyncedIds.length - firstPassFailedCount));
       }
     } finally {
       setIsSyncingAll(false);
+      setSyncStatusText('');
       // Release lock
       try {
         await fetch('/api/sync-lock', {
@@ -420,7 +454,7 @@ export default function MentorMonitorPage() {
                   className="neobrutal-btn-secondary !bg-secondary hover:!bg-secondary-dark !text-white flex items-center gap-1.5 !py-1.5 !px-2.5 text-[9px] font-extrabold shadow-[2px_2px_0px_#000] border-[2px] border-black rounded transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_#000] disabled:opacity-50"
                 >
                   <UpdateIcon className={`w-3 h-3 ${isSyncingAll ? 'animate-spin' : ''}`} />
-                  {isSyncingAll ? `SYNCING (${syncProgress.current}/${syncProgress.total})` : 'SYNC SEMUA'}
+                  {isSyncingAll ? syncStatusText : 'SYNC SEMUA'}
                 </button>
               )}
             </div>

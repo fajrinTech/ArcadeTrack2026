@@ -12,6 +12,14 @@ import ConfirmModal from './panel/components/ConfirmModal';
 
 const NOTIFICATIONS = [
   {
+    id: '2026-07-21-security',
+    dateStr: '21 Jul 2026',
+    category: 'Pembaruan Keamanan',
+    title: 'Patch Keamanan v1.4.5 — Login Ulang Diperlukan',
+    content: 'Sistem telah diperbarui ke v1.4.5 dengan peningkatan keamanan session. Seluruh fasilitator diminta login ulang dari halaman utama untuk mengaktifkan session cookie baru yang lebih aman.<br /><br />Jika Anda melihat pesan ini setelah diminta login ulang, berarti session Anda telah berhasil diperbarui. Terima kasih atas pengertiannya.',
+    role: 'facilitator'
+  },
+  {
     id: '2026-07-18-bugfix',
     dateStr: '18 Jul 2026',
     category: 'Perbaikan Sistem',
@@ -240,6 +248,8 @@ export default function Home() {
       type: 'warning',
       onConfirm: () => {
         setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+        // Hapus session cookie di server
+        fetch('/api/participants', { method: 'DELETE' }).catch(() => {});
         localStorage.removeItem('myProfileId'); // link (lastProfileUrl) sengaja dipertahankan
         setMyProfileId(null);
         setSelectedParticipantId(null);

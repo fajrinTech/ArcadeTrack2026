@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getParticipant, updateParticipant, setBadges, deleteParticipant, getBadges } from '@/lib/db';
+import { getParticipant, updateParticipant, setBadges, getBadges, getSessionParticipantId } from '@/lib/db';
+import { scrapeProfile } from '@/lib/scraper';
 
 export async function POST(
   request: Request,
@@ -7,19 +8,33 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
+
+    // Guard: session harus valid
+    const sessionUserId = getSessionParticipantId(request);
+    if (!sessionUserId) {
+      return NextResponse.json({ error: 'Unauthorized. Silakan login terlebih dahulu.' }, { status: 401 });
+    }
+
+    // Cek apakah user adalah peserta sendiri atau fasilitator
+    const sessionUser = await getParticipant(sessionUserId);
+    const isOwnData = sessionUserId === id;
+    const isFacilitator = sessionUser?.role === 'facilitator';
+
+    if (!isOwnData && !isFacilitator) {
+      return NextResponse.json({ error: 'Forbidden. Anda tidak memiliki akses ke data ini.' }, { status: 403 });
+    }
+
     const participant = await getParticipant(id);
     if (!participant) {
       return NextResponse.json({ error: 'Peserta tidak ditemukan.' }, { status: 404 });
     }
 
-    const baseUrl = new URL(request.url).origin;
-    const scrapeRes = await fetch(`${baseUrl}/api/scrape?url=${encodeURIComponent(participant.profile_url)}`, { cache: 'no-store' });
-    if (!scrapeRes.ok) {
-      const errorData = await scrapeRes.json();
-      return NextResponse.json({ error: errorData.error || 'Gagal melakukan scraping data terbaru.' }, { status: scrapeRes.status });
+    let scrapeData;
+    try {
+      scrapeData = await scrapeProfile(participant.profile_url);
+    } catch (err: any) {
+      return NextResponse.json({ error: err.message || 'Gagal melakukan scraping data terbaru.' }, { status: 500 });
     }
-
-    const scrapeData = await scrapeRes.json();
     await setBadges(id, scrapeData.badges);
 
     const updated = await updateParticipant(id, {
@@ -35,29 +50,19 @@ export async function POST(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const deleted = await deleteParticipant(id);
-    if (!deleted) {
-      return NextResponse.json({ error: 'Peserta tidak ditemukan.' }, { status: 404 });
-    }
-    return NextResponse.json({ success: true, message: 'Peserta berhasil dihapus.' });
-  } catch (error: any) {
-    console.error('DELETE participant error:', error);
-    return NextResponse.json({ error: 'Gagal menghapus peserta.' }, { status: 500 });
-  }
-}
-
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+
+    // Guard: session harus valid
+    const sessionUserId = getSessionParticipantId(request);
+    if (!sessionUserId) {
+      return NextResponse.json({ error: 'Unauthorized. Silakan login terlebih dahulu.' }, { status: 401 });
+    }
+
     const participant = await getParticipant(id);
     if (!participant) {
       return NextResponse.json({ error: 'Peserta tidak ditemukan.' }, { status: 404 });

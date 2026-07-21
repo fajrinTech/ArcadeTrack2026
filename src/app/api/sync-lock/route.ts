@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/db';
+import { supabase, getSessionParticipantId } from '@/lib/db';
 import { APP_VERSION } from '@/lib/version';
+
+const FAJRIN_ID = 'a3961d06-d854-4348-9977-004d5a3dd8d8';
 
 export async function GET() {
   try {
@@ -17,7 +19,6 @@ export async function GET() {
       const now = Date.now();
       const ageInSeconds = (now - updatedAt) / 1000;
 
-      // Lock expires after 30 seconds of inactivity
       if (ageInSeconds < 30) {
         return NextResponse.json({ locked: true, by: data.value, version: APP_VERSION });
       }
@@ -32,6 +33,12 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    // Guard: hanya Mentor Utama (Fajrin)
+    const sessionUserId = getSessionParticipantId(request);
+    if (!sessionUserId || sessionUserId !== FAJRIN_ID) {
+      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+    }
+
     const { action, holder } = await request.json();
 
     if (!action || !holder) {
@@ -46,7 +53,6 @@ export async function POST(request: Request) {
 
     const isMentor = holder === 'Mentor Utama';
 
-    // Get current lock status
     const { data: currentLock, error: getErr } = await supabase
       .from('system_settings')
       .select('*')
@@ -69,7 +75,6 @@ export async function POST(request: Request) {
     }
 
     if (action === 'acquire') {
-      // Mentor can always override any active lock
       if (isLocked && lockedBy !== holder && !isMentor) {
         return NextResponse.json({ success: false, lockedBy });
       }
@@ -87,7 +92,6 @@ export async function POST(request: Request) {
     }
 
     if (action === 'heartbeat') {
-      // If lock was overtaken by someone else, heartbeat fails
       if (isLocked && lockedBy !== holder) {
         return NextResponse.json({ success: false, lockedBy });
       }

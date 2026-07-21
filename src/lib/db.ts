@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 
 // Server-only client (service_role). Never imported at runtime by client
 // components — they only import the types below, which are erased at compile.
@@ -21,6 +22,67 @@ export function normalizeProfileUrl(url: string): string | null {
   const match = trimmed.match(/(?:skills\.google|cloudskillsboost\.google)\/public_profiles\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
   if (!match) return null;
   return `https://www.skills.google/public_profiles/${match[1].toLowerCase()}`;
+}
+
+// === SESSION COOKIE (Layer 1) ===
+const SESSION_COOKIE_NAME = 'arcade_session';
+const SESSION_MAX_AGE = 7 * 24 * 60 * 60; // 7 hari
+
+function getSessionSecret(): string {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) throw new Error('SESSION_SECRET not set in env');
+  return secret;
+}
+
+function signSession(payload: string): string {
+  const secret = getSessionSecret();
+  const hmac = createHmac('sha256', secret);
+  hmac.update(payload);
+  const signature = hmac.digest('base64url');
+  return `${payload}.${signature}`;
+}
+
+function verifySession(signed: string): string | null {
+  try {
+    const [payload, signature] = signed.split('.');
+    if (!payload || !signature) return null;
+    const expected = signSession(payload);
+    if (!timingSafeEqual(Buffer.from(signed), Buffer.from(expected))) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+export function createSessionToken(participantId: string): string {
+  const payload = JSON.stringify({ id: participantId, iat: Date.now() });
+  return signSession(payload);
+}
+
+export function getSessionCookie(participantId: string): string {
+  const token = createSessionToken(participantId);
+  return `${SESSION_COOKIE_NAME}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_MAX_AGE}`;
+}
+
+export function clearSessionCookie(): string {
+  return `${SESSION_COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
+}
+
+export function getSessionParticipantId(request: Request): string | null {
+  const cookieHeader = request.headers.get('cookie');
+  if (!cookieHeader) return null;
+  const cookies = cookieHeader.split(';').map(c => c.trim());
+  const sessionCookie = cookies.find(c => c.startsWith(`${SESSION_COOKIE_NAME}=`));
+  if (!sessionCookie) return null;
+  const token = sessionCookie.split('=')[1];
+  const payload = verifySession(token);
+  if (!payload) return null;
+  try {
+    const data = JSON.parse(payload);
+    return data.id;
+  } catch {
+    return null;
+  }
 }
 
 export interface Participant {
@@ -117,13 +179,6 @@ export async function updateParticipant(
     .from('participants').update(updates).eq('id', id).select().maybeSingle();
   if (error) throw error;
   return data;
-}
-
-export async function deleteParticipant(id: string): Promise<boolean> {
-  const { error, count } = await supabase
-    .from('participants').delete({ count: 'exact' }).eq('id', id);
-  if (error) throw error;
-  return (count ?? 0) > 0;
 }
 
 export async function getBadges(participantId?: string): Promise<Badge[]> {

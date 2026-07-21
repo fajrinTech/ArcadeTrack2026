@@ -159,6 +159,11 @@ export default function PanelFasilPage() {
 
     try {
       const res = await fetch(`/api/participants/${savedId}`);
+      if (res.status === 401) {
+        setShowSessionExpired(true);
+        setLoadingAuth(false);
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         if (data.participant && data.participant.role === 'facilitator') {
@@ -507,6 +512,9 @@ export default function PanelFasilPage() {
           console.error(`Error syncing participant ${p.name}:`, err);
           failCount++;
         }
+
+        // Jeda 500ms agar Google tidak memblokir IP
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
     } finally {
       setIsSyncingAll(false);
