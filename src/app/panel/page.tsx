@@ -159,6 +159,9 @@ export default function PanelFasilPage() {
     }
   }, [systemLock, isSyncingAll]);
 
+  const ANDRE_GREGORI_ID = '08fcca20-05e8-423f-ad34-43a14816c0b4';
+  const isAndre = facilId === ANDRE_GREGORI_ID;
+
   useEffect(() => {
     setVisibleCount(100);
   }, [searchQuery]);
@@ -519,7 +522,8 @@ export default function PanelFasilPage() {
   const handleSyncAll = async () => {
     // Prioritaskan peserta yang belum pernah di-sync (last_synced null),
     // diikuti oleh yang paling lama belum di-sync (last_synced paling tua).
-    // Batasi maksimal 100 per sekali batch sync agar tidak kena timeout/rate limit.
+    // Batasi maksimal 1000 untuk Andre Gregori Sangari (khusus), atau 100 untuk fasil lainnya.
+    const maxBatch = isAndre ? 1000 : 100;
     const targetSyncs = [...participants]
       .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase().trim()))
       .sort((a, b) => {
@@ -528,7 +532,7 @@ export default function PanelFasilPage() {
         if (!a.last_synced && !b.last_synced) return 0;
         return new Date(a.last_synced!).getTime() - new Date(b.last_synced!).getTime();
       })
-      .slice(0, 100);
+      .slice(0, maxBatch);
 
     if (targetSyncs.length === 0 || isSyncingAll) return;
 
@@ -544,18 +548,27 @@ export default function PanelFasilPage() {
     let successCount = 0;
     let failCount = 0;
 
-    try {
-      for (let i = 0; i < targetSyncs.length; i++) {
+    const concurrency = isAndre ? 5 : 1;
+    const delayMs = isAndre ? 200 : 500;
+    let completedCount = 0;
+    let index = 0;
+    let isStoppedByLock = false;
+
+    const worker = async () => {
+      while (index < targetSyncs.length && !isStoppedByLock) {
+        const i = index++;
+        if (i >= targetSyncs.length) break;
+
         const p = targetSyncs[i];
-        setSyncProgress({ current: i + 1, total: targetSyncs.length });
 
         // Check lock status in between loops to see if Mentor Utama started a sync
-        if (i % 5 === 0) {
+        if (i % 10 === 0) {
           try {
             const checkRes = await fetch('/api/sync-lock');
             if (checkRes.ok) {
               const checkData = await checkRes.json();
               if (checkData.locked && checkData.by === 'Mentor Utama') {
+                isStoppedByLock = true;
                 toast('Sinkronisasi dihentikan karena Mentor Utama memulai Master Sync.', 'error');
                 break;
               }
@@ -583,9 +596,15 @@ export default function PanelFasilPage() {
           failCount++;
         }
 
-        // Jeda 500ms agar Google tidak memblokir IP
-        await new Promise(resolve => setTimeout(resolve, 500));
+        completedCount++;
+        setSyncProgress({ current: completedCount, total: targetSyncs.length });
+        await new Promise(resolve => setTimeout(resolve, delayMs));
       }
+    };
+
+    try {
+      const workers = Array.from({ length: concurrency }, () => worker());
+      await Promise.all(workers);
     } finally {
       setIsSyncingAll(false);
       await fetchFacilitatorMembers(facilId);

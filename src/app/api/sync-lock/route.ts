@@ -21,14 +21,8 @@ export async function GET() {
     let by = '';
 
     if (lockSetting) {
-      const updatedAt = new Date(lockSetting.updated_at).getTime();
-      const now = Date.now();
-      const ageInSeconds = (now - updatedAt) / 1000;
-
-      if (ageInSeconds < 30) {
-        locked = true;
-        by = lockSetting.value;
-      }
+      locked = true;
+      by = lockSetting.value;
     }
 
     return NextResponse.json({ locked, by, maintenance, version: APP_VERSION });
@@ -68,17 +62,12 @@ export async function POST(request: Request) {
 
     if (getErr) throw getErr;
 
-    const now = Date.now();
     let isLocked = false;
     let lockedBy = '';
 
     if (currentLock) {
-      const updatedAt = new Date(currentLock.updated_at).getTime();
-      const ageInSeconds = (now - updatedAt) / 1000;
-      if (ageInSeconds < 30) {
-        isLocked = true;
-        lockedBy = currentLock.value;
-      }
+      isLocked = true;
+      lockedBy = currentLock.value;
     }
 
     if (action === 'acquire') {
