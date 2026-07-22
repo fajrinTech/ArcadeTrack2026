@@ -55,6 +55,7 @@ export async function POST(
     try {
       scrapeData = await scrapeProfile(member.profile_url);
     } catch (err: any) {
+      await updateFacilitatorMember(id, { sync_status: 'gagal' }).catch(() => {});
       return NextResponse.json({ error: err.message || 'Gagal melakukan scraping data terbaru.' }, { status: 500 });
     }
     
@@ -69,6 +70,7 @@ export async function POST(
       skills_count: skillsCount,
       monthly_points: monthlyPoints,
       last_synced: scrapeData.scraped_at,
+      sync_status: 'sukses',
     });
 
     return NextResponse.json({ success: true, member: updated });

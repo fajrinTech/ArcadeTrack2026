@@ -105,7 +105,7 @@ export default function MemberListTable({
               <tbody className="divide-y-[2px] divide-black text-black">
                 {displayedParticipants.map((p, idx) => {
                   const isPending = syncingId === p.id;
-                  const currentStatus = isPending ? 'pending' : (p.sync_status || 'belum');
+                  const currentStatus = isPending ? 'pending' : (p.sync_status || (p.last_synced ? 'sukses' : 'belum'));
 
                   return (
                     <tr key={p.id} className="hover:bg-surface-alt transition-colors">
