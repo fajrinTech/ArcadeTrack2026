@@ -51,9 +51,8 @@ export default function HeaderNav({
       version: 'v1.4.8',
       date: '22 Jul 2026',
       changes: [
-        'Pembaruan status sync real-time (Sukses, Gagal, Belum).',
-        'Penyesuaian penguncian sistem permanen oleh Mentor Utama.',
-        'Optimasi parallel worker sync 1.000 peserta khusus panel Andre Gregori Sangari.'
+        'Pembaruan indikator status sinkronisasi real-time (Sukses, Gagal, Belum).',
+        'Optimasi performa & ketahanan sistem sinkronisasi data peserta.'
       ]
     },
     {
