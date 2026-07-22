@@ -48,6 +48,15 @@ export default function HeaderNav({
 
   const changelogs = [
     {
+      version: 'v1.4.8',
+      date: '22 Jul 2026',
+      changes: [
+        'Pembaruan status sync real-time (Sukses, Gagal, Belum).',
+        'Penyesuaian penguncian sistem permanen oleh Mentor Utama.',
+        'Optimasi parallel worker sync 1.000 peserta khusus panel Andre Gregori Sangari.'
+      ]
+    },
+    {
       version: 'v1.4.7',
       date: '21 Jul 2026',
       changes: [
@@ -62,14 +71,6 @@ export default function HeaderNav({
       changes: [
         'Optimasi bypass scraper IP public rate-limit secara internal.',
         'Menerapkan sequential delay 500ms dan retry sync otomatis untuk ketahanan tinggi.'
-      ]
-    },
-    {
-      version: 'v1.4.5',
-      date: '21 Jul 2026',
-      changes: [
-        'Pemberlakuan auto-logout & pembersihan sesi lama untuk keamanan data.',
-        'Mencegah freeze/layar blank saat cookie sesi kedaluwarsa.'
       ]
     }
   ];
@@ -92,7 +93,7 @@ export default function HeaderNav({
               className="text-[9px] px-1.5 py-0.5 bg-primary text-black border-[1.5px] border-black rounded shadow-[1px_1px_0_#000] hover:bg-primary-dark transition-colors font-bold uppercase tracking-wider"
               title="Lihat Log Pembaruan"
             >
-              v1.4.7 ℹ
+              v1.4.8 ℹ
             </button>
           </h1>
           <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider">
