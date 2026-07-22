@@ -84,6 +84,16 @@ async function run() {
 
           if (updateErr) throw updateErr;
 
+          try {
+            await supabase
+              .from('participants')
+              .update({
+                monthly_points: monthlyPoints,
+                last_synced: scrapeData.scraped_at
+              })
+              .ilike('profile_url', member.profile_url);
+          } catch {}
+
           totalSuccess++;
           if (memberNum % 25 === 0 || idx === batchSize - 1) {
             console.log(`[Progress ${memberNum}] OK: ${member.name} (${scrapeData.name}) - Pts: ${monthlyPoints}`);

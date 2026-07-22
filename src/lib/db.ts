@@ -369,6 +369,20 @@ export async function updateFacilitatorMember(
     .select()
     .maybeSingle();
   if (error) throw error;
+
+  if (data && data.profile_url && typeof data.monthly_points === 'number') {
+    // Sinkronkan ke tabel participants (Leaderboard Utama)
+    try {
+      await supabase
+        .from('participants')
+        .update({
+          monthly_points: data.monthly_points,
+          last_synced: data.last_synced || new Date().toISOString()
+        })
+        .ilike('profile_url', data.profile_url);
+    } catch {}
+  }
+
   return data;
 }
 
