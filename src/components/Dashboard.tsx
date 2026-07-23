@@ -7,7 +7,8 @@ import {
   CheckIcon, 
   DashboardIcon,
   BackpackIcon,
-  ListBulletIcon
+  ListBulletIcon,
+  Cross2Icon
 } from '@radix-ui/react-icons';
 import { animate } from 'animejs';
 
@@ -332,6 +333,19 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
   const [isLoadingSkills, setIsLoadingSkills] = useState(true);
   const [skillsSearch, setSkillsSearch] = useState('');
   const [skillsSort, setSkillsSort] = useState('');
+  const [showFasttrackBanner, setShowFasttrackBanner] = useState(true);
+
+  useEffect(() => {
+    const isDismissed = localStorage.getItem('fasttrack_banner_dismissed_v100');
+    if (isDismissed === '1') {
+      setShowFasttrackBanner(false);
+    }
+  }, []);
+
+  const handleDismissFasttrackBanner = () => {
+    setShowFasttrackBanner(false);
+    localStorage.setItem('fasttrack_banner_dismissed_v100', '1');
+  };
 
   useEffect(() => {
     const fetchSkills = async () => {
@@ -683,23 +697,34 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
         {/* FASTTRACK SUBTAB */}
         {activeSubTab === 'fasttrack' && (
           <div className="neobrutal-card animate-fade-slide-up space-y-6">
-            {/* Announcement Banner */}
-            <div className="bg-primary/20 border-[2.5px] border-black p-3.5 rounded-lg shadow-[3px_3px_0px_#000] flex items-start gap-3">
-              <span className="text-lg shrink-0 select-none">🚀</span>
-              <div className="space-y-1 font-mono">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-black uppercase tracking-wider text-black">
-                    PEMBARUAN KATALOG FASTTRACK (100 SKILL BADGES)
-                  </span>
-                  <span className="bg-secondary text-white text-[9px] font-bold px-1.5 py-0.5 rounded border border-black uppercase shrink-0">
-                    UPDATE
-                  </span>
+            {/* Announcement Banner (Dismissible) */}
+            {showFasttrackBanner && (
+              <div className="bg-primary/20 border-[2.5px] border-black p-3.5 rounded-lg shadow-[3px_3px_0px_#000] flex items-start justify-between gap-3 relative animate-fade-in">
+                <div className="flex items-start gap-3">
+                  <span className="text-lg shrink-0 select-none">🚀</span>
+                  <div className="space-y-1 font-mono">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-black uppercase tracking-wider text-black">
+                        PEMBARUAN KATALOG FASTTRACK (100 SKILL BADGES)
+                      </span>
+                      <span className="bg-secondary text-white text-[9px] font-bold px-1.5 py-0.5 rounded border border-black uppercase shrink-0">
+                        UPDATE
+                      </span>
+                    </div>
+                    <p className="text-xs text-black/80 font-medium leading-relaxed">
+                      Seluruh <strong>100 Foundational Skill Badges</strong> telah diperbarui! Manfaatkan fitur pencarian dan pengurutan (berdasarkan jumlah lab atau durasi) untuk menemukan badge tercepat. Setiap skill badge bernilai <strong>0.5 poin</strong>.
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-black/80 font-medium leading-relaxed">
-                  Seluruh <strong>100 Foundational Skill Badges</strong> telah diperbarui! Manfaatkan fitur pencarian dan pengurutan (berdasarkan jumlah lab atau durasi) untuk menemukan badge tercepat. Setiap skill badge bernilai <strong>0.5 poin</strong>.
-                </p>
+                <button
+                  onClick={handleDismissFasttrackBanner}
+                  title="Tutup pengumuman"
+                  className="p-1 border-[1.5px] border-black rounded bg-white hover:bg-secondary hover:text-white shadow-[1.5px_1.5px_0_#000] active:translate-x-[0.5px] active:translate-y-[0.5px] transition-all shrink-0"
+                >
+                  <Cross2Icon className="w-3.5 h-3.5" />
+                </button>
               </div>
-            </div>
+            )}
 
             {/* Header: Title and Search/Filters */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b-[2px] border-black pb-4">
