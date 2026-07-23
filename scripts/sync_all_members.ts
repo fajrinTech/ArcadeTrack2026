@@ -50,14 +50,14 @@ async function run() {
     let error: any = null;
 
     try {
-      const res = await withRetry(() =>
-        supabase
+      const res: any = await withRetry(async () => {
+        return await supabase
           .from('facilitator_members')
           .select('*')
           .or(`last_synced.is.null,last_synced.lt.${todayStr}T00:00:00Z`)
           .order('last_synced', { ascending: true, nullsFirst: true })
-          .range(0, 299)
-      );
+          .range(0, 299);
+      });
       members = res.data;
       error = res.error;
     } catch (e) {

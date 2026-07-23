@@ -427,6 +427,9 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
         >
           <ListBulletIcon className="w-4 h-4" />
           <span>Fasttrack</span>
+          <span className="bg-primary text-black text-[9px] font-extrabold px-1.5 py-0.5 rounded-full border border-black">
+            100
+          </span>
         </button>
         <button
           onClick={() => setActiveSubTab('track_badge')}
@@ -680,6 +683,24 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
         {/* FASTTRACK SUBTAB */}
         {activeSubTab === 'fasttrack' && (
           <div className="neobrutal-card animate-fade-slide-up space-y-6">
+            {/* Announcement Banner */}
+            <div className="bg-primary/20 border-[2.5px] border-black p-3.5 rounded-lg shadow-[3px_3px_0px_#000] flex items-start gap-3">
+              <span className="text-lg shrink-0 select-none">🚀</span>
+              <div className="space-y-1 font-mono">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black uppercase tracking-wider text-black">
+                    PEMBARUAN KATALOG FASTTRACK (100 SKILL BADGES)
+                  </span>
+                  <span className="bg-secondary text-white text-[9px] font-bold px-1.5 py-0.5 rounded border border-black uppercase shrink-0">
+                    UPDATE
+                  </span>
+                </div>
+                <p className="text-xs text-black/80 font-medium leading-relaxed">
+                  Seluruh <strong>100 Foundational Skill Badges</strong> telah diperbarui! Manfaatkan fitur pencarian dan pengurutan (berdasarkan jumlah lab atau durasi) untuk menemukan badge tercepat. Setiap skill badge bernilai <strong>0.5 poin</strong>.
+                </p>
+              </div>
+            </div>
+
             {/* Header: Title and Search/Filters */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b-[2px] border-black pb-4">
               <div>
