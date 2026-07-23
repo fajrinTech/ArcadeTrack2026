@@ -9,6 +9,7 @@ import { useToast } from '@/components/Toast';
 import { Participant, Badge } from '@/lib/db';
 import { UpdateIcon, ExclamationTriangleIcon, Cross2Icon } from '@radix-ui/react-icons';
 import ConfirmModal from './panel/components/ConfirmModal';
+import { APP_VERSION } from '@/lib/version';
 
 const NOTIFICATIONS = [
   {
@@ -134,6 +135,21 @@ export default function Home() {
       if (res.ok) {
         const data = await res.json();
         setIsMaintenance(!!data.maintenance);
+
+        // Auto-update notification modal for global version upgrade
+        if (data.version && data.version !== APP_VERSION) {
+          setConfirmConfig({
+            isOpen: true,
+            title: `Pembaruan Sistem Tersedia (v${data.version})`,
+            message: `Versi terbaru sistem (v${data.version}) telah dirilis untuk pembaruan Katalog FastTrack 100 Skill Badges, optimasi performa, dan stabilitas data. Silakan klik tombol di bawah untuk memuat ulang halaman.`,
+            confirmText: 'Muat Ulang Halaman',
+            type: 'warning',
+            showCancel: false,
+            onConfirm: () => {
+              window.location.reload();
+            }
+          });
+        }
       }
     } catch (err) {
       console.error('Error checking sync lock:', err);
