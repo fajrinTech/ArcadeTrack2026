@@ -12,6 +12,13 @@ import ConfirmModal from './panel/components/ConfirmModal';
 
 const NOTIFICATIONS = [
   {
+    id: '2026-07-23-fasttrack',
+    dateStr: '23 Jul 2026',
+    category: 'Katalog FastTrack',
+    title: 'Pembaruan 100 Foundational Skill Badges & Fitur Sort',
+    content: 'Halo Rekan-rekan Peserta Arcade 2026!<br /><br />Katalog FastTrack Foundational Skill Badges telah diperbarui penuh dengan <strong>100 Skill Badges resmi</strong>!<br /><br /><strong>Apa saja yang baru?</strong><br />1. <strong>100 Skill Badges Terlengkap</strong>: Seluruh daftar badge FastTrack kini tersedia lengkap dengan link dan jumlah lab.<br />2. <strong>Fitur Pengurutan (Sort By)</strong>: Anda dapat mengurutkan badge berdasarkan jumlah lab terkecil/terbanyak, atau durasi tersingkat/terpanjang untuk menyelesaikan badge secara efisien.<br />3. <strong>Tampilan Mobile Jelas</strong>: Tag label, jumlah lab, dan durasi kini tampil tajam dan mudah dibaca di smartphone.<br /><br />Setiap Foundational Skill Badge bernilai <strong>0.5 poin</strong>. Silakan cek tab <strong>Fasttrack</strong> di dashboard untuk mulai mengerjakan!'
+  },
+  {
     id: '2026-07-21-security',
     dateStr: '21 Jul 2026',
     category: 'Pembaruan Keamanan',
