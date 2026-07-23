@@ -331,7 +331,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
   const [skillBadges, setSkillBadges] = useState<SkillBadge[]>([]);
   const [isLoadingSkills, setIsLoadingSkills] = useState(true);
   const [skillsSearch, setSkillsSearch] = useState('');
-  const [skillsDifficulty, setSkillsDifficulty] = useState('all');
+  const [skillsSort, setSkillsSort] = useState('');
 
   useEffect(() => {
     const fetchSkills = async () => {
@@ -351,18 +351,40 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
     fetchSkills();
   }, []);
 
-  // Reset page when search or filter changes
+  // Reset page when search or sort changes
   useEffect(() => {
     setFasttrackPage(1);
-  }, [skillsSearch, skillsDifficulty]);
+  }, [skillsSearch, skillsSort]);
 
-  // Filter skills based on search & difficulty
-  const filteredSkills = skillBadges.filter(skill => {
-    const matchesSearch = skill.name.toLowerCase().includes(skillsSearch.toLowerCase());
-    const matchesDifficulty = skillsDifficulty === 'all' || 
-      (skill.difficulty && skill.difficulty.toLowerCase() === skillsDifficulty.toLowerCase());
-    return matchesSearch && matchesDifficulty;
-  });
+  // Helper to parse duration text into total minutes
+  const parseDurationToMinutes = (durStr?: string): number => {
+    if (!durStr) return 0;
+    let minutes = 0;
+    const hourMatch = durStr.match(/(\d+)\s*hours?/i);
+    const minMatch = durStr.match(/(\d+)\s*minutes?/i);
+    if (hourMatch) minutes += parseInt(hourMatch[1], 10) * 60;
+    if (minMatch) minutes += parseInt(minMatch[1], 10);
+    return minutes;
+  };
+
+  // Filter & sort skills based on search and sort dropdown
+  const filteredSkills = skillBadges
+    .filter(skill => skill.name.toLowerCase().includes(skillsSearch.toLowerCase()))
+    .sort((a, b) => {
+      if (skillsSort === 'labAsc') {
+        return (a.labs || 0) - (b.labs || 0);
+      }
+      if (skillsSort === 'labDesc') {
+        return (b.labs || 0) - (a.labs || 0);
+      }
+      if (skillsSort === 'durationAsc') {
+        return parseDurationToMinutes(a.duration) - parseDurationToMinutes(b.duration);
+      }
+      if (skillsSort === 'durationDesc') {
+        return parseDurationToMinutes(b.duration) - parseDurationToMinutes(a.duration);
+      }
+      return 0;
+    });
 
   const badgesPerPage = 8;
   const totalPages = Math.ceil(filteredSkills.length / badgesPerPage);
@@ -659,7 +681,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
         {activeSubTab === 'fasttrack' && (
           <div className="neobrutal-card animate-fade-slide-up space-y-6">
             {/* Header: Title and Search/Filters */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-[2px] border-black pb-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b-[2px] border-black pb-4">
               <div>
                 <span className="text-[10px] uppercase tracking-widest text-text-muted font-bold font-mono block">
                   FASTTRACK FOUNDATIONAL SKILL BADGES
@@ -669,8 +691,8 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                 </span>
               </div>
               
-              {/* Search and Filter Inputs */}
-              <div className="flex flex-col sm:flex-row gap-2.5 items-center w-full md:w-auto">
+              {/* Search and Sort Inputs */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
                 <input
                   type="text"
                   placeholder="Cari badge..."
@@ -679,14 +701,15 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                   className="neobrutal-input py-2 text-xs w-full sm:w-48 font-mono"
                 />
                 <select
-                  value={skillsDifficulty}
-                  onChange={(e) => setSkillsDifficulty(e.target.value)}
-                  className="neobrutal-input py-2 text-xs w-full sm:w-40 font-mono bg-white cursor-pointer"
+                  value={skillsSort}
+                  onChange={(e) => setSkillsSort(e.target.value)}
+                  className="neobrutal-input py-2 text-xs w-full sm:w-48 font-mono bg-white cursor-pointer"
                 >
-                  <option value="all">Semua Level</option>
-                  <option value="introductory">Introductory</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
+                  <option value="">Sort By</option>
+                  <option value="labAsc">Lab Count (Low to High)</option>
+                  <option value="labDesc">Lab Count (High to Low)</option>
+                  <option value="durationAsc">Duration (Short to Long)</option>
+                  <option value="durationDesc">Duration (Long to Short)</option>
                 </select>
               </div>
             </div>
@@ -714,12 +737,12 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                           : 'bg-white'
                       }`}
                     >
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <div className="flex items-start justify-between gap-2">
-                          <h4 className="text-xs font-black tracking-wide uppercase leading-snug" style={{ fontFamily: 'var(--font-sans)' }}>
+                          <h4 className="text-sm font-bold tracking-tight uppercase leading-snug" style={{ fontFamily: 'var(--font-sans)' }}>
                             {skill.name}
                           </h4>
-                          <span className={`text-[9px] font-mono font-bold px-2 py-0.5 border-[2px] border-black rounded shrink-0 ${
+                          <span className={`text-xs font-mono font-bold px-2.5 py-1 border-[2px] border-black rounded shrink-0 ${
                             isEarned 
                               ? 'text-white bg-success' 
                               : 'text-white bg-secondary'
@@ -727,39 +750,41 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                             {isEarned ? 'DONE' : 'PENDING'}
                           </span>
                         </div>
-                        <div className="flex flex-wrap gap-1.5 font-mono text-[9px] font-bold text-text-muted uppercase">
+
+                        {/* Meta Info Badges */}
+                        <div className="flex flex-wrap gap-1.5 font-mono text-xs font-semibold text-black uppercase">
                           {skill.difficulty && (
-                            <span className="border-[2px] border-black px-1.5 py-0.5 rounded bg-surface-alt">
+                            <span className="border border-black px-2 py-0.5 rounded-md bg-surface-alt">
                               {skill.difficulty}
                             </span>
                           )}
                           {skill.cost && (
-                            <span className="border-[2px] border-black px-1.5 py-0.5 rounded bg-surface-alt">
+                            <span className="border border-black px-2 py-0.5 rounded-md bg-surface-alt">
                               💰 {skill.cost}
                             </span>
                           )}
                           {skill.labs !== undefined && skill.labs > 0 && (
-                            <span className="border-[2px] border-black px-1.5 py-0.5 rounded bg-surface-alt">
+                            <span className="border border-black px-2 py-0.5 rounded-md bg-surface-alt">
                               🧪 {skill.labs} Labs
                             </span>
                           )}
                           {skill.duration && (
-                            <span className="border-[2px] border-black px-1.5 py-0.5 rounded bg-surface-alt">
+                            <span className="border border-black px-2 py-0.5 rounded-md bg-surface-alt">
                               ⏱️ {skill.duration}
                             </span>
                           )}
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between gap-4 pt-1">
-                        <span className="text-[10px] font-mono font-bold text-text-muted">
+                      <div className="flex items-center justify-between gap-4 pt-2 border-t border-black/10">
+                        <span className="text-xs font-mono font-bold text-text-muted">
                           Bobot: 0.5 pts
                         </span>
                         <a
                           href={skill.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={`neobrutal-btn-secondary px-3 py-1.5 text-[10px] font-black tracking-wider uppercase block shrink-0 ${
+                          className={`neobrutal-btn-secondary px-4 py-2 text-xs font-black tracking-wider uppercase block shrink-0 ${
                             isEarned ? 'opacity-70 hover:translate-y-0 hover:shadow-[2px_2px_0px_#000]' : ''
                           }`}
                         >

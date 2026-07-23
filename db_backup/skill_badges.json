@@ -1,0 +1,902 @@
+[
+  {
+    "id": 1453,
+    "name": "Google DeepMind: Train A Small Language Model",
+    "url": "https://www.skills.google/course_templates/1453",
+    "cost": "1 Skill Badge",
+    "difficulty": "advanced",
+    "duration": "1 hour 30 minutes",
+    "labs": 1
+  },
+  {
+    "id": 1596,
+    "name": "Engineer AI Agents with Agent Development Kit (ADK)",
+    "url": "https://www.skills.google/course_templates/1596",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "1 hour 45 minutes",
+    "labs": 1
+  },
+  {
+    "id": 728,
+    "name": "Implement Event-Driven Messaging and Automation Workflows",
+    "url": "https://www.cloudskillsboost.google/course_templates/728",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 15 minutes",
+    "labs": 3
+  },
+  {
+    "id": 783,
+    "name": "Manage Kubernetes in Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/783",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "5 hours",
+    "labs": 4
+  },
+  {
+    "id": 726,
+    "name": "Organize and Govern Data with Knowledge Catalog",
+    "url": "https://www.skills.google/course_templates/726",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "30 minutes",
+    "labs": 4
+  },
+  {
+    "id": 663,
+    "name": "Deploy Kubernetes Applications on Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/663",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "4 hours 30 minutes",
+    "labs": 4
+  },
+  {
+    "id": 716,
+    "name": "Implement DevOps Workflows in Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/716",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "4 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 649,
+    "name": "Develop Serverless Apps with Firebase",
+    "url": "https://www.cloudskillsboost.google/course_templates/649",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "3 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 684,
+    "name": "DEPRECATED Build and Deploy Machine Learning Solutions on Vertex AI",
+    "url": "https://www.cloudskillsboost.google/course_templates/684",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "7 hours",
+    "labs": 4
+  },
+  {
+    "id": 674,
+    "name": "Automate Data Capture at Scale with Document AI",
+    "url": "https://www.cloudskillsboost.google/course_templates/674",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "3 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 691,
+    "name": "Implement CI/CD Pipelines on Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/691",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "4 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 687,
+    "name": "Build Google Cloud Infrastructure for AWS Professionals",
+    "url": "https://www.cloudskillsboost.google/course_templates/687",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "5 hours",
+    "labs": 4
+  },
+  {
+    "id": 688,
+    "name": "DEPRECATED  Build Google Cloud Infrastructure for Azure Professionals",
+    "url": "https://www.cloudskillsboost.google/course_templates/688",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "4 hours 30 minutes",
+    "labs": 4
+  },
+  {
+    "id": 659,
+    "name": "Store, Process, and Manage Data on Google Cloud - Command Line",
+    "url": "https://www.cloudskillsboost.google/course_templates/659",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 30 minutes",
+    "labs": 4
+  },
+  {
+    "id": 653,
+    "name": "Monitor and Manage Google Cloud Resources",
+    "url": "https://www.cloudskillsboost.google/course_templates/653",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "3 hours",
+    "labs": 4
+  },
+  {
+    "id": 632,
+    "name": "Analyze BigQuery Data in Connected Sheets",
+    "url": "https://www.cloudskillsboost.google/course_templates/632",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 658,
+    "name": "Store, Process, and Manage Data on Google Cloud - Console",
+    "url": "https://www.cloudskillsboost.google/course_templates/658",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 15 minutes",
+    "labs": 4
+  },
+  {
+    "id": 647,
+    "name": "[Deprecated] Get Started with Looker",
+    "url": "https://www.cloudskillsboost.google/course_templates/647",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 635,
+    "name": "App Building with AppSheet",
+    "url": "https://www.cloudskillsboost.google/course_templates/635",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 662,
+    "name": "Deploy and Secure Serverless APIs with API Gateway",
+    "url": "https://www.cloudskillsboost.google/course_templates/662",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 752,
+    "name": "Streaming Analytics into BigQuery",
+    "url": "https://www.cloudskillsboost.google/course_templates/752",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 30 minutes",
+    "labs": 4
+  },
+  {
+    "id": 696,
+    "name": "Build Serverless Applications with Cloud Run Functions",
+    "url": "https://www.cloudskillsboost.google/course_templates/696",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 705,
+    "name": "Create a Streaming Data Lake on Cloud Storage",
+    "url": "https://www.cloudskillsboost.google/course_templates/705",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 30 minutes",
+    "labs": 4
+  },
+  {
+    "id": 725,
+    "name": "Implement Cloud Storage and Data Protection Solutions",
+    "url": "https://www.cloudskillsboost.google/course_templates/725",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 671,
+    "name": "Deploy and Manage Applications on Google App Engine",
+    "url": "https://www.skills.google/course_templates/671",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "30 minutes",
+    "labs": 4
+  },
+  {
+    "id": 727,
+    "name": "Build Event-Driven Applications with Eventarc",
+    "url": "https://www.cloudskillsboost.google/course_templates/727",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "15 minutes",
+    "labs": 4
+  },
+  {
+    "id": 747,
+    "name": "Monitoring in Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/747",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "3 hours 30 minutes",
+    "labs": 4
+  },
+  {
+    "id": 634,
+    "name": "Analyze Speech and Language with Google APIs",
+    "url": "https://www.cloudskillsboost.google/course_templates/634",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 704,
+    "name": "Create a Secure Data Lake on Cloud Storage",
+    "url": "https://www.cloudskillsboost.google/course_templates/704",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 753,
+    "name": "Enrich Metadata and Discovery of Lakehouse Data",
+    "url": "https://www.cloudskillsboost.google/course_templates/753",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "1 hour",
+    "labs": 4
+  },
+  {
+    "id": 751,
+    "name": "Secure Lakehouse Data",
+    "url": "https://www.cloudskillsboost.google/course_templates/751",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "15 minutes",
+    "labs": 4
+  },
+  {
+    "id": 633,
+    "name": "Analyze Images with the Cloud Vision API",
+    "url": "https://www.cloudskillsboost.google/course_templates/633",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "3 hours",
+    "labs": 4
+  },
+  {
+    "id": 750,
+    "name": "Get Started with Sensitive Data Protection",
+    "url": "https://www.cloudskillsboost.google/course_templates/750",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "3 hours",
+    "labs": 4
+  },
+  {
+    "id": 748,
+    "name": "DEPRECATED Networking Fundamentals on Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/748",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "4 hours",
+    "labs": 4
+  },
+  {
+    "id": 754,
+    "name": "The Basics of Google Cloud Compute",
+    "url": "https://www.cloudskillsboost.google/course_templates/754",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 755,
+    "name": "Use APIs to Work with Cloud Storage",
+    "url": "https://www.cloudskillsboost.google/course_templates/755",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 756,
+    "name": "Using the Google Cloud Speech API",
+    "url": "https://www.cloudskillsboost.google/course_templates/756",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "2 hours 30 minutes",
+    "labs": 4
+  },
+  {
+    "id": 715,
+    "name": "Develop with Apps Script and AppSheet",
+    "url": "https://www.cloudskillsboost.google/course_templates/715",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "3 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 667,
+    "name": "Analyze Sentiment with Natural Language API",
+    "url": "https://www.cloudskillsboost.google/course_templates/667",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "3 hours",
+    "labs": 4
+  },
+  {
+    "id": 700,
+    "name": "Implement Speech and Language Solutions with Pre-trained APIs",
+    "url": "https://www.cloudskillsboost.google/course_templates/700",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "3 hours",
+    "labs": 4
+  },
+  {
+    "id": 737,
+    "name": "Integrate BigQuery Data and Google Workspace using Apps Script",
+    "url": "https://www.cloudskillsboost.google/course_templates/737",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "3 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 702,
+    "name": "Configure Service Accounts and IAM Roles for Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/702",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "4 hours",
+    "labs": 4
+  },
+  {
+    "id": 959,
+    "name": "Explore Generative AI in Agent Platform",
+    "url": "https://www.skills.google/course_templates/959",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "30 minutes",
+    "labs": 4
+  },
+  {
+    "id": 981,
+    "name": "Inspect Rich Documents with Gemini Multimodality and Multimodal RAG",
+    "url": "https://www.cloudskillsboost.google/course_templates/981",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "5 hours",
+    "labs": 4
+  },
+  {
+    "id": 1076,
+    "name": "Build Real World AI Applications with Gemini and Imagen",
+    "url": "https://www.cloudskillsboost.google/course_templates/1076",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "1 hour 15 minutes",
+    "labs": 4
+  },
+  {
+    "id": 641,
+    "name": "Set Up a Google Cloud Network",
+    "url": "https://www.cloudskillsboost.google/course_templates/641",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "3 hours 30 minutes",
+    "labs": 4
+  },
+  {
+    "id": 1164,
+    "name": "Secure Software Delivery",
+    "url": "https://www.cloudskillsboost.google/course_templates/1164",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "4 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 784,
+    "name": "Protect Cloud Traffic with Chrome Enterprise Premium Security",
+    "url": "https://www.cloudskillsboost.google/course_templates/784",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "5 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 976,
+    "name": "Prompt Design in Agent Platform",
+    "url": "https://www.cloudskillsboost.google/course_templates/976",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "1s hour",
+    "labs": 4
+  },
+  {
+    "id": 1177,
+    "name": "Discover and Protect Sensitive Data Across Your Ecosystem",
+    "url": "https://www.cloudskillsboost.google/course_templates/1177",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "6 hours 15 minutes",
+    "labs": 4
+  },
+  {
+    "id": 1232,
+    "name": "Implement Multimodal Vector Search with BigQuery",
+    "url": "https://www.cloudskillsboost.google/course_templates/1232",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "5 hours 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 1364,
+    "name": "Connecting Cloud Networks with NCC",
+    "url": "https://www.cloudskillsboost.google/course_templates/1364",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "5 hours 30 minutes",
+    "labs": 4
+  },
+  {
+    "id": 1426,
+    "name": "Develop AI-Powered Prototypes in Google AI Studio",
+    "url": "https://www.skills.google/course_templates/1426",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "1 hour 15 minutes",
+    "labs": 4
+  },
+  {
+    "id": 1459,
+    "name": "Build a Smart Cloud Application with Vibe Coding and MCP",
+    "url": "https://www.skills.google/course_templates/1459",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "1 hour 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 1399,
+    "name": "Kickstarting Application Development with Gemini Code Assist",
+    "url": "https://www.skills.google/course_templates/1399",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "1 hour 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 1445,
+    "name": "Deploy Multi-Agent Architectures",
+    "url": "https://www.skills.google/course_templates/1445",
+    "cost": "1 Skill Badge",
+    "difficulty": "advanced",
+    "duration": "1 hour 45 minutes",
+    "labs": 4
+  },
+  {
+    "id": 1682,
+    "name": "Orchestrate Multi-agent Workflows with Gemini Enterprise",
+    "url": "https://www.skills.google/course_templates/1682",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "1 hour",
+    "labs": 4
+  },
+  {
+    "id": 1558,
+    "name": "Build Global and Regional Load Balancing Solutions",
+    "url": "https://www.skills.google/course_templates/1558",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "4 hours 30 minutes",
+    "labs": 4
+  },
+  {
+    "id": 657,
+    "name": "Share Data Using Google Data Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/657",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "3 hours 30 minutes",
+    "labs": 5
+  },
+  {
+    "id": 629,
+    "name": "Migrate MySQL Data to Cloud SQL Using Database Migration Service",
+    "url": "https://www.cloudskillsboost.google/course_templates/629",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "6 hours 45 minutes",
+    "labs": 5
+  },
+  {
+    "id": 759,
+    "name": "Mitigate Threats and Vulnerabilities with Security Command Center",
+    "url": "https://www.cloudskillsboost.google/course_templates/759",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "5 hours 30 minutes",
+    "labs": 5
+  },
+  {
+    "id": 761,
+    "name": "Monitor Environments with Google Cloud Managed Service for Prometheus",
+    "url": "https://www.cloudskillsboost.google/course_templates/761",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "5 hours 45 minutes",
+    "labs": 5
+  },
+  {
+    "id": 638,
+    "name": "Build a Website on Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/638",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "5 hours 30 minutes",
+    "labs": 5
+  },
+  {
+    "id": 627,
+    "name": "Engineer Data for Predictive Modeling with BigQuery ML",
+    "url": "https://www.cloudskillsboost.google/course_templates/627",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "4 hours 45 minutes",
+    "labs": 5
+  },
+  {
+    "id": 624,
+    "name": "Build a Data Warehouse with BigQuery",
+    "url": "https://www.cloudskillsboost.google/course_templates/624",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "5 hours 15 minutes",
+    "labs": 5
+  },
+  {
+    "id": 741,
+    "name": "Develop Serverless Applications on Cloud Run",
+    "url": "https://www.cloudskillsboost.google/course_templates/741",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "5 hours 15 minutes",
+    "labs": 5
+  },
+  {
+    "id": 655,
+    "name": "Optimize Costs for Google Kubernetes Engine",
+    "url": "https://www.cloudskillsboost.google/course_templates/655",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "7 hours 45 minutes",
+    "labs": 5
+  },
+  {
+    "id": 628,
+    "name": "Prepare Data for Looker Dashboards and Reports",
+    "url": "https://www.cloudskillsboost.google/course_templates/628",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "4 hours 45 minutes",
+    "labs": 5
+  },
+  {
+    "id": 661,
+    "name": "Deploy and Manage Apigee X",
+    "url": "https://www.cloudskillsboost.google/course_templates/661",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "8 hours 15 minutes",
+    "labs": 5
+  },
+  {
+    "id": 652,
+    "name": "Create and Manage Cloud SQL for PostgreSQL Instances",
+    "url": "https://www.cloudskillsboost.google/course_templates/652",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "4 hours 30 minutes",
+    "labs": 5
+  },
+  {
+    "id": 639,
+    "name": "Build LookML Objects in Looker",
+    "url": "https://www.cloudskillsboost.google/course_templates/639",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "5 hours 15 minutes",
+    "labs": 5
+  },
+  {
+    "id": 644,
+    "name": "DEPRECATED Detect Manufacturing Defects Using Visual Inspection AI",
+    "url": "https://www.cloudskillsboost.google/course_templates/644",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "7 hours 15 minutes",
+    "labs": 5
+  },
+  {
+    "id": 656,
+    "name": "Perform Predictive Data Analysis in BigQuery",
+    "url": "https://www.cloudskillsboost.google/course_templates/656",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "4 hours 45 minutes",
+    "labs": 5
+  },
+  {
+    "id": 636,
+    "name": "Build Infrastructure with Terraform on Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/636",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "5 hours 15 minutes",
+    "labs": 5
+  },
+  {
+    "id": 643,
+    "name": "Create and Manage Cloud Spanner Instances",
+    "url": "https://www.cloudskillsboost.google/course_templates/643",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "7 hours 15 minutes",
+    "labs": 5
+  },
+  {
+    "id": 650,
+    "name": "Create and Manage Bigtable Instances",
+    "url": "https://www.cloudskillsboost.google/course_templates/650",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "6 hours 45 minutes",
+    "labs": 5
+  },
+  {
+    "id": 681,
+    "name": "Build a Data Mesh with Knowledge Catalog",
+    "url": "https://www.cloudskillsboost.google/course_templates/681",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "1 hour",
+    "labs": 5
+  },
+  {
+    "id": 978,
+    "name": "Develop Gen AI Apps with Gemini and Streamlit",
+    "url": "https://www.cloudskillsboost.google/course_templates/978",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "5 hours 45 minutes",
+    "labs": 5
+  },
+  {
+    "id": 1337,
+    "name": "Privileged Access with IAM",
+    "url": "https://www.cloudskillsboost.google/course_templates/1337",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "1 hour 15 minutes",
+    "labs": 5
+  },
+  {
+    "id": 1412,
+    "name": "[DEPRECATED] Designing Network Security in Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/1412",
+    "cost": "1 Skill Badge",
+    "difficulty": "advanced",
+    "duration": "2 hours 45 minutes",
+    "labs": 5
+  },
+  {
+    "id": 646,
+    "name": "[Deprecated] Classify Images with TensorFlow on Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/646",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "7 hours 15 minutes",
+    "labs": 6
+  },
+  {
+    "id": 625,
+    "name": "Develop Your Google Cloud Network",
+    "url": "https://www.cloudskillsboost.google/course_templates/625",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "6 hours",
+    "labs": 6
+  },
+  {
+    "id": 640,
+    "name": "Cloud Architecture: Design, Implement, and Manage",
+    "url": "https://www.cloudskillsboost.google/course_templates/640",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "6 hours 30 minutes",
+    "labs": 6
+  },
+  {
+    "id": 654,
+    "name": "Build a Secure Google Cloud Network",
+    "url": "https://www.cloudskillsboost.google/course_templates/654",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "6 hours 45 minutes",
+    "labs": 6
+  },
+  {
+    "id": 749,
+    "name": "Monitor and Log with Google Cloud Observability",
+    "url": "https://www.cloudskillsboost.google/course_templates/749",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "4 hours 15 minutes",
+    "labs": 6
+  },
+  {
+    "id": 626,
+    "name": "Create ML Models with BigQuery ML",
+    "url": "https://www.cloudskillsboost.google/course_templates/626",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "5 hours 30 minutes",
+    "labs": 6
+  },
+  {
+    "id": 714,
+    "name": "Develop and Secure APIs with Apigee X",
+    "url": "https://www.cloudskillsboost.google/course_templates/714",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "9 hours 45 minutes",
+    "labs": 6
+  },
+  {
+    "id": 651,
+    "name": "Manage Data Models in Looker",
+    "url": "https://www.cloudskillsboost.google/course_templates/651",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "7 hours",
+    "labs": 6
+  },
+  {
+    "id": 776,
+    "name": "Use Functions, Formulas, and Charts in Google Sheets",
+    "url": "https://www.cloudskillsboost.google/course_templates/776",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "2 hours 45 minutes",
+    "labs": 6
+  },
+  {
+    "id": 686,
+    "name": "Build Custom Processors with Document AI [Deprecated]",
+    "url": "https://www.cloudskillsboost.google/course_templates/686",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "6 hours 15 minutes",
+    "labs": 6
+  },
+  {
+    "id": 642,
+    "name": "Create and Manage AlloyDB Instances",
+    "url": "https://www.cloudskillsboost.google/course_templates/642",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "9 hours",
+    "labs": 6
+  },
+  {
+    "id": 1241,
+    "name": "Enhance Gemini Model Capabilities",
+    "url": "https://www.cloudskillsboost.google/course_templates/1241",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "7 hours 15 minutes",
+    "labs": 6
+  },
+  {
+    "id": 1240,
+    "name": "Analyze and Reason on Multimodal Data with Gemini",
+    "url": "https://www.cloudskillsboost.google/course_templates/1240",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "5 hours 30 minutes",
+    "labs": 6
+  },
+  {
+    "id": 623,
+    "name": "Derive Insights from BigQuery Data",
+    "url": "https://www.cloudskillsboost.google/course_templates/623",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "4 hours 45 minutes",
+    "labs": 7
+  },
+  {
+    "id": 676,
+    "name": "Implement Cloud Collaboration and Productivity Workflows",
+    "url": "https://www.cloudskillsboost.google/course_templates/676",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "3 hours 45 minutes",
+    "labs": 7
+  },
+  {
+    "id": 630,
+    "name": "Use Machine Learning APIs on Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/630",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "6 hours 15 minutes",
+    "labs": 7
+  },
+  {
+    "id": 648,
+    "name": "Implementing Cloud Load Balancing for Compute Engine",
+    "url": "https://www.cloudskillsboost.google/course_templates/648",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "3 hours 30 minutes",
+    "labs": 7
+  },
+  {
+    "id": 645,
+    "name": "Implement Cloud Security Fundamentals on Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/645",
+    "cost": "1 Skill Badge",
+    "difficulty": "intermediate",
+    "duration": "8 hours 15 minutes",
+    "labs": 8
+  },
+  {
+    "id": 631,
+    "name": "Prepare Data for ML APIs on Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/631",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "5 hours",
+    "labs": 10
+  },
+  {
+    "id": 637,
+    "name": "Set Up an App Dev Environment on Google Cloud",
+    "url": "https://www.cloudskillsboost.google/course_templates/637",
+    "cost": "1 Skill Badge",
+    "difficulty": "introductory",
+    "duration": "4 hours",
+    "labs": 10
+  }
+]

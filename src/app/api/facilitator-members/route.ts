@@ -42,6 +42,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, count: result.length, members: result });
   } catch (error: any) {
     console.error('POST bulk facilitator members error:', error);
-    return NextResponse.json({ error: 'Gagal mengimpor data peserta.' }, { status: 500 });
+    if (error?.isDuplicate) {
+      return NextResponse.json({ error: error.message, isDuplicate: true }, { status: 409 });
+    }
+    return NextResponse.json({ error: error.message || 'Gagal mengimpor data peserta.' }, { status: 500 });
   }
 }

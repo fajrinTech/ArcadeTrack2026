@@ -18,7 +18,21 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 });
 
 const CONCURRENCY = 10;
-const DELAY_MS = 200;
+const DELAY_MS = 100;
+
+async function withRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 1000): Promise<T> {
+  let attempt = 0;
+  while (attempt < retries) {
+    try {
+      return await fn();
+    } catch (err) {
+      attempt++;
+      if (attempt >= retries) throw err;
+      await new Promise((r) => setTimeout(r, delayMs * attempt));
+    }
+  }
+  throw new Error('Max retries exceeded');
+}
 
 async function run() {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -31,13 +45,24 @@ async function run() {
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   while (true) {
-    // Fetch members needing sync today (null or before today)
-    const { data: members, error } = await supabase
-      .from('facilitator_members')
-      .select('*')
-      .or(`last_synced.is.null,last_synced.lt.${todayStr}T00:00:00Z`)
-      .order('last_synced', { ascending: true, nullsFirst: true })
-      .range(0, 499);
+    // Fetch members needing sync today (null or before today) with retry
+    let members: any[] | null = null;
+    let error: any = null;
+
+    try {
+      const res = await withRetry(() =>
+        supabase
+          .from('facilitator_members')
+          .select('*')
+          .or(`last_synced.is.null,last_synced.lt.${todayStr}T00:00:00Z`)
+          .order('last_synced', { ascending: true, nullsFirst: true })
+          .range(0, 299)
+      );
+      members = res.data;
+      error = res.error;
+    } catch (e) {
+      error = e;
+    }
 
     if (error) {
       console.error("Error fetching members batch:", error);
@@ -64,25 +89,27 @@ async function run() {
         const memberNum = totalProcessed + idx + 1;
 
         try {
-          const scrapeData = await scrapeProfile(member.profile_url);
+          const scrapeData = await withRetry(() => scrapeProfile(member.profile_url), 3, 1000);
           const badges = (scrapeData.badges || []).filter((b: any) => b.earned_date >= ACTIVE_PERIOD_START);
           const gamesCount = badges.filter((b: any) => b.category === 'game').length;
           const skillsCount = badges.filter((b: any) => b.category === 'skill_badge').length;
           const monthlyPoints = gamesCount + skillsCount * 0.5;
 
-          const { error: updateErr } = await supabase
-            .from('facilitator_members')
-            .update({
-              name: scrapeData.name || member.name,
-              games_count: gamesCount,
-              skills_count: skillsCount,
-              monthly_points: monthlyPoints,
-              last_synced: scrapeData.scraped_at,
-              sync_status: 'sukses'
-            })
-            .eq('id', member.id);
+          await withRetry(async () => {
+            const { error: updateErr } = await supabase
+              .from('facilitator_members')
+              .update({
+                name: scrapeData.name || member.name,
+                games_count: gamesCount,
+                skills_count: skillsCount,
+                monthly_points: monthlyPoints,
+                last_synced: scrapeData.scraped_at,
+                sync_status: 'sukses'
+              })
+              .eq('id', member.id);
 
-          if (updateErr) throw updateErr;
+            if (updateErr) throw updateErr;
+          }, 3, 1000);
 
           try {
             await supabase

@@ -77,6 +77,7 @@ export default function PanelFasilPage() {
 
   // Advanced States
   const [uploadFilename, setUploadFilename] = useState('');
+  const [isDuplicateFile, setIsDuplicateFile] = useState(false);
   interface UploadBatch {
     id: string;
     facilitator_id: string;
@@ -472,6 +473,13 @@ export default function PanelFasilPage() {
           return;
         }
 
+        const isDup = uploadHistory.some(
+          h => h.filename.toLowerCase() === file.name.toLowerCase() &&
+               h.records_count === list.length &&
+               h.status === 'completed'
+        );
+
+        setIsDuplicateFile(isDup);
         setParsedData(list);
         setModalStats({
           total: list.length,
@@ -937,6 +945,8 @@ export default function PanelFasilPage() {
         isOpen={isModalOpen}
         isImporting={isImporting}
         modalStats={modalStats}
+        isDuplicate={isDuplicateFile}
+        uploadFilename={uploadFilename}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmImport}
       />

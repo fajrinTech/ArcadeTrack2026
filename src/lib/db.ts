@@ -119,13 +119,48 @@ export interface SkillBadge {
   created_at?: string;
 }
 
+// === IN-MEMORY CACHE TO PREVENT SUPABASE EGRESS OVERFLOW ===
+let cachedSkillBadges: { data: SkillBadge[]; expiresAt: number } | null = null;
+let cachedSkillBadgesPromise: Promise<SkillBadge[]> | null = null;
+let cachedParticipants: { data: Participant[]; expiresAt: number } | null = null;
+
+const SKILLS_CACHE_TTL_MS = 10 * 60 * 1000; // 10 menit
+const PARTICIPANTS_CACHE_TTL_MS = 2 * 60 * 1000; // 2 menit
+
+export function invalidateParticipantsCache() {
+  cachedParticipants = null;
+}
+
 export async function getSkillBadges(): Promise<SkillBadge[]> {
-  const { data, error } = await supabase.from('skill_badges').select('*');
-  if (error) throw error;
-  return data ?? [];
+  const now = Date.now();
+  if (cachedSkillBadges && cachedSkillBadges.expiresAt > now) {
+    return cachedSkillBadges.data;
+  }
+  if (cachedSkillBadgesPromise) {
+    return cachedSkillBadgesPromise;
+  }
+
+  cachedSkillBadgesPromise = (async () => {
+    try {
+      const { data, error } = await supabase.from('skill_badges').select('*');
+      if (error) throw error;
+      const skills = data ?? [];
+      cachedSkillBadges = { data: skills, expiresAt: Date.now() + SKILLS_CACHE_TTL_MS };
+      return skills;
+    } finally {
+      cachedSkillBadgesPromise = null;
+    }
+  })();
+
+  return cachedSkillBadgesPromise;
 }
 
 export async function getParticipants(): Promise<Participant[]> {
+  const now = Date.now();
+  if (cachedParticipants && cachedParticipants.expiresAt > now) {
+    return cachedParticipants.data;
+  }
+
   let allParticipants: Participant[] = [];
   let from = 0;
   const limit = 1000;
@@ -144,6 +179,7 @@ export async function getParticipants(): Promise<Participant[]> {
     from += limit;
   }
 
+  cachedParticipants = { data: allParticipants, expiresAt: now + PARTICIPANTS_CACHE_TTL_MS };
   return allParticipants;
 }
 
@@ -163,6 +199,7 @@ export async function getParticipantByUrl(profileUrl: string): Promise<Participa
 export async function addParticipant(
   p: Pick<Participant, 'name' | 'profile_url' | 'role'>
 ): Promise<Participant> {
+  invalidateParticipantsCache();
   const { data, error } = await supabase
     .from('participants')
     .insert({ ...p, name: p.name || 'Google Cloud Learner' })
@@ -175,6 +212,7 @@ export async function updateParticipant(
   id: string,
   updates: Partial<Participant>
 ): Promise<Participant | null> {
+  invalidateParticipantsCache();
   const { data, error } = await supabase
     .from('participants').update(updates).eq('id', id).select().maybeSingle();
   if (error) throw error;
@@ -288,6 +326,22 @@ export async function bulkUpsertFacilitatorMembers(
 
   let batchId: string | null = null;
   if (filename) {
+    // Check if duplicate upload with exact same filename and record count already exists for this facilitator
+    const { data: existingUpload } = await supabase
+      .from('upload_history')
+      .select('id, filename, uploaded_at')
+      .eq('facilitator_id', facilitatorId)
+      .eq('filename', filename)
+      .eq('records_count', uniqueMembers.length)
+      .eq('status', 'completed')
+      .maybeSingle();
+
+    if (existingUpload) {
+      const err: any = new Error(`File '${filename}' dengan ${uniqueMembers.length} data sudah pernah diunggah sebelumnya.`);
+      err.isDuplicate = true;
+      throw err;
+    }
+
     const { data: batchData, error: batchErr } = await supabase
       .from('upload_history')
       .insert({

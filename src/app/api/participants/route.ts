@@ -7,7 +7,11 @@ const SESSION_MAX_AGE = 7 * 24 * 60 * 60;
 export async function GET() {
   try {
     const participants = await getParticipants();
-    return NextResponse.json({ participants });
+    return NextResponse.json({ participants }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=300'
+      }
+    });
   } catch (error: any) {
     console.error('GET participants error:', error);
     return NextResponse.json({ error: 'Gagal mengambil data peserta.' }, { status: 500 });

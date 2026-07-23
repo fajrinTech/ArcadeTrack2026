@@ -12,6 +12,8 @@ interface ImportCSVModalProps {
     totalGames: number;
     totalSkills: number;
   };
+  isDuplicate?: boolean;
+  uploadFilename?: string;
   onClose: () => void;
   onConfirm: () => void;
 }
@@ -20,6 +22,8 @@ export default function ImportCSVModal({
   isOpen,
   isImporting,
   modalStats,
+  isDuplicate = false,
+  uploadFilename = '',
   onClose,
   onConfirm
 }: ImportCSVModalProps) {
@@ -42,8 +46,23 @@ export default function ImportCSVModal({
           </button>
         </div>
 
-        {/* Modal Body: The custom metrics table matching the screenshot */}
+        {/* Modal Body */}
         <div className="my-4 sm:my-6 space-y-4">
+          {/* Warning Banner when Duplicate is Detected */}
+          {isDuplicate && (
+            <div className="bg-amber-100 border-[3px] border-black p-3.5 rounded shadow-[3px_3px_0_#000] flex items-start gap-2.5">
+              <ExclamationTriangleIcon className="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <span className="text-xs font-black uppercase text-amber-900 block">
+                  ⚠️ FILE DUPLIKAT TERDETEKSI
+                </span>
+                <p className="text-[11px] text-amber-900 font-bold leading-snug">
+                  File <span className="underline font-black">"{uploadFilename}"</span> dengan <span className="font-black">{modalStats.total} data</span> sudah pernah diunggah sebelumnya pada riwayat unggahan Anda.
+                </p>
+              </div>
+            </div>
+          )}
+
           <p className="text-xs text-text-muted leading-relaxed">
             Berikut adalah ringkasan analisis file CSV dari Arcade Global. Pastikan nilai-nilai ini akurat sebelum menyimpan ke database.
           </p>
@@ -94,17 +113,23 @@ export default function ImportCSVModal({
             disabled={isImporting}
             className="px-4 py-2 border-[2.5px] border-black rounded text-xs font-bold bg-white hover:bg-surface-alt active:translate-y-0.5 active:shadow-[1px_1px_0px_#000] shadow-[2.5px_2.5px_0px_#000] transition-all"
           >
-            BATAL
+            {isDuplicate ? 'TUTUP' : 'BATAL'}
           </button>
           <button
             onClick={onConfirm}
-            disabled={isImporting}
-            className="neobrutal-btn-primary !py-2 !px-3 sm:!px-4 flex items-center gap-1.5 text-xs font-bold shrink-0"
+            disabled={isImporting || isDuplicate}
+            className={`neobrutal-btn-primary !py-2 !px-3 sm:!px-4 flex items-center gap-1.5 text-xs font-bold shrink-0 ${isDuplicate ? 'opacity-50 cursor-not-allowed !bg-gray-400 border-black' : ''
+              }`}
           >
             {isImporting ? (
               <>
                 <UpdateIcon className="w-3.5 h-3.5 animate-spin" />
                 <span>MENYIMPAN...</span>
+              </>
+            ) : isDuplicate ? (
+              <>
+                <ExclamationTriangleIcon className="w-3.5 h-3.5" />
+                <span>FILE SUDAH DIUNGGAH</span>
               </>
             ) : (
               <>
