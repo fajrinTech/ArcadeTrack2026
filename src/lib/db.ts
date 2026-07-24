@@ -13,6 +13,7 @@ export const supabase = createClient(
 
 // ponytail: awal periode arcade berjalan. Hardcoded; ubah tiap ganti bulan.
 export const ACTIVE_PERIOD_START = '2026-07-13';
+export const WEEKLY_PERIOD_START = '2026-07-24';
 
 export function normalizeProfileUrl(url: string): string | null {
   const trimmed = url.trim();
@@ -95,6 +96,7 @@ export interface Participant {
   created_at: string;
   // Derived at query time, not stored:
   monthly_points?: number;
+  weekly_points?: number;
 }
 
 export interface Badge {
@@ -177,6 +179,31 @@ export async function getParticipants(): Promise<Participant[]> {
     allParticipants = allParticipants.concat(data);
     if (data.length < limit) break;
     from += limit;
+  }
+
+  // Calculate weekly_points dynamically for badges earned >= WEEKLY_PERIOD_START (2026-07-24)
+  try {
+    const { data: weeklyBadges } = await supabase
+      .from('badges')
+      .select('participant_id, category')
+      .gte('earned_date', WEEKLY_PERIOD_START);
+
+    if (weeklyBadges && weeklyBadges.length > 0) {
+      const weeklyMap: Record<string, number> = {};
+      weeklyBadges.forEach(b => {
+        const pts = b.category === 'game' ? 1.0 : 0.5;
+        weeklyMap[b.participant_id] = (weeklyMap[b.participant_id] || 0) + pts;
+      });
+      allParticipants = allParticipants.map(p => ({
+        ...p,
+        weekly_points: weeklyMap[p.id] || 0
+      }));
+    } else {
+      allParticipants = allParticipants.map(p => ({ ...p, weekly_points: 0 }));
+    }
+  } catch (err) {
+    console.error('Error computing weekly points:', err);
+    allParticipants = allParticipants.map(p => ({ ...p, weekly_points: 0 }));
   }
 
   cachedParticipants = { data: allParticipants, expiresAt: now + PARTICIPANTS_CACHE_TTL_MS };

@@ -51,6 +51,7 @@ export default function FacilitatorPanel({
 }: LeaderboardPanelProps) {
   const [inputValue, setInputValue] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [timeframe, setTimeframe] = useState<'alltime' | 'weekly'>('alltime');
 
   const isAdmin = useMemo(() => {
     if (!myProfileId) return false;
@@ -67,10 +68,17 @@ export default function FacilitatorPanel({
   }, [inputValue]);
 
   const sorted = useMemo(() => {
-    return [...participants].sort(
-      (a, b) => (b.monthly_points ?? 0) - (a.monthly_points ?? 0)
-    );
-  }, [participants]);
+    let list = [...participants];
+    if (timeframe === 'weekly') {
+      // Strictly filter only participants who earned weekly points starting July 24
+      list = list.filter(p => (p.weekly_points ?? 0) > 0);
+    }
+    return list.sort((a, b) => {
+      const ptsA = timeframe === 'weekly' ? (a.weekly_points ?? 0) : (a.monthly_points ?? 0);
+      const ptsB = timeframe === 'weekly' ? (b.weekly_points ?? 0) : (b.monthly_points ?? 0);
+      return ptsB - ptsA;
+    });
+  }, [participants, timeframe]);
 
   const top3 = useMemo(() => {
     return sorted.slice(0, 3);
@@ -118,6 +126,31 @@ export default function FacilitatorPanel({
         </div>
       </div>
 
+      {/* Leaderboard Timeframe Switcher */}
+      <div className="grid grid-cols-2 gap-2 mb-4 p-1 bg-surface-alt border-[2px] border-black rounded-lg shadow-[2px_2px_0px_#000] font-mono">
+        <button
+          onClick={() => setTimeframe('alltime')}
+          className={`py-1.5 text-xs font-black uppercase rounded transition-all flex items-center justify-center gap-1.5 ${timeframe === 'alltime'
+              ? 'bg-primary text-black border-[1.5px] border-black shadow-[1.5px_1.5px_0px_#000]'
+              : 'text-text-muted hover:text-black'
+            }`}
+        >
+          <span>🏆 ALL-TIME</span>
+        </button>
+        <button
+          onClick={() => setTimeframe('weekly')}
+          className={`py-1.5 text-xs font-black uppercase rounded transition-all flex items-center justify-center gap-1.5 ${timeframe === 'weekly'
+              ? 'bg-secondary text-white border-[1.5px] border-black shadow-[1.5px_1.5px_0px_#000]'
+              : 'text-text-muted hover:text-black'
+            }`}
+        >
+          <span>⚡ WEEKLY</span>
+          <span className="bg-white text-secondary text-[9px] font-black px-1.5 py-0.5 rounded border border-black uppercase shadow-[1px_1px_0px_#000] shrink-0">
+            COMING SOON
+          </span>
+        </button>
+      </div>
+
       {sorted.length > 0 && (
         <div className="mb-6">
           <input
@@ -130,9 +163,34 @@ export default function FacilitatorPanel({
         </div>
       )}
 
-      {sorted.length === 0 ? (
-        <div className="py-10 text-center text-text-muted font-mono text-[10px]">
-          NO PLAYERS DETECTED
+      {timeframe === 'weekly' ? (
+        <div className="my-6 p-6 sm:p-8 bg-secondary/10 border-[3px] border-black rounded-xl shadow-[5px_5px_0px_#000] text-center space-y-3 font-mono animate-scale-in">
+          <div className="w-14 h-14 rounded-full bg-secondary text-white border-[2.5px] border-black flex items-center justify-center mx-auto text-2xl shadow-[3px_3px_0px_#000]">
+            🔒
+          </div>
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-1.5 bg-white text-secondary text-[10px] font-black uppercase px-2.5 py-1 rounded border-[1.5px] border-black shadow-[2px_2px_0px_#000]">
+              FEATURE LOCKED
+            </div>
+            <h4 className="text-sm sm:text-base font-black uppercase text-black tracking-tight">
+              WEEKLY LEADERBOARD COMING SOON!
+            </h4>
+            <p className="text-xs text-black/80 max-w-md mx-auto font-medium leading-relaxed">
+              Fitur papan peringkat mingguan (<strong>Weekly Leaderboard</strong>) saat ini sedang dikunci sementara. Nantikan pengumuman peluncuran resminya dalam waktu dekat! 🚀
+            </p>
+          </div>
+        </div>
+      ) : sorted.length === 0 ? (
+        <div className="py-12 text-center text-text-muted font-mono space-y-2.5 animate-fade-in">
+          <div className="w-12 h-12 rounded-full bg-surface-alt border-[2.5px] border-black flex items-center justify-center mx-auto text-xl shadow-[2px_2px_0px_#000]">
+            🏆
+          </div>
+          <div className="text-xs font-black uppercase text-black tracking-wide">
+            TIDAK ADA DATA PESERTA
+          </div>
+          <p className="text-[11px] max-w-md mx-auto text-black/70 font-medium leading-relaxed">
+            Belum ada data peserta yang terdeteksi di leaderboard.
+          </p>
         </div>
       ) : (
         <>
@@ -220,15 +278,13 @@ export default function FacilitatorPanel({
                     <tr
                       key={p.id}
                       onClick={canClick ? () => onSelect(p.id) : undefined}
-                      className={`transition-all duration-200 ${
-                        canClick ? 'cursor-pointer' : 'cursor-default'
-                      } ${
-                        isSelected
+                      className={`transition-all duration-200 ${canClick ? 'cursor-pointer' : 'cursor-default'
+                        } ${isSelected
                           ? 'bg-primary/20 font-extrabold'
                           : isMe
                             ? `bg-tertiary/5 ${canClick ? 'hover:bg-tertiary/10' : ''}`
                             : canClick ? 'hover:bg-surface-alt' : ''
-                      }`}
+                        }`}
                     >
                       <td className="py-2.5 px-2 text-center">
                         <span className="font-black text-text-muted text-[11px]">{originalRank}</span>
@@ -249,11 +305,10 @@ export default function FacilitatorPanel({
                         </div>
                       </td>
 
-                      <td className={`py-2.5 px-2 text-right font-extrabold ${
-                        originalRank === 1 ? 'text-amber-600' :
-                        originalRank === 2 ? 'text-zinc-500' :
-                        originalRank === 3 ? 'text-orange-500' : 'text-black'
-                      }`}>
+                      <td className={`py-2.5 px-2 text-right font-extrabold ${originalRank === 1 ? 'text-amber-600' :
+                          originalRank === 2 ? 'text-zinc-500' :
+                            originalRank === 3 ? 'text-orange-500' : 'text-black'
+                        }`}>
                         {(p.monthly_points ?? 0).toFixed(1)}
                       </td>
                     </tr>
@@ -268,7 +323,7 @@ export default function FacilitatorPanel({
               <div className="text-[9px] uppercase tracking-wider text-text-muted font-bold mb-2">
                 POSISI ANDA
               </div>
-              <div 
+              <div
                 className="flex items-center justify-between p-3 rounded-lg border-[3px] border-black bg-tertiary/10 shadow-[4px_4px_0px_#000] font-mono transition-all cursor-default"
               >
                 <div className="flex items-center gap-3">
