@@ -332,6 +332,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
   const [skillBadges, setSkillBadges] = useState<SkillBadge[]>([]);
   const [isLoadingSkills, setIsLoadingSkills] = useState(true);
   const [skillsSearch, setSkillsSearch] = useState('');
+  const [skillsDifficulty, setSkillsDifficulty] = useState('all');
   const [skillsSort, setSkillsSort] = useState('');
   const [showFasttrackBanner, setShowFasttrackBanner] = useState(true);
 
@@ -365,10 +366,10 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
     fetchSkills();
   }, []);
 
-  // Reset page when search or sort changes
+  // Reset page when search, filter, or sort changes
   useEffect(() => {
     setFasttrackPage(1);
-  }, [skillsSearch, skillsSort]);
+  }, [skillsSearch, skillsDifficulty, skillsSort]);
 
   // Helper to parse duration text into total minutes
   const parseDurationToMinutes = (durStr?: string): number => {
@@ -381,9 +382,14 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
     return minutes;
   };
 
-  // Filter & sort skills based on search and sort dropdown
+  // Filter & sort skills based on search, difficulty, and sort dropdown
   const filteredSkills = skillBadges
-    .filter(skill => skill.name.toLowerCase().includes(skillsSearch.toLowerCase()))
+    .filter(skill => {
+      const matchesSearch = skill.name.toLowerCase().includes(skillsSearch.toLowerCase());
+      const matchesDifficulty = skillsDifficulty === 'all' || 
+        (skill.difficulty && skill.difficulty.toLowerCase() === skillsDifficulty.toLowerCase());
+      return matchesSearch && matchesDifficulty;
+    })
     .sort((a, b) => {
       if (skillsSort === 'labAsc') {
         return (a.labs || 0) - (b.labs || 0);
@@ -737,15 +743,25 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                 </span>
               </div>
               
-              {/* Search and Sort Inputs */}
+              {/* Search, Level Filter, and Sort Inputs */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
                 <input
                   type="text"
                   placeholder="Cari badge..."
                   value={skillsSearch}
                   onChange={(e) => setSkillsSearch(e.target.value)}
-                  className="neobrutal-input py-2 text-xs w-full sm:w-48 font-mono"
+                  className="neobrutal-input py-2 text-xs w-full sm:w-44 font-mono"
                 />
+                <select
+                  value={skillsDifficulty}
+                  onChange={(e) => setSkillsDifficulty(e.target.value)}
+                  className="neobrutal-input py-2 text-xs w-full sm:w-40 font-mono bg-white cursor-pointer"
+                >
+                  <option value="all">Semua Level</option>
+                  <option value="introductory">Introductory</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
                 <select
                   value={skillsSort}
                   onChange={(e) => setSkillsSort(e.target.value)}

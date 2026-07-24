@@ -86,6 +86,19 @@ export default function Home() {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [openNotifs, setOpenNotifs] = useState<Record<string, boolean>>({});
   const [isMaintenance, setIsMaintenance] = useState(false);
+  const [isApologyModalOpen, setIsApologyModalOpen] = useState(false);
+
+  useEffect(() => {
+    const hasSeen = localStorage.getItem('fasttrack_level_apology_seen_v1');
+    if (!hasSeen) {
+      setIsApologyModalOpen(true);
+    }
+  }, []);
+
+  const handleCloseApologyModal = () => {
+    setIsApologyModalOpen(false);
+    localStorage.setItem('fasttrack_level_apology_seen_v1', '1');
+  };
 
   // Confirm Modal State
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -536,6 +549,52 @@ export default function Home() {
                 Paham & Tutup
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Global Gen-Z Apology Modal for Level Filter Return */}
+      {isApologyModalOpen && (
+        <div className="fixed inset-0 z-[160] flex items-center justify-center p-3 bg-black/70 backdrop-blur-xs animate-fade-in pointer-events-auto">
+          <div className="neobrutal-card max-w-xs sm:max-w-sm w-full !p-3.5 sm:!p-4 flex flex-col items-center text-center animate-scale-in bg-white border-[3px] border-black shadow-[5px_5px_0px_#000] space-y-3 max-h-[85vh] overflow-y-auto">
+            
+            {/* Header / Close */}
+            <div className="w-full flex items-center justify-between border-b-[2px] border-black pb-1.5 shrink-0">
+              <span className="text-[10px] font-black uppercase tracking-widest text-secondary font-mono">
+                PEMBERITAHUAN PENTING 🥺
+              </span>
+              <button
+                onClick={handleCloseApologyModal}
+                className="p-1 border-[1.5px] border-black rounded bg-white hover:bg-secondary hover:text-white transition-colors"
+              >
+                <Cross2Icon className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Meme / Apology Image */}
+            <img
+              src="https://i.pinimg.com/736x/eb/28/5e/eb285ed9e466268ee195a99d237afd88.jpg"
+              alt="Minta Maaf Diatas Materai"
+              className="max-h-44 sm:max-h-52 w-auto mx-auto rounded-lg border-[2.5px] border-black shadow-[3px_3px_0px_#000] shrink-0"
+            />
+
+            {/* Gen-Z Apology Text */}
+            <div className="space-y-1 font-mono shrink-0">
+              <h3 className="text-xs sm:text-sm font-black uppercase text-black tracking-tight">
+                MAAFKAN MIMIN GUYS! 🙏🏻
+              </h3>
+              <p className="text-[11px] sm:text-xs text-black/80 font-medium leading-relaxed">
+                Maaf banget ya guys, kemarin sempet ngilangin dropdown filter <strong>Level (Intro, Intermed, Advanced)</strong> di FastTrack... 🥺🏻 Mimin keliru mikir cuma butuh <i>sort by</i>! Sekarang udah mimin balikin lagi kok, aman! Gas lanjut ngambis badge-nya! 🔥
+              </p>
+            </div>
+
+            {/* Dismiss Button */}
+            <button
+              onClick={handleCloseApologyModal}
+              className="neobrutal-btn-primary w-full py-2 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shrink-0"
+            >
+              <span>SANTUY MIMIN, GAS! 🔥</span>
+            </button>
           </div>
         </div>
       )}
