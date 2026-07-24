@@ -12,6 +12,7 @@ import MilestoneProgress from './components/MilestoneProgress';
 import MemberListTable from './components/MemberListTable';
 import ImportCSVModal from './components/ImportCSVModal';
 import ConfirmModal from './components/ConfirmModal';
+import FacilDisclaimerModal from './components/FacilDisclaimerModal';
 import { APP_VERSION } from '@/lib/version';
 
 // Utilities
@@ -89,6 +90,19 @@ export default function PanelFasilPage() {
   const [uploadHistory, setUploadHistory] = useState<UploadBatch[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [isMaintenance, setIsMaintenance] = useState(false);
+  const [showFacilDisclaimer, setShowFacilDisclaimer] = useState(false);
+
+  useEffect(() => {
+    const hasSeen = localStorage.getItem('facil_privacy_disclaimer_seen_v1');
+    if (!hasSeen) {
+      setShowFacilDisclaimer(true);
+    }
+  }, []);
+
+  const handleCloseFacilDisclaimer = () => {
+    setShowFacilDisclaimer(false);
+    localStorage.setItem('facil_privacy_disclaimer_seen_v1', '1');
+  };
 
   // Confirm Modal State
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -988,6 +1002,11 @@ export default function PanelFasilPage() {
         onConfirm={confirmConfig.onConfirm}
         onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
         showCancel={confirmConfig.showCancel}
+      />
+
+      <FacilDisclaimerModal
+        isOpen={showFacilDisclaimer}
+        onClose={handleCloseFacilDisclaimer}
       />
     </div>
   );
