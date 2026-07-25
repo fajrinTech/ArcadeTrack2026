@@ -413,53 +413,45 @@ html {
 }
 
 /* Neubrutalist Dark Theme Overrides for Tailwind Classes */
-.bg-white {
+html.dark .bg-white {
   background-color: var(--surface) !important;
 }
 
-.text-black {
+html.dark .text-black {
   color: var(--foreground) !important;
 }
 
-.border-black {
-  border-color: var(--border-color) !important; /* Always white borders */
+html.dark .border-black {
+  border-color: var(--border-color) !important;
 }
 
-.divide-black > * {
-  border-color: var(--border-color) !important; /* Always white dividers */
+html.dark .divide-black > * {
+  border-color: var(--border-color) !important;
 }
 
-.hover\:bg-white:hover {
+html.dark .hover\:bg-white:hover {
   background-color: var(--surface-alt) !important;
 }
 
-.hover\:text-black:hover {
+html.dark .hover\:text-black:hover {
   color: var(--foreground) !important;
 }
 
 /* Keep text black on neon/light backgrounds for contrast */
-.bg-primary.text-black,
-.bg-primary .text-black,
-.bg-success.text-black,
-.bg-success .text-black,
-.neobrutal-btn-primary {
-  color: #000000 !important;
-}
-
-.bg-primary.hover\:text-black:hover,
-.bg-primary .hover\:text-black:hover,
-.bg-success.hover\:text-black:hover,
-.bg-success .hover\:text-black:hover {
+html.dark .bg-primary,
+html.dark .bg-primary *,
+html.dark .bg-success,
+html.dark .bg-success *,
+html.dark .neobrutal-btn-primary,
+html.dark .neobrutal-btn-primary * {
   color: #000000 !important;
 }
 
 /* Exit button override (invert bg-black in dark mode) */
-.bg-black {
-  background-color: var(--border-color) !important; /* white background */
+html.dark .bg-black {
+  background-color: var(--border-color) !important;
 }
-.bg-black,
-.bg-black * {
+html.dark .bg-black,
+html.dark .bg-black * {
   color: #000000 !important;
 }
-
-
