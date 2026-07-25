@@ -86,6 +86,7 @@ export default function Home() {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [openNotifs, setOpenNotifs] = useState<Record<string, boolean>>({});
   const [isMaintenance, setIsMaintenance] = useState(false);
+  const [isNoticeOpen, setIsNoticeOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -113,7 +114,16 @@ export default function Home() {
     });
   };
 
+  useEffect(() => {
+    if (myProfileId && !localStorage.getItem('notice_v147')) {
+      setIsNoticeOpen(true);
+    }
+  }, [myProfileId]);
 
+  const handleCloseNotice = () => {
+    setIsNoticeOpen(false);
+    localStorage.setItem('notice_v147', '1');
+  };
 
   // Confirm Modal State
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -571,6 +581,54 @@ export default function Home() {
       )}
 
 
+      {/* Global Notice Modal */}
+      {isNoticeOpen && myProfileId && (
+        <div className="fixed inset-0 z-[160] flex items-center justify-center p-3 bg-black/70 backdrop-blur-xs animate-fade-in pointer-events-auto">
+          <div className="neobrutal-card max-w-sm sm:max-w-md md:max-w-lg w-full !p-4 sm:!p-5 flex flex-col items-center text-center animate-scale-in border-[3px] border-black shadow-[6px_6px_0px_#000] space-y-3.5 max-h-[85vh] overflow-y-auto no-scrollbar bg-surface text-foreground">
+
+            {/* Header / Close */}
+            <div className="w-full flex items-center justify-between border-b-[2px] border-black pb-1.5 shrink-0">
+              <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-secondary font-mono">
+                PESAN DARI ADMIN 📨
+              </span>
+              <button
+                onClick={handleCloseNotice}
+                className="p-1 border-[1.5px] border-black rounded bg-surface hover:bg-secondary hover:text-white transition-colors text-foreground"
+              >
+                <Cross2Icon className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <img
+              src="https://i.pinimg.com/736x/32/d6/70/32d670443131a33f31f0e476da80b558.jpg"
+              alt="Admin Meme"
+              className="max-h-36 sm:max-h-44 w-auto mx-auto rounded-lg border-[2.5px] border-black shadow-[3px_3px_0px_#000] shrink-0 object-contain"
+            />
+
+            <div className="w-full border-[2px] border-black rounded-lg p-3 bg-surface-alt text-left space-y-2 font-mono shrink-0">
+              <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
+                Makasih banget buat kalian yang udah pake platform track ini! Gue sebagai admin (solo player btw) bakal terus nerima masukan & saran dari para member.
+              </p>
+              <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
+                *Kalo ada bug di labs, jangan report di form ya, tanya langsung ke fasil masing-masing aja (soalnya gabisa bantu) 😹*
+              </p>
+              <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
+                Platform ini dibuat sepenuh hati khusus untuk program Arcade tanpa iklan, demi kenyaman bersama❤️
+              </p>
+              <p className="text-[10px] text-foreground/60 font-bold uppercase tracking-widest text-right mt-2">
+                TTD,<br />Admin Besar
+              </p>
+            </div>
+
+            <button
+              onClick={handleCloseNotice}
+              className="neobrutal-btn-primary w-full py-2 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shrink-0 !text-black"
+            >
+              <span>NOTED MIMIN!</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       <ConfirmModal
         isOpen={confirmConfig.isOpen}
