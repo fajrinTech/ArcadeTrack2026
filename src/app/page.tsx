@@ -87,9 +87,35 @@ export default function Home() {
   const [openNotifs, setOpenNotifs] = useState<Record<string, boolean>>({});
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [isApologyModalOpen, setIsApologyModalOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    const hasSeen = localStorage.getItem('fasttrack_level_apology_seen_v1');
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setIsDarkMode(prev => {
+      const next = !prev;
+      if (next) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const hasSeen = localStorage.getItem('fasttrack_update_notice_v3');
     if (!hasSeen) {
       setIsApologyModalOpen(true);
     }
@@ -97,7 +123,7 @@ export default function Home() {
 
   const handleCloseApologyModal = () => {
     setIsApologyModalOpen(false);
-    localStorage.setItem('fasttrack_level_apology_seen_v1', '1');
+    localStorage.setItem('fasttrack_update_notice_v3', '1');
   };
 
   // Confirm Modal State
@@ -114,7 +140,7 @@ export default function Home() {
     isOpen: false,
     title: '',
     message: '',
-    onConfirm: () => {}
+    onConfirm: () => { }
   });
 
   useEffect(() => {
@@ -315,7 +341,7 @@ export default function Home() {
       onConfirm: () => {
         setConfirmConfig(prev => ({ ...prev, isOpen: false }));
         // Hapus session cookie di server
-        fetch('/api/participants', { method: 'DELETE' }).catch(() => {});
+        fetch('/api/participants', { method: 'DELETE' }).catch(() => { });
         localStorage.removeItem('myProfileId'); // link (lastProfileUrl) sengaja dipertahankan
         setMyProfileId(null);
         setSelectedParticipantId(null);
@@ -423,6 +449,8 @@ export default function Home() {
                 onSync={myProfileId === selectedParticipant.id || myRole === 'facilitator' ? () => handleSyncParticipant(selectedParticipant.id) : undefined}
                 onOpenNotifications={() => setIsNotifOpen(true)}
                 latestNotifId={NOTIFICATIONS[0]?.id}
+                isDarkMode={isDarkMode}
+                onToggleTheme={toggleTheme}
               />
             )}
 
@@ -434,8 +462,8 @@ export default function Home() {
                   if (myProfileId) setSelectedParticipantId(myProfileId);
                 }}
                 className={`flex-1 px-5 py-2.5 rounded-md text-xs uppercase font-bold tracking-wider transition-all duration-200 border-[3px] ${currentView === 'dashboard'
-                    ? 'bg-primary text-black border-black shadow-[2px_2px_0px_#000] -translate-y-0.5'
-                    : 'text-text-muted hover:text-black hover:bg-white border-transparent'
+                  ? 'bg-primary text-black border-black shadow-[2px_2px_0px_#000] -translate-y-0.5'
+                  : 'text-text-muted hover:text-black hover:bg-white border-transparent'
                   }`}
               >
                 Dashboard
@@ -443,8 +471,8 @@ export default function Home() {
               <button
                 onClick={() => setCurrentView('leaderboard')}
                 className={`flex-1 px-5 py-2.5 rounded-md text-xs uppercase font-bold tracking-wider transition-all duration-200 border-[3px] ${currentView === 'leaderboard'
-                    ? 'bg-tertiary text-white border-black shadow-[2px_2px_0px_#000] -translate-y-0.5'
-                    : 'text-text-muted hover:text-black hover:bg-white border-transparent'
+                  ? 'bg-tertiary text-white border-black shadow-[2px_2px_0px_#000] -translate-y-0.5'
+                  : 'text-text-muted hover:text-black hover:bg-white border-transparent'
                   }`}
               >
                 Leaderboard
@@ -553,47 +581,47 @@ export default function Home() {
         </div>
       )}
 
-      {/* Global Gen-Z Apology Modal for Level Filter Return */}
-      {isApologyModalOpen && (
+      {/* Global Notice Modal for Dashboard Only */}
+      {isApologyModalOpen && myProfileId && (
         <div className="fixed inset-0 z-[160] flex items-center justify-center p-3 bg-black/70 backdrop-blur-xs animate-fade-in pointer-events-auto">
-          <div className="neobrutal-card max-w-xs sm:max-w-sm w-full !p-3.5 sm:!p-4 flex flex-col items-center text-center animate-scale-in bg-white border-[3px] border-black shadow-[5px_5px_0px_#000] space-y-3 max-h-[85vh] overflow-y-auto">
-            
+          <div className="neobrutal-card max-w-xs sm:max-w-sm w-full !p-3.5 sm:!p-4 flex flex-col items-center text-center animate-scale-in border-[3px] border-black shadow-[5px_5px_0px_#000] space-y-3 max-h-[85vh] overflow-y-auto bg-surface text-foreground">
+
             {/* Header / Close */}
             <div className="w-full flex items-center justify-between border-b-[2px] border-black pb-1.5 shrink-0">
               <span className="text-[10px] font-black uppercase tracking-widest text-secondary font-mono">
-                PEMBERITAHUAN PENTING 🥺
+                INFO UPDATE TERBARU! 📢
               </span>
               <button
                 onClick={handleCloseApologyModal}
-                className="p-1 border-[1.5px] border-black rounded bg-white hover:bg-secondary hover:text-white transition-colors"
+                className="p-1 border-[1.5px] border-black rounded bg-surface hover:bg-secondary hover:text-white transition-colors text-foreground"
               >
                 <Cross2Icon className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            {/* Meme / Apology Image */}
+            {/* Meme / Announcement Image */}
             <img
-              src="https://i.pinimg.com/736x/eb/28/5e/eb285ed9e466268ee195a99d237afd88.jpg"
-              alt="Minta Maaf Diatas Materai"
-              className="max-h-44 sm:max-h-52 w-auto mx-auto rounded-lg border-[2.5px] border-black shadow-[3px_3px_0px_#000] shrink-0"
+              src="https://i.pinimg.com/736x/a1/5c/02/a15c02d82084136c763203687c931cbe.jpg"
+              alt="Coming Update Meme"
+              className="max-h-44 sm:max-h-52 w-auto mx-auto rounded-lg border-[2.5px] border-black shadow-[3px_3px_0px_#000] shrink-0 object-contain"
             />
 
-            {/* Gen-Z Apology Text */}
+            {/* Announcement Text */}
             <div className="space-y-1 font-mono shrink-0">
-              <h3 className="text-xs sm:text-sm font-black uppercase text-black tracking-tight">
-                MAAFKAN MIMIN GUYS! 🙏🏻
+              <h3 className="text-xs sm:text-sm font-black uppercase text-foreground tracking-tight">
+                COMING UPDATE! 🚀
               </h3>
-              <p className="text-[11px] sm:text-xs text-black/80 font-medium leading-relaxed">
-                Maaf banget ya guys, kemarin sempet ngilangin dropdown filter <strong>Level (Intro, Intermed, Advanced)</strong> di FastTrack... 🥺🏻 Mimin keliru mikir cuma butuh <i>sort by</i>! Sekarang udah mimin balikin lagi kok, aman! Gas lanjut ngambis badge-nya! 🔥
+              <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
+                Tunggu pagi bakal ada update, kalo admin udah bangun (kalo gabangun, tungguin aja 😹😹). Next update berdasarkan saran & masukan dari para member!
               </p>
             </div>
 
             {/* Dismiss Button */}
             <button
               onClick={handleCloseApologyModal}
-              className="neobrutal-btn-primary w-full py-2 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shrink-0"
+              className="neobrutal-btn-primary w-full py-2 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shrink-0 !text-black"
             >
-              <span>SANTUY MIMIN, GAS! 🔥</span>
+              <span>SIAP MIMIN, TUNGGUIN! 😼</span>
             </button>
           </div>
         </div>

@@ -27,6 +27,59 @@
   --border: 3px solid var(--border-color);
 }
 
+/* Soft Dark Mode Tokens */
+html.dark {
+  --background: #121316;   /* Soft Charcoal Obsidian */
+  --surface: #1a1b20;      /* Soft Dark Slate Card */
+  --surface-alt: #24262d;  /* Dark Zinc Container */
+  --foreground: #f4f4f5;   /* Off-White Text */
+  --text-muted: #a1a1aa;   /* Soft Gray Text */
+  --border-color: #000000; /* Neobrutal Crisp Black Border */
+}
+
+html.dark body::before {
+  opacity: 0.12;
+}
+
+html.dark .neobrutal-card,
+html.dark .bg-white {
+  background-color: var(--surface) !important;
+  color: var(--foreground) !important;
+}
+
+html.dark .text-black,
+html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6 {
+  color: var(--foreground) !important;
+}
+
+html.dark .text-text-muted {
+  color: var(--text-muted) !important;
+}
+
+html.dark .bg-surface-alt,
+html.dark .bg-zinc-100,
+html.dark .bg-zinc-50,
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: var(--surface-alt) !important;
+  color: var(--foreground) !important;
+}
+
+/* Skeleton Dark Mode styling */
+html.dark .animate-pulse {
+  opacity: 0.9;
+}
+
+html.dark .animate-pulse .bg-surface-alt {
+  background-color: #2b2e38 !important;
+}
+
+html.dark .animate-pulse .neobrutal-card {
+  background-color: #1a1b20 !important;
+  border-color: #000000 !important;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

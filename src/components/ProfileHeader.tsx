@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Participant, Badge } from '@/lib/db';
-import { ExternalLinkIcon, ExitIcon, UpdateIcon, GearIcon } from '@radix-ui/react-icons';
+import { ExternalLinkIcon, ExitIcon, UpdateIcon, GearIcon, SunIcon, MoonIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 
 interface ProfileHeaderProps {
@@ -12,9 +12,11 @@ interface ProfileHeaderProps {
   onSync?: () => Promise<void>;
   onOpenNotifications?: () => void;
   latestNotifId?: string;
+  isDarkMode?: boolean;
+  onToggleTheme?: () => void;
 }
 
-export default function ProfileHeader({ participant, badges, onResetSession, onSync, onOpenNotifications, latestNotifId }: ProfileHeaderProps) {
+export default function ProfileHeader({ participant, badges, onResetSession, onSync, onOpenNotifications, latestNotifId, isDarkMode, onToggleTheme }: ProfileHeaderProps) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
 
@@ -149,6 +151,14 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
               {hasUnread && (
                 <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-secondary rounded-full border-[2px] border-black shadow-[1px_1px_0px_#000]" />
               )}
+            </button>
+            <button
+              onClick={onToggleTheme}
+              title={isDarkMode ? 'Mode Terang (Light)' : 'Mode Gelap (Soft Dark)'}
+              className="order-0 inline-flex items-center justify-center text-[9px] font-bold font-mono text-black bg-surface-alt hover:bg-primary border-[3px] border-black rounded-lg w-8 h-8 md:w-auto md:px-3 md:py-1.5 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000]"
+            >
+              {isDarkMode ? <SunIcon className="w-3.5 h-3.5 text-amber-400" /> : <MoonIcon className="w-3.5 h-3.5 text-slate-800" />}
+              <span className="hidden md:inline ml-1">{isDarkMode ? 'LIGHT' : 'DARK'}</span>
             </button>
             <span className="order-4 md:hidden text-[10px] font-mono font-bold text-text-muted lowercase self-center ml-1">
               v1.4.1
