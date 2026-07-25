@@ -86,7 +86,6 @@ export default function Home() {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [openNotifs, setOpenNotifs] = useState<Record<string, boolean>>({});
   const [isMaintenance, setIsMaintenance] = useState(false);
-  const [isApologyModalOpen, setIsApologyModalOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -114,17 +113,7 @@ export default function Home() {
     });
   };
 
-  useEffect(() => {
-    const hasSeen = localStorage.getItem('fasttrack_update_notice_v3');
-    if (!hasSeen) {
-      setIsApologyModalOpen(true);
-    }
-  }, []);
 
-  const handleCloseApologyModal = () => {
-    setIsApologyModalOpen(false);
-    localStorage.setItem('fasttrack_update_notice_v3', '1');
-  };
 
   // Confirm Modal State
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -581,51 +570,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Global Notice Modal for Dashboard Only */}
-      {isApologyModalOpen && myProfileId && (
-        <div className="fixed inset-0 z-[160] flex items-center justify-center p-3 bg-black/70 backdrop-blur-xs animate-fade-in pointer-events-auto">
-          <div className="neobrutal-card max-w-xs sm:max-w-sm w-full !p-3.5 sm:!p-4 flex flex-col items-center text-center animate-scale-in border-[3px] border-black shadow-[5px_5px_0px_#000] space-y-3 max-h-[85vh] overflow-y-auto bg-surface text-foreground">
 
-            {/* Header / Close */}
-            <div className="w-full flex items-center justify-between border-b-[2px] border-black pb-1.5 shrink-0">
-              <span className="text-[10px] font-black uppercase tracking-widest text-secondary font-mono">
-                INFO UPDATE TERBARU! 📢
-              </span>
-              <button
-                onClick={handleCloseApologyModal}
-                className="p-1 border-[1.5px] border-black rounded bg-surface hover:bg-secondary hover:text-white transition-colors text-foreground"
-              >
-                <Cross2Icon className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {/* Meme / Announcement Image */}
-            <img
-              src="https://i.pinimg.com/736x/a1/5c/02/a15c02d82084136c763203687c931cbe.jpg"
-              alt="Coming Update Meme"
-              className="max-h-44 sm:max-h-52 w-auto mx-auto rounded-lg border-[2.5px] border-black shadow-[3px_3px_0px_#000] shrink-0 object-contain"
-            />
-
-            {/* Announcement Text */}
-            <div className="space-y-1 font-mono shrink-0">
-              <h3 className="text-xs sm:text-sm font-black uppercase text-foreground tracking-tight">
-                COMING UPDATE! 🚀
-              </h3>
-              <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
-                Tunggu pagi bakal ada update, kalo admin udah bangun (kalo gabangun, tungguin aja 😹😹). Next update berdasarkan saran & masukan dari para member!
-              </p>
-            </div>
-
-            {/* Dismiss Button */}
-            <button
-              onClick={handleCloseApologyModal}
-              className="neobrutal-btn-primary w-full py-2 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shrink-0 !text-black"
-            >
-              <span>SIAP MIMIN, TUNGGUIN! 😼</span>
-            </button>
-          </div>
-        </div>
-      )}
 
       <ConfirmModal
         isOpen={confirmConfig.isOpen}
