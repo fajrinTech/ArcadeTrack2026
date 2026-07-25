@@ -738,8 +738,8 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                 <span className="text-[10px] uppercase tracking-widest text-text-muted font-bold font-mono block">
                   FASTTRACK FOUNDATIONAL SKILL BADGES
                 </span>
-                <span className="text-xs text-text-muted font-mono font-bold">
-                  {filteredSkills.length} Skill Badges Available
+                <span className="text-xs font-mono font-bold text-foreground">
+                  <span className="text-primary">{totalCurrentSkills}/{skillBadges.length}</span> Skill Badges Done
                 </span>
               </div>
               

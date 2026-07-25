@@ -52,7 +52,7 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
         <div className="space-y-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[10px] uppercase tracking-widest text-tertiary font-bold font-mono">
-              Profil Peserta {participant.role !== 'facilitator' && <span className="hidden md:inline text-text-muted ml-1 lowercase font-normal">v1.4.1</span>}
+              Profil Peserta {participant.role !== 'facilitator' && <span className="hidden md:inline text-text-muted ml-1 lowercase font-normal">v1.4.7</span>}
             </span>
             {participant.role === 'facilitator' && (
               <>
@@ -60,7 +60,7 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
                   Fasilitator
                 </span>
                 <span className="hidden md:inline text-[10px] font-mono font-bold text-text-muted lowercase ml-0.5">
-                  v1.4.1
+                  v1.4.7
                 </span>
               </>
             )}
@@ -161,7 +161,7 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
               <span className="hidden md:inline ml-1">{isDarkMode ? 'LIGHT' : 'DARK'}</span>
             </button>
             <span className="order-4 md:hidden text-[10px] font-mono font-bold text-text-muted lowercase self-center ml-1">
-              v1.4.1
+              v1.4.7
             </span>
           </div>
         </div>
