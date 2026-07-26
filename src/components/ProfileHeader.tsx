@@ -208,12 +208,12 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
                 Semangat kejar poin dan milestone! Capai tier yang lebih tinggi! 🚀
               </p>
               <p>
-                Saya mau izin rehat sebentar untuk keperluan pribadi. Tapi tenang saja, Arcade Tracker ini akan <strong>tetap berjalan aktif</strong> dan dibuat senyaman mungkin untuk kalian semua.
+                Saya mau izin rehat untuk keperluan pribadi. Tapi tenang saja, Arcade Tracker ini akan <strong>tetap berjalan aktif</strong> dan dibuat senyaman mungkin untuk kalian semua.
               </p>
               <div className="p-3 bg-primary/20 border-[2px] border-black rounded-lg space-y-1 text-foreground font-semibold">
                 <p className="text-[11px] font-extrabold uppercase tracking-wider text-secondary">💡 Pengingat Penting:</p>
                 <p className="text-[11px] leading-normal">
-                  Jika kalian sudah selesai mendapatkan badge baru, jangan lupa untuk klik tombol <strong className="bg-secondary text-white px-1.5 py-0.5 rounded border border-black">Update Progres</strong> agar poin & peringkat kalian langsung muncul di leaderboard!
+                  Jika kalian sudah selesai mendapatkan badge baru, jangan lupa untuk klik tombol <strong className="bg-secondary text-white px-1.5 py-0.5 rounded border border-black">Update Progres</strong> agar poin & peringkat kalian langsung muncul di dashboard & leaderboard!
                 </p>
               </div>
               <p className="font-black text-foreground pt-1 text-sm">
