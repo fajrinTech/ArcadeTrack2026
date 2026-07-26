@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Participant, Badge } from '@/lib/db';
 import { ExternalLinkIcon, ExitIcon, UpdateIcon, GearIcon, SunIcon, MoonIcon, Cross2Icon } from '@radix-ui/react-icons';
 import Link from 'next/link';
@@ -20,6 +21,11 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
   const [showRehatModal, setShowRehatModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (latestNotifId) {
@@ -175,10 +181,10 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
         </div>
       </div>
 
-      {/* Modal Pesan dari Admin (Admin Mau Rehat) */}
-      {showRehatModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in pointer-events-auto">
-          <div className="w-full max-w-md border-[3px] border-black shadow-[6px_6px_0px_#000] rounded-xl bg-surface text-foreground p-5 sm:p-6 space-y-4 animate-scale-in relative font-mono text-left">
+      {/* Modal Pesan dari Admin (Admin Mau Rehat) via Portal */}
+      {showRehatModal && mounted && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in pointer-events-auto overflow-y-auto">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto border-[3px] border-black shadow-[6px_6px_0px_#000] rounded-xl bg-surface text-foreground p-5 sm:p-6 space-y-4 animate-scale-in relative font-mono text-left my-auto">
             {/* Header Modal */}
             <div className="flex items-center justify-between border-b-[2.5px] border-black pb-3">
               <div className="flex items-center gap-2">
@@ -189,7 +195,7 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
               </div>
               <button
                 onClick={() => setShowRehatModal(false)}
-                className="p-1 border-[2px] border-black rounded-lg bg-surface-alt hover:bg-secondary hover:text-white transition-colors"
+                className="p-1 border-[2px] border-black rounded-lg bg-surface-alt hover:bg-secondary hover:text-white transition-colors cursor-pointer"
                 title="Tutup Modal"
               >
                 <Cross2Icon className="w-4 h-4" />
@@ -219,15 +225,17 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
             <div className="pt-2">
               <button
                 onClick={() => setShowRehatModal(false)}
-                className="w-full py-2.5 bg-primary text-black font-black uppercase text-xs border-[3px] border-black rounded-lg shadow-[3px_3px_0px_#000] hover:bg-yellow-400 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000] transition-all"
+                className="w-full py-2.5 bg-primary text-black font-black uppercase text-xs border-[3px] border-black rounded-lg shadow-[3px_3px_0px_#000] hover:bg-yellow-400 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000] transition-all cursor-pointer"
               >
                 Paham & Tutup
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
 }
+
 
