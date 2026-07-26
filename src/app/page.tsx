@@ -115,14 +115,14 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (myProfileId && !localStorage.getItem('notice_v147')) {
+    if (myProfileId && !localStorage.getItem('notice_v148')) {
       setIsNoticeOpen(true);
     }
   }, [myProfileId]);
 
   const handleCloseNotice = () => {
     setIsNoticeOpen(false);
-    localStorage.setItem('notice_v147', '1');
+    localStorage.setItem('notice_v148', '1');
   };
 
   // Confirm Modal State
@@ -600,23 +600,26 @@ export default function Home() {
             </div>
 
             <img
-              src="https://i.pinimg.com/736x/32/d6/70/32d670443131a33f31f0e476da80b558.jpg"
+              src="https://i.pinimg.com/736x/a5/df/63/a5df63f317ca11c23f1ca27593c8f73e.jpg"
               alt="Admin Meme"
               className="max-h-36 sm:max-h-44 w-auto mx-auto rounded-lg border-[2.5px] border-black shadow-[3px_3px_0px_#000] shrink-0 object-contain"
             />
 
             <div className="w-full border-[2px] border-black rounded-lg p-3 bg-surface-alt text-left space-y-2 font-mono shrink-0">
               <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
-                Makasih banget buat kalian yang udah pake platform track ini! Gue sebagai admin (solo player btw) bakal terus nerima masukan & saran dari para member.
+                Para member tersayang, maaf ini kalo update tadi banyak bug 🥰.
               </p>
               <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
-                *Kalo ada bug di labs, jangan report di form ya, tanya langsung ke fasil masing-masing aja (soalnya gabisa bantu) 😹*
+                Etmin beres gawe langsung beresin dari saran para member 😭
+              </p>
+              <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed italic">
+                *etmin juga member seperti kalian para member
               </p>
               <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
-                Platform ini dibuat sepenuh hati khusus untuk program Arcade tanpa iklan, demi kenyaman bersama❤️
+                sabar ya di benerin 1 1, nanti etmin bakal masukin saran kalian bakal muncul aja
               </p>
               <p className="text-[10px] text-foreground/60 font-bold uppercase tracking-widest text-right mt-2">
-                TTD,<br />Admin Besar
+                TTD<br />Admin CAPEEEEEEEEEE
               </p>
             </div>
 
