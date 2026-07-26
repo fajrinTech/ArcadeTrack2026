@@ -115,14 +115,14 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (myProfileId && !localStorage.getItem('notice_v148')) {
+    if (!localStorage.getItem('notice_v149')) {
       setIsNoticeOpen(true);
     }
-  }, [myProfileId]);
+  }, []);
 
   const handleCloseNotice = () => {
     setIsNoticeOpen(false);
-    localStorage.setItem('notice_v148', '1');
+    localStorage.setItem('notice_v149', '1');
   };
 
   // Confirm Modal State
@@ -582,7 +582,7 @@ export default function Home() {
 
 
       {/* Global Notice Modal */}
-      {isNoticeOpen && myProfileId && (
+      {isNoticeOpen && (
         <div className="fixed inset-0 z-[160] flex items-center justify-center p-3 bg-black/70 backdrop-blur-xs animate-fade-in pointer-events-auto">
           <div className="neobrutal-card max-w-sm sm:max-w-md md:max-w-lg w-full !p-4 sm:!p-5 flex flex-col items-center text-center animate-scale-in border-[3px] border-black shadow-[6px_6px_0px_#000] space-y-3.5 max-h-[85vh] overflow-y-auto no-scrollbar bg-surface text-foreground">
 
