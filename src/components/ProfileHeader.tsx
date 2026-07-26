@@ -96,7 +96,7 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
                 className="text-white uppercase tracking-widest bg-rose-600 border-[2px] border-black px-2.5 py-0.5 text-[9px] font-black shadow-[2px_2px_0px_#000] cursor-not-allowed inline-block"
                 title="Formulir masukan dinonaktifkan sementara"
               >
-                ☕ Admin mau rehat
+                Admin mau rehat
               </button>
             </div>
             <div>Periode: <span className="text-black">{activeMonthName}</span></div>
