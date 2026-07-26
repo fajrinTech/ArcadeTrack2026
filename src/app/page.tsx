@@ -647,7 +647,7 @@ export default function Home() {
 
 
       {/* Global Notice Modal — 5 Slide */}
-      {isNoticeOpen && myProfileId && (
+      {isNoticeOpen && myProfileId && !confirmConfig.isOpen && (
         <div className="fixed inset-0 z-[160] flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-sm animate-fade-in pointer-events-auto">
           <div className="w-[92vw] max-w-md md:max-w-lg flex flex-col border-[3px] border-black shadow-[6px_6px_0px_#000] rounded-xl bg-surface text-foreground overflow-hidden animate-scale-in">
 
