@@ -103,26 +103,34 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
             <div>Periode: <span className="text-black">{activeMonthName}</span></div>
           </div>
 
-          <div className="flex items-center gap-2 md:justify-end">
+          <div className="flex items-center gap-2 flex-wrap md:flex-nowrap md:justify-end">
             {participant.role === 'facilitator' && (
               <Link
                 href="/panel"
-                className="order-1 inline-flex items-center gap-1 text-[9px] uppercase tracking-widest font-bold font-mono text-black bg-primary hover:bg-yellow-400 border-[3px] border-black rounded-lg px-3 py-1.5 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000]"
+                className="order-1 inline-flex items-center gap-1 text-[9px] uppercase tracking-widest font-bold font-mono text-black bg-primary hover:bg-yellow-400 border-[3px] border-black rounded-lg px-2.5 py-1.5 md:px-3 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000] whitespace-nowrap"
               >
                 <GearIcon className="w-3 h-3" />
-                <span>Panel Fasil</span>
+                <span>Fasil</span>
               </Link>
             )}
             {onSync && (
-
               <button
                 onClick={handleSync}
                 disabled={isSyncing}
-                title="Sinkronkan profil saya"
-                className="order-1 md:order-2 inline-flex items-center gap-1 text-[9px] uppercase tracking-widest font-bold font-mono text-white bg-secondary hover:bg-secondary-dark border-[3px] border-black rounded-lg px-3 py-1.5 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000] disabled:opacity-50"
+                title="Update progres & poin saya dari Google Skills Boost"
+                className="order-1 md:order-2 inline-flex items-center gap-1 text-[9px] uppercase tracking-widest font-bold font-mono text-white bg-secondary hover:bg-secondary-dark border-[3px] border-black rounded-lg px-2.5 py-1.5 md:px-3 shadow-[3px_3px_0px_#000] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000] disabled:opacity-50 whitespace-nowrap"
               >
                 <UpdateIcon className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
-                <span>{isSyncing ? 'Syncing' : 'Sync'}</span>
+                <span>
+                  {isSyncing ? (
+                    'Memproses...'
+                  ) : (
+                    <>
+                      <span className="sm:hidden">Update</span>
+                      <span className="hidden sm:inline">Update Progres</span>
+                    </>
+                  )}
+                </span>
               </button>
             )}
             <button

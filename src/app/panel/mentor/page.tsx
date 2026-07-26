@@ -554,10 +554,10 @@ export default function MentorMonitorPage() {
         </div>
 
         {/* Tab Controls */}
-        <div className="flex gap-2 border-b-[3px] border-black pb-0.5 animate-fade-slide-up">
+        <div className="flex gap-2 border-b-[3px] border-black pb-0.5 animate-fade-slide-up overflow-x-auto no-scrollbar max-w-full touch-pan-x">
           <button
             onClick={() => setActiveTab('unsynced')}
-            className={`px-4 py-2 border-[3px] border-b-0 border-black rounded-t-lg text-xs font-black uppercase transition-all shadow-[2px_-2px_0_#000] ${
+            className={`px-3 sm:px-4 py-2 border-[3px] border-b-0 border-black rounded-t-lg text-xs font-black uppercase transition-all shadow-[2px_-2px_0_#000] shrink-0 whitespace-nowrap ${
               activeTab === 'unsynced' ? 'bg-primary text-black -translate-y-0.5' : 'bg-surface-alt text-text-muted hover:text-black'
             }`}
           >
@@ -565,7 +565,7 @@ export default function MentorMonitorPage() {
           </button>
           <button
             onClick={() => setActiveTab('recent')}
-            className={`px-4 py-2 border-[3px] border-b-0 border-black rounded-t-lg text-xs font-black uppercase transition-all shadow-[2px_-2px_0_#000] ${
+            className={`px-3 sm:px-4 py-2 border-[3px] border-b-0 border-black rounded-t-lg text-xs font-black uppercase transition-all shadow-[2px_-2px_0_#000] shrink-0 whitespace-nowrap ${
               activeTab === 'recent' ? 'bg-primary text-black -translate-y-0.5' : 'bg-surface-alt text-text-muted hover:text-black'
             }`}
           >
@@ -573,7 +573,7 @@ export default function MentorMonitorPage() {
           </button>
           <button
             onClick={() => { setActiveTab('facilitators'); if (facilitators.length === 0) fetchFacilitators(); }}
-            className={`px-4 py-2 border-[3px] border-b-0 border-black rounded-t-lg text-xs font-black uppercase transition-all shadow-[2px_-2px_0_#000] ${
+            className={`px-3 sm:px-4 py-2 border-[3px] border-b-0 border-black rounded-t-lg text-xs font-black uppercase transition-all shadow-[2px_-2px_0_#000] shrink-0 whitespace-nowrap ${
               activeTab === 'facilitators' ? 'bg-primary text-black -translate-y-0.5' : 'bg-surface-alt text-text-muted hover:text-black'
             }`}
           >
@@ -581,7 +581,7 @@ export default function MentorMonitorPage() {
           </button>
           <button
             onClick={() => { setActiveTab('feedback'); fetchFeedback(); }}
-            className={`px-4 py-2 border-[3px] border-b-0 border-black rounded-t-lg text-xs font-black uppercase transition-all shadow-[2px_-2px_0_#000] ${
+            className={`px-3 sm:px-4 py-2 border-[3px] border-b-0 border-black rounded-t-lg text-xs font-black uppercase transition-all shadow-[2px_-2px_0_#000] shrink-0 whitespace-nowrap ${
               activeTab === 'feedback' ? 'bg-primary text-black -translate-y-0.5' : 'bg-surface-alt text-text-muted hover:text-black'
             }`}
           >
@@ -589,7 +589,7 @@ export default function MentorMonitorPage() {
           </button>
           <button
             onClick={() => { setActiveTab('audit_logs'); fetchAuditLogs(); }}
-            className={`px-4 py-2 border-[3px] border-b-0 border-black rounded-t-lg text-xs font-black uppercase transition-all shadow-[2px_-2px_0_#000] ${
+            className={`px-3 sm:px-4 py-2 border-[3px] border-b-0 border-black rounded-t-lg text-xs font-black uppercase transition-all shadow-[2px_-2px_0_#000] shrink-0 whitespace-nowrap ${
               activeTab === 'audit_logs' ? 'bg-primary text-black -translate-y-0.5' : 'bg-surface-alt text-text-muted hover:text-black'
             }`}
           >

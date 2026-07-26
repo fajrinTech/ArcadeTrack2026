@@ -84,11 +84,11 @@ export default function Header({ currentView, onViewChange, isLoggedIn, onSyncSe
             <button
               onClick={handleSync}
               disabled={isSyncing}
-              title="Sinkronkan profil saya"
+              title="Update progres & poin saya dari Google Skills Boost"
               className="flex items-center gap-1.5 px-3 py-1.5 border-[3px] border-black bg-secondary text-white font-bold uppercase tracking-wider text-[10px] rounded-md shadow-[2px_2px_0px_#000] transition-all hover:-translate-y-0.5 active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_#000] disabled:opacity-50"
             >
               <UpdateIcon className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">{isSyncing ? 'Syncing' : 'Sync'}</span>
+              <span className="hidden sm:inline">{isSyncing ? 'Memproses...' : 'Update Progres'}</span>
             </button>
           )}
 

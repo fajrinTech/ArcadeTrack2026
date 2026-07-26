@@ -646,12 +646,12 @@ export default function Home() {
       )}
 
 
-      {/* Global Notice Modal — 5 Slide */}
+      {/* Global Notice Modal — 5 Slide (Di-comment agar tidak muncul) */}
+      {/*
       {isNoticeOpen && myProfileId && !confirmConfig.isOpen && (
         <div className="fixed inset-0 z-[160] flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-sm animate-fade-in pointer-events-auto">
           <div className="w-[92vw] max-w-md md:max-w-lg flex flex-col border-[3px] border-black shadow-[6px_6px_0px_#000] rounded-xl bg-surface text-foreground overflow-hidden animate-scale-in">
 
-            {/* Header */}
             <div className="flex items-center justify-between border-b-[2px] border-black px-3 sm:px-4 py-2 shrink-0">
               <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-secondary font-mono">
                 PESAN DARI ADMIN 📨 · {noticeSlide + 1}/{noticeSlides.length}
@@ -664,7 +664,6 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Image — klik untuk lihat full */}
             <div
               className="w-full h-36 sm:h-44 bg-black flex items-center justify-center shrink-0 overflow-hidden cursor-zoom-in"
               onClick={() => setLightboxSrc(noticeSlides[noticeSlide].image)}
@@ -677,19 +676,16 @@ export default function Home() {
               />
             </div>
 
-            {/* Slide Title */}
             <div className="px-3 sm:px-4 pt-2.5 shrink-0">
               <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-foreground/60 font-mono">
                 {noticeSlides[noticeSlide].title}
               </span>
             </div>
 
-            {/* Content */}
             <div className="mx-3 sm:mx-4 mb-3 mt-1.5 border-[2px] border-black rounded-lg p-2.5 sm:p-3 bg-surface-alt font-mono text-left max-h-24 sm:max-h-28 overflow-y-auto no-scrollbar shrink-0">
               {noticeSlides[noticeSlide].content}
             </div>
 
-            {/* Navigation */}
             <div className="flex items-center justify-between px-3 sm:px-4 pb-3 shrink-0 gap-2">
               <button
                 onClick={() => setNoticeSlide(s => Math.max(0, s - 1))}
@@ -699,7 +695,6 @@ export default function Home() {
                 ← PREV
               </button>
 
-              {/* Dot indicators */}
               <div className="flex items-center gap-1.5">
                 {noticeSlides.map((_, i) => (
                   <button
@@ -730,6 +725,7 @@ export default function Home() {
           </div>
         </div>
       )}
+      */}
 
       {/* Lightbox */}
       {lightboxSrc && (
