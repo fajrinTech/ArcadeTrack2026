@@ -91,6 +91,32 @@ export default function PanelFasilPage() {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [showFacilDisclaimer, setShowFacilDisclaimer] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setIsDarkMode(prev => {
+      const next = !prev;
+      if (next) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     const hasSeen = localStorage.getItem('facil_privacy_disclaimer_seen_v1');
@@ -854,6 +880,8 @@ export default function PanelFasilPage() {
           onSendEmailProgress={handleSendEmailProgress}
           isSendingEmail={isSendingEmail}
           showEmailProgress={facilProfileUrl === 'https://www.skills.google/public_profiles/031574cc-02c5-4d38-80ce-cbb9bf95055c'}
+          isDarkMode={isDarkMode}
+          onToggleTheme={toggleTheme}
         />
 
         <StatsCards

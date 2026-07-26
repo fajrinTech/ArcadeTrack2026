@@ -15,6 +15,14 @@ export const supabase = createClient(
 export const ACTIVE_PERIOD_START = '2026-07-13';
 export const WEEKLY_PERIOD_START = '2026-07-24';
 
+export function calculateMilestoneBonus(games: number, skills: number): number {
+  if ((games >= 12 && skills >= 56) || (games >= 10 && skills >= 60)) return 40;
+  if (games >= 10 && skills >= 42) return 29;
+  if (games >= 8 && skills >= 28) return 18;
+  if (games >= 6 && skills >= 14) return 7;
+  return 0;
+}
+
 export function normalizeProfileUrl(url: string): string | null {
   const trimmed = url.trim();
   if ((trimmed.match(/https?:\/\//gi) || []).length > 1) {
@@ -274,12 +282,25 @@ export async function setBadges(
 
   const games = current.filter(b => b.category === 'game').length;
   const skills = current.filter(b => b.category === 'skill_badge').length;
-  const monthlyPoints = games + skills * 0.5;
+  const bonus = calculateMilestoneBonus(games, skills);
+  const monthlyPoints = games + skills * 0.5 + bonus;
 
   const { error: updErr } = await supabase
     .from('participants').update({ monthly_points: monthlyPoints }).eq('id', participantId);
   if (updErr) throw updErr;
 
+  // Sync back to facilitator_members if participant is also in facilitator_members
+  try {
+    const { data: pData } = await supabase.from('participants').select('profile_url').eq('id', participantId).maybeSingle();
+    if (pData?.profile_url) {
+      await supabase
+        .from('facilitator_members')
+        .update({ games_count: games, skills_count: skills, monthly_points: monthlyPoints })
+        .ilike('profile_url', pData.profile_url);
+    }
+  } catch {}
+
+  invalidateParticipantsCache();
   return monthlyPoints;
 }
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getFacilitatorMember, updateFacilitatorMember, deleteFacilitatorMember, ACTIVE_PERIOD_START, getSessionParticipantId, getParticipant } from '@/lib/db';
+import { getFacilitatorMember, updateFacilitatorMember, deleteFacilitatorMember, ACTIVE_PERIOD_START, getSessionParticipantId, getParticipant, calculateMilestoneBonus } from '@/lib/db';
 import { scrapeProfile } from '@/lib/scraper';
 
 async function guardSession(request: Request, memberId: string): Promise<NextResponse | null> {
@@ -62,7 +62,8 @@ export async function POST(
     const badges = (scrapeData.badges || []).filter((b: any) => b.earned_date >= ACTIVE_PERIOD_START);
     const gamesCount = badges.filter((b: any) => b.category === 'game').length;
     const skillsCount = badges.filter((b: any) => b.category === 'skill_badge').length;
-    const monthlyPoints = gamesCount + skillsCount * 0.5;
+    const bonus = calculateMilestoneBonus(gamesCount, skillsCount);
+    const monthlyPoints = gamesCount + skillsCount * 0.5 + bonus;
 
     const updated = await updateFacilitatorMember(id, {
       name: scrapeData.name || member.name,

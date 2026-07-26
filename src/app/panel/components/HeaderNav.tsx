@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeftIcon, UpdateIcon, DownloadIcon, UploadIcon, EnvelopeClosedIcon } from '@radix-ui/react-icons';
+import { ArrowLeftIcon, UpdateIcon, DownloadIcon, UploadIcon, EnvelopeClosedIcon, SunIcon, MoonIcon } from '@radix-ui/react-icons';
 import React from 'react';
 import { createPortal } from 'react-dom';
 
@@ -20,6 +20,8 @@ interface HeaderNavProps {
   onSendEmailProgress: () => void;
   isSendingEmail: boolean;
   showEmailProgress?: boolean;
+  isDarkMode?: boolean;
+  onToggleTheme?: () => void;
 }
 
 export default function HeaderNav({
@@ -36,7 +38,9 @@ export default function HeaderNav({
   systemLock,
   onSendEmailProgress,
   isSendingEmail,
-  showEmailProgress
+  showEmailProgress,
+  isDarkMode,
+  onToggleTheme
 }: HeaderNavProps) {
   const isSystemLocked = systemLock?.locked && systemLock?.by === 'Mentor Utama';
   const [showChangelog, setShowChangelog] = React.useState(false);
@@ -47,6 +51,15 @@ export default function HeaderNav({
   }, []);
 
   const changelogs = [
+    {
+      version: 'v1.4.9',
+      date: '26 Jul 2026',
+      changes: [
+        'Global notice modal update dengan slideshow 5 slide.',
+        'Penyelarasan kalkulasi Bonus Milestone antara Dashboard & Leaderboard.',
+        'Perbaikan kontras dark mode & indikator sisa badge fasttrack.'
+      ]
+    },
     {
       version: 'v1.4.8',
       date: '22 Jul 2026',
@@ -94,6 +107,15 @@ export default function HeaderNav({
             >
               v1.4.8 ℹ
             </button>
+            {onToggleTheme && (
+              <button
+                onClick={onToggleTheme}
+                title={isDarkMode ? 'Mode Terang (Light)' : 'Mode Gelap (Soft Dark)'}
+                className="p-1 border-[1.5px] border-black rounded bg-white hover:bg-primary transition-colors text-black shadow-[1px_1px_0_#000]"
+              >
+                {isDarkMode ? <SunIcon className="w-3.5 h-3.5 text-amber-400" /> : <MoonIcon className="w-3.5 h-3.5 text-slate-800" />}
+              </button>
+            )}
           </h1>
           <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider">
             Fasil: {facilName || 'Google Cloud Facilitator'}

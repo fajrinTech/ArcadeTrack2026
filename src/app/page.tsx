@@ -87,6 +87,8 @@ export default function Home() {
   const [openNotifs, setOpenNotifs] = useState<Record<string, boolean>>({});
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [isNoticeOpen, setIsNoticeOpen] = useState(false);
+  const [noticeSlide, setNoticeSlide] = useState(0);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -115,15 +117,78 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!localStorage.getItem('notice_v149')) {
+    if (myProfileId && !localStorage.getItem('notice_v150')) {
+      setNoticeSlide(0);
       setIsNoticeOpen(true);
     }
-  }, []);
+  }, [myProfileId]);
 
   const handleCloseNotice = () => {
     setIsNoticeOpen(false);
-    localStorage.setItem('notice_v149', '1');
+    localStorage.setItem('notice_v150', '1');
   };
+
+  const noticeSlides = [
+    {
+      image: '/daridimas.png',
+      title: 'Buat: Dimas 😊',
+      content: (
+        <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
+          Makasih banget Dimas udah kasih saran Auto-Sync! TAPIIII... belum bisa dilakuin sekarang 😭
+          Kalau 1.692 peserta auto-sync pas buka web, server gratis kita langsung Meledukk 💀.
+          Tombol <strong>SYNC</strong> masih ada kok, klik aja manual ya!
+        </p>
+      ),
+    },
+    {
+      image: '/daridimas1.png',
+      title: 'Buat: Dimas (lagi) 😁',
+      content: (
+        <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
+          Saran keduanya udah masuk list Dimas, sabar ya 🙏
+          Etmin lagi sibuk... (mager sebenarnya wkwk 😅)
+        </p>
+      ),
+    },
+    {
+      image: '/darinami.png',
+      title: 'Buat: Nami 🙏',
+      content: (
+        <div className="space-y-2">
+          <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
+            Maaf ya Nami, Admin lupa set default mode ke System 🙏
+            Tombol Light/Dark ada di header ya!
+          </p>
+          <div className="flex items-center gap-2 pt-1">
+            <img src="/darkmod.png" alt="Dark Mode" onClick={() => setLightboxSrc('/darkmod.png')} title="Klik untuk lihat full" className="h-10 sm:h-12 w-auto rounded border-[2px] border-black object-contain cursor-zoom-in hover:opacity-80 transition-opacity" />
+            <img src="/lightmod.png" alt="Light Mode" onClick={() => setLightboxSrc('/lightmod.png')} title="Klik untuk lihat full" className="h-10 sm:h-12 w-auto rounded border-[2px] border-black object-contain cursor-zoom-in hover:opacity-80 transition-opacity" />
+          </div>
+        </div>
+      ),
+    },
+    {
+      image: '/dariaura.png',
+      title: 'Buat: Aura 🙏',
+      content: (
+        <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
+          Maaf ya Aura atas ketidaknyamanannya 🙏 Buat update poin kamu,
+          klik tombol <strong className="text-red-500">SYNC</strong> di header ya.
+          Setelah sync, poin Dashboard &amp; Leaderboard langsung sama!
+        </p>
+      ),
+    },
+    {
+      image: '/anon1.png',
+      title: 'Buat: Member Anonim 🙏',
+      content: (
+        <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
+          Maaf ya atas ketidaknyamanannya 🙏 Para fasilitator mungkin udah kirim
+          pengumuman top 10 sebelum data ke-update. Mohon bersabar ya,
+          data akan sinkron setelah peserta klik SYNC 😊
+        </p>
+      ),
+    },
+  ];
 
   // Confirm Modal State
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -581,55 +646,102 @@ export default function Home() {
       )}
 
 
-      {/* Global Notice Modal */}
-      {isNoticeOpen && (
-        <div className="fixed inset-0 z-[160] flex items-center justify-center p-3 bg-black/70 backdrop-blur-xs animate-fade-in pointer-events-auto">
-          <div className="neobrutal-card max-w-sm sm:max-w-md md:max-w-lg w-full !p-4 sm:!p-5 flex flex-col items-center text-center animate-scale-in border-[3px] border-black shadow-[6px_6px_0px_#000] space-y-3.5 max-h-[85vh] overflow-y-auto no-scrollbar bg-surface text-foreground">
+      {/* Global Notice Modal — 5 Slide */}
+      {isNoticeOpen && myProfileId && (
+        <div className="fixed inset-0 z-[160] flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-sm animate-fade-in pointer-events-auto">
+          <div className="w-[92vw] max-w-md md:max-w-lg flex flex-col border-[3px] border-black shadow-[6px_6px_0px_#000] rounded-xl bg-surface text-foreground overflow-hidden animate-scale-in">
 
-            {/* Header / Close */}
-            <div className="w-full flex items-center justify-between border-b-[2px] border-black pb-1.5 shrink-0">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b-[2px] border-black px-3 sm:px-4 py-2 shrink-0">
               <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-secondary font-mono">
-                PESAN DARI ADMIN 📨
+                PESAN DARI ADMIN 📨 · {noticeSlide + 1}/{noticeSlides.length}
               </span>
               <button
                 onClick={handleCloseNotice}
-                className="p-1 border-[1.5px] border-black rounded bg-surface hover:bg-secondary hover:text-white transition-colors text-foreground"
+                className="p-1 border-[1.5px] border-black rounded bg-surface hover:bg-secondary hover:text-white transition-colors text-foreground shrink-0"
               >
                 <Cross2Icon className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <img
-              src="https://i.pinimg.com/736x/a5/df/63/a5df63f317ca11c23f1ca27593c8f73e.jpg"
-              alt="Admin Meme"
-              className="max-h-36 sm:max-h-44 w-auto mx-auto rounded-lg border-[2.5px] border-black shadow-[3px_3px_0px_#000] shrink-0 object-contain"
-            />
-
-            <div className="w-full border-[2px] border-black rounded-lg p-3 bg-surface-alt text-left space-y-2 font-mono shrink-0">
-              <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
-                Para member tersayang, maaf ini kalo update tadi banyak bug 🥰.
-              </p>
-              <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
-                Etmin beres gawe langsung beresin dari saran para member 😭
-              </p>
-              <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed italic">
-                *etmin juga member seperti kalian para member
-              </p>
-              <p className="text-[11px] sm:text-xs text-foreground/90 font-medium leading-relaxed">
-                sabar ya di benerin 1 1, nanti etmin bakal masukin saran kalian bakal muncul aja
-              </p>
-              <p className="text-[10px] text-foreground/60 font-bold uppercase tracking-widest text-right mt-2">
-                TTD<br />Admin CAPEEEEEEEEEE
-              </p>
+            {/* Image — klik untuk lihat full */}
+            <div
+              className="w-full h-36 sm:h-44 bg-black flex items-center justify-center shrink-0 overflow-hidden cursor-zoom-in"
+              onClick={() => setLightboxSrc(noticeSlides[noticeSlide].image)}
+              title="Klik untuk lihat gambar penuh"
+            >
+              <img
+                src={noticeSlides[noticeSlide].image}
+                alt={noticeSlides[noticeSlide].title}
+                className="max-w-full max-h-full object-contain pointer-events-none"
+              />
             </div>
 
-            <button
-              onClick={handleCloseNotice}
-              className="neobrutal-btn-primary w-full py-2 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shrink-0 !text-black"
-            >
-              <span>NOTED MIMIN!</span>
-            </button>
+            {/* Slide Title */}
+            <div className="px-3 sm:px-4 pt-2.5 shrink-0">
+              <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-foreground/60 font-mono">
+                {noticeSlides[noticeSlide].title}
+              </span>
+            </div>
+
+            {/* Content */}
+            <div className="mx-3 sm:mx-4 mb-3 mt-1.5 border-[2px] border-black rounded-lg p-2.5 sm:p-3 bg-surface-alt font-mono text-left max-h-24 sm:max-h-28 overflow-y-auto no-scrollbar shrink-0">
+              {noticeSlides[noticeSlide].content}
+            </div>
+
+            {/* Navigation */}
+            <div className="flex items-center justify-between px-3 sm:px-4 pb-3 shrink-0 gap-2">
+              <button
+                onClick={() => setNoticeSlide(s => Math.max(0, s - 1))}
+                disabled={noticeSlide === 0}
+                className="text-[10px] sm:text-xs font-bold px-2.5 py-1.5 border-[2px] border-black rounded bg-surface hover:bg-surface-alt transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-mono shrink-0"
+              >
+                ← PREV
+              </button>
+
+              {/* Dot indicators */}
+              <div className="flex items-center gap-1.5">
+                {noticeSlides.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setNoticeSlide(i)}
+                    className={`w-2 h-2 rounded-full border border-black transition-all ${i === noticeSlide ? 'bg-secondary scale-125' : 'bg-surface-alt'
+                      }`}
+                  />
+                ))}
+              </div>
+
+              {noticeSlide < noticeSlides.length - 1 ? (
+                <button
+                  onClick={() => setNoticeSlide(s => s + 1)}
+                  className="text-[10px] sm:text-xs font-bold px-2.5 py-1.5 border-[2px] border-black rounded bg-surface hover:bg-surface-alt transition-colors font-mono shrink-0"
+                >
+                  NEXT →
+                </button>
+              ) : (
+                <button
+                  onClick={handleCloseNotice}
+                  className="neobrutal-btn-primary text-[10px] sm:text-xs !py-1.5 !px-3 font-black uppercase shrink-0 !text-black"
+                >
+                  NOTED!
+                </button>
+              )}
+            </div>
           </div>
+        </div>
+      )}
+
+      {/* Lightbox */}
+      {lightboxSrc && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 animate-fade-in cursor-zoom-out p-4"
+          onClick={() => setLightboxSrc(null)}
+        >
+          <img
+            src={lightboxSrc}
+            alt="Preview"
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl pointer-events-none"
+          />
         </div>
       )}
 

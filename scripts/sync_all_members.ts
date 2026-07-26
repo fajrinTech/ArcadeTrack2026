@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { scrapeProfile } from '../src/lib/scraper';
-import { ACTIVE_PERIOD_START } from '../src/lib/db';
+import { ACTIVE_PERIOD_START, calculateMilestoneBonus } from '../src/lib/db';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -93,7 +93,8 @@ async function run() {
           const badges = (scrapeData.badges || []).filter((b: any) => b.earned_date >= ACTIVE_PERIOD_START);
           const gamesCount = badges.filter((b: any) => b.category === 'game').length;
           const skillsCount = badges.filter((b: any) => b.category === 'skill_badge').length;
-          const monthlyPoints = gamesCount + skillsCount * 0.5;
+          const bonus = calculateMilestoneBonus(gamesCount, skillsCount);
+          const monthlyPoints = gamesCount + skillsCount * 0.5 + bonus;
 
           await withRetry(async () => {
             const { error: updateErr } = await supabase
