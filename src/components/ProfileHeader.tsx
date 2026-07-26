@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Participant, Badge } from '@/lib/db';
-import { ExternalLinkIcon, ExitIcon, UpdateIcon, GearIcon, SunIcon, MoonIcon } from '@radix-ui/react-icons';
+import { ExternalLinkIcon, ExitIcon, UpdateIcon, GearIcon, SunIcon, MoonIcon, Cross2Icon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 
 interface ProfileHeaderProps {
@@ -19,6 +19,7 @@ interface ProfileHeaderProps {
 export default function ProfileHeader({ participant, badges, onResetSession, onSync, onOpenNotifications, latestNotifId, isDarkMode, onToggleTheme }: ProfileHeaderProps) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
+  const [showRehatModal, setShowRehatModal] = useState(false);
 
   useEffect(() => {
     if (latestNotifId) {
@@ -92,9 +93,9 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
           <div className="space-y-2.5 text-text-muted font-bold">
             <div className="flex items-center md:justify-end">
               <button
-                disabled
-                className="text-white uppercase tracking-widest bg-rose-600 border-[2px] border-black px-2.5 py-0.5 text-[9px] font-black shadow-[2px_2px_0px_#000] cursor-not-allowed inline-block"
-                title="Formulir masukan dinonaktifkan sementara"
+                onClick={() => setShowRehatModal(true)}
+                className="text-white uppercase tracking-widest bg-rose-600 border-[2px] border-black px-2.5 py-0.5 text-[9px] font-black shadow-[2px_2px_0px_#000] hover:bg-rose-700 active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_#000] transition-all inline-block cursor-pointer"
+                title="Klik untuk membaca pesan dari Admin"
               >
                 Admin mau rehat
               </button>
@@ -173,6 +174,60 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
           </div>
         </div>
       </div>
+
+      {/* Modal Pesan dari Admin (Admin Mau Rehat) */}
+      {showRehatModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in pointer-events-auto">
+          <div className="w-full max-w-md border-[3px] border-black shadow-[6px_6px_0px_#000] rounded-xl bg-surface text-foreground p-5 sm:p-6 space-y-4 animate-scale-in relative font-mono text-left">
+            {/* Header Modal */}
+            <div className="flex items-center justify-between border-b-[2.5px] border-black pb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">☕</span>
+                <h3 className="font-extrabold uppercase text-sm sm:text-base tracking-tight text-foreground">
+                  Pesan Dari Admin
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowRehatModal(false)}
+                className="p-1 border-[2px] border-black rounded-lg bg-surface-alt hover:bg-secondary hover:text-white transition-colors"
+                title="Tutup Modal"
+              >
+                <Cross2Icon className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Isi Pesan Modal */}
+            <div className="space-y-3 text-xs leading-relaxed text-foreground/90">
+              <p className="font-bold text-foreground text-sm">
+                Semangat kejar poin dan milestone! Capai tier yang lebih tinggi! 🚀
+              </p>
+              <p>
+                Saya mau izin rehat sebentar untuk keperluan pribadi. Tapi tenang saja, Arcade Tracker ini akan <strong>tetap berjalan aktif</strong> dan dibuat senyaman mungkin untuk kalian semua.
+              </p>
+              <div className="p-3 bg-primary/20 border-[2px] border-black rounded-lg space-y-1 text-foreground font-semibold">
+                <p className="text-[11px] font-extrabold uppercase tracking-wider text-secondary">💡 Pengingat Penting:</p>
+                <p className="text-[11px] leading-normal">
+                  Jika kalian sudah selesai mendapatkan badge baru, jangan lupa untuk klik tombol <strong className="bg-secondary text-white px-1.5 py-0.5 rounded border border-black">Update Progres</strong> agar poin & peringkat kalian langsung muncul di leaderboard!
+                </p>
+              </div>
+              <p className="font-black text-foreground pt-1 text-sm">
+                See u guys! 👋
+              </p>
+            </div>
+
+            {/* Tombol Tutup */}
+            <div className="pt-2">
+              <button
+                onClick={() => setShowRehatModal(false)}
+                className="w-full py-2.5 bg-primary text-black font-black uppercase text-xs border-[3px] border-black rounded-lg shadow-[3px_3px_0px_#000] hover:bg-yellow-400 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#000] transition-all"
+              >
+                Paham & Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
