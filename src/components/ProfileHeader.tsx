@@ -91,14 +91,13 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
         <div className="font-mono text-[10px] space-y-3 flex flex-col md:items-end justify-between shrink-0">
           <div className="space-y-2.5 text-text-muted font-bold">
             <div className="flex items-center md:justify-end">
-              <a
-                href="https://zeff.my.id/feedback-tracker"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-secondary uppercase tracking-widest bg-zinc-300 border-[2px] border-black px-2 py-0.5 text-[9px] font-black shadow-[1px_1px_0px_#000] hover:bg-zinc-200 hover:-translate-y-0.5 transition-all inline-block"
+              <button
+                disabled
+                className="text-zinc-500 uppercase tracking-widest bg-zinc-200 border-[2px] border-black px-2 py-0.5 text-[9px] font-black cursor-not-allowed opacity-80 inline-block"
+                title="Formulir masukan dinonaktifkan sementara"
               >
-                Report & Feedback
-              </a>
+                Admin mau rehat
+              </button>
             </div>
             <div>Periode: <span className="text-black">{activeMonthName}</span></div>
           </div>
