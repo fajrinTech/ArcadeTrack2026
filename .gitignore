@@ -56,3 +56,13 @@ src/lib/db.json
 MILESTONE_FASILITATOR.md
 liat.md
 /scripts/
+.gemini*
+.gemini-logs
+Laporan_Progres_Arcade.xlsx
+Masukan Pelanggan (Jawaban)
+db_backup
+pridanpan_files
+test api
+*.csv
+implementation_plan yang hilang.md
+pridanpan.html
