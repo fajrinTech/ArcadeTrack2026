@@ -56,7 +56,12 @@ export default function MilestoneProgress({ totalGames, totalSkills }: Milestone
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {milestones.map(m => {
-          const percent = Math.min(100, Math.round((currentTotal / m.target) * 100));
+          const cappedGames = Math.min(totalGames, m.gamesTarget);
+          const cappedSkills = Math.min(totalSkills, m.skillsTarget);
+          const achievedTotal = cappedGames + cappedSkills;
+          const percent = Math.min(100, Math.round((achievedTotal / m.target) * 100));
+          const isCompleted = totalGames >= m.gamesTarget && totalSkills >= m.skillsTarget;
+
           return (
             <div
               key={m.number}
@@ -65,7 +70,7 @@ export default function MilestoneProgress({ totalGames, totalSkills }: Milestone
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-black text-black uppercase">
-                    Milestone #{m.number} ⏳
+                    Milestone #{m.number} {isCompleted ? '🎉' : '⏳'}
                   </span>
                   <span className="text-[9px] font-black px-1.5 py-0.5 bg-white border-[1.5px] border-black rounded shadow-[1px_1px_0px_#000]">
                     Target: {m.target}
@@ -74,6 +79,11 @@ export default function MilestoneProgress({ totalGames, totalSkills }: Milestone
                 <p className="text-[10px] text-text-muted leading-relaxed font-bold">
                   Mendorong {m.gamesTarget} Arcade Game & {m.skillsTarget} Skill Badge
                 </p>
+                <div className="text-[9px] text-text-muted flex gap-2 font-mono font-bold pt-0.5">
+                  <span>Game: <span className="text-black font-black">{cappedGames}/{m.gamesTarget}</span></span>
+                  <span>•</span>
+                  <span>Skill: <span className="text-black font-black">{cappedSkills}/{m.skillsTarget}</span></span>
+                </div>
               </div>
 
               <div className="space-y-1.5">
@@ -86,7 +96,7 @@ export default function MilestoneProgress({ totalGames, totalSkills }: Milestone
 
                 <div className="flex justify-between items-center text-[9px] text-text-muted font-bold">
                   <span>{percent}% Selesai</span>
-                  <span>{currentTotal} / {m.target}</span>
+                  <span>{achievedTotal} / {m.target}</span>
                 </div>
               </div>
             </div>

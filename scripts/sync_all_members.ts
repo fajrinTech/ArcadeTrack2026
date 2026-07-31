@@ -17,8 +17,8 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: { persistSession: false }
 });
 
-const CONCURRENCY = 10;
-const DELAY_MS = 100;
+const CONCURRENCY = parseInt(process.env.CONCURRENCY || '5', 10);
+const DELAY_MS = 50;
 
 async function withRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 1000): Promise<T> {
   let attempt = 0;
@@ -35,8 +35,8 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 1000): 
 }
 
 async function run() {
-  const todayStr = new Date().toISOString().split('T')[0];
-  console.log(`=== STARTING FACILITATOR MEMBERS SYNC FOR ${todayStr} ===`);
+  const startTime = new Date().toISOString();
+  console.log(`=== STARTING FACILITATOR MEMBERS SYNC (Concurrency: ${CONCURRENCY}, Cutoff: ${startTime}) ===`);
 
   let totalProcessed = 0;
   let totalSuccess = 0;
@@ -45,7 +45,7 @@ async function run() {
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   while (true) {
-    // Fetch members needing sync today (null or before today) with retry
+    // Fetch members needing sync (null or before startTime) with retry
     let members: any[] | null = null;
     let error: any = null;
 
@@ -54,7 +54,7 @@ async function run() {
         return await supabase
           .from('facilitator_members')
           .select('*')
-          .or(`last_synced.is.null,last_synced.lt.${todayStr}T00:00:00Z`)
+          .or(`last_synced.is.null,last_synced.lt.${startTime}`)
           .order('last_synced', { ascending: true, nullsFirst: true })
           .range(0, 299);
       });
@@ -133,7 +133,7 @@ async function run() {
           try {
             await supabase
               .from('facilitator_members')
-              .update({ sync_status: 'gagal' })
+              .update({ sync_status: 'gagal', last_synced: new Date().toISOString() })
               .eq('id', member.id);
           } catch {}
 

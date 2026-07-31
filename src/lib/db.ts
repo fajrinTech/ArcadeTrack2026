@@ -14,6 +14,7 @@ export const supabase = createClient(
 // ponytail: awal periode arcade berjalan. Hardcoded; ubah tiap ganti bulan.
 export const ACTIVE_PERIOD_START = '2026-07-13';
 export const WEEKLY_PERIOD_START = '2026-07-24';
+export const FAJRIN_ID = 'a3961d06-d854-4348-9977-004d5a3dd8d8';
 
 export function calculateMilestoneBonus(games: number, skills: number): number {
   if ((games >= 12 && skills >= 56) || (games >= 10 && skills >= 60)) return 40;
@@ -405,6 +406,8 @@ export async function bulkUpsertFacilitatorMembers(
     batchId = batchData?.id || null;
   }
 
+  const isFajrin = facilitatorId === FAJRIN_ID;
+
   const rows = uniqueMembers.map(m => {
     const normUrl = normalizeProfileUrl(m.profile_url) || m.profile_url;
     const existing = existingMap.get(normUrl);
@@ -415,7 +418,7 @@ export async function bulkUpsertFacilitatorMembers(
         id: existing.id,
         facilitator_id: facilitatorId,
         name: m.name || existing.name,
-        email: m.email || existing.email,
+        email: isFajrin ? (m.email || existing.email || null) : null,
         profile_url: normUrl,
         games_count: existing.games_count,
         skills_count: existing.skills_count,
@@ -430,7 +433,7 @@ export async function bulkUpsertFacilitatorMembers(
         id: randomUUID(),
         facilitator_id: facilitatorId,
         name: m.name || 'Google Cloud Learner',
-        email: m.email || null,
+        email: isFajrin ? (m.email || null) : null,
         profile_url: normUrl,
         games_count: 0,
         skills_count: 0,

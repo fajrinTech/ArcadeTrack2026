@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/components/Toast';
-import { UpdateIcon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { UpdateIcon, ExclamationTriangleIcon, Cross2Icon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 
 // Subcomponents
@@ -75,6 +75,7 @@ export default function PanelFasilPage() {
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
   const [showSessionExpired, setShowSessionExpired] = useState(false);
+  const [showFacilNoticeModal, setShowFacilNoticeModal] = useState(false);
 
   // Advanced States
   const [uploadFilename, setUploadFilename] = useState('');
@@ -130,6 +131,17 @@ export default function PanelFasilPage() {
     localStorage.setItem('facil_privacy_disclaimer_seen_v1', '1');
   };
 
+  useEffect(() => {
+    if (isAuthorized && !localStorage.getItem('facil_notice_v150_seen')) {
+      setShowFacilNoticeModal(true);
+    }
+  }, [isAuthorized]);
+
+  const handleCloseFacilNotice = () => {
+    setShowFacilNoticeModal(false);
+    localStorage.setItem('facil_notice_v150_seen', '1');
+  };
+
   // Confirm Modal State
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
@@ -144,7 +156,7 @@ export default function PanelFasilPage() {
     isOpen: false,
     title: '',
     message: '',
-    onConfirm: () => {}
+    onConfirm: () => { }
   });
 
   const checkSyncLock = async () => {
@@ -515,8 +527,8 @@ export default function PanelFasilPage() {
 
         const isDup = uploadHistory.some(
           h => h.filename.toLowerCase() === file.name.toLowerCase() &&
-               h.records_count === list.length &&
-               h.status === 'completed'
+            h.records_count === list.length &&
+            h.status === 'completed'
         );
 
         setIsDuplicateFile(isDup);
@@ -919,7 +931,7 @@ export default function PanelFasilPage() {
             <span className="text-xs font-black uppercase text-black block border-b-[2px] border-black pb-2">
               Riwayat Unggahan CSV & Rollback
             </span>
-            
+
             {loadingHistory ? (
               <div className="py-6 text-center text-xs text-text-muted">
                 <UpdateIcon className="w-4 h-4 animate-spin mx-auto mb-1" />
@@ -1008,7 +1020,7 @@ export default function PanelFasilPage() {
             </div>
             <button
               onClick={async () => {
-                await fetch('/api/participants', { method: 'DELETE' }).catch(() => {});
+                await fetch('/api/participants', { method: 'DELETE' }).catch(() => { });
                 localStorage.removeItem('myProfileId');
                 window.location.href = '/';
               }}
@@ -1036,6 +1048,56 @@ export default function PanelFasilPage() {
         isOpen={showFacilDisclaimer}
         onClose={handleCloseFacilDisclaimer}
       />
+
+      {/* Global Notice Modal Khusus Panel Fasilitator */}
+      {showFacilNoticeModal && !confirmConfig.isOpen && (
+        <div className="fixed inset-0 z-[170] flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-fade-in pointer-events-auto">
+          <div className="w-[92vw] max-w-md flex flex-col border-[3px] border-black shadow-[6px_6px_0px_#000] rounded-xl bg-surface text-foreground overflow-hidden animate-scale-in font-mono">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b-[2.5px] border-black px-3.5 sm:px-4 py-2.5 bg-primary text-black shrink-0">
+              <span className="text-[11px] sm:text-xs font-black uppercase tracking-widest text-black flex items-center gap-1.5">
+                📢 PENGUMUMAN FASILITATOR (v1.5.0)
+              </span>
+              <button
+                onClick={handleCloseFacilNotice}
+                className="p-1 border-[1.5px] border-black rounded bg-red-500 hover:bg-red-600 active:translate-x-[0.5px] active:translate-y-[0.5px] transition-all shrink-0 cursor-pointer shadow-[1.5px_1.5px_0px_#000]"
+                title="Tutup"
+              >
+                <Cross2Icon className="w-4 h-4 text-white font-bold stroke-white" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-3.5 sm:p-4 space-y-3 bg-surface text-foreground text-xs leading-relaxed">
+              <div className="p-3 bg-amber-100 dark:bg-amber-950/80 border-[2px] border-black rounded-lg text-amber-950 dark:text-amber-200 font-bold space-y-1 shadow-[2px_2px_0px_#000]">
+                <p className="font-black text-amber-950 dark:text-amber-300 flex items-center gap-1.5">
+                  <span>🚀</span> Pembaruan Sistem Panel v1.5.0
+                </p>
+                <p className="text-[11px] font-medium leading-normal text-amber-900 dark:text-amber-200/90">
+                  Sistem telah diperbarui untuk akurasi progres milestone dan proteksi privasi kontak peserta.
+                </p>
+              </div>
+
+              <div className="space-y-2 pt-1 font-mono text-[11px] sm:text-xs text-foreground">
+                <p className="font-bold text-foreground">Halo rekan-rekan Fasilitator! 👋</p>
+                <p className="text-foreground/90">
+                  Jika Anda mengalami kendala teknis, selisih data bimbingan, atau kendala lainnya, silakan sampaikan langsung di grup <strong className="text-secondary font-black">&quot;Chit Chat&quot;</strong> agar dapat memberikan bantuan dengan cepat.
+                </p>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-3.5 sm:px-4 pb-3.5 pt-1.5 bg-surface-alt border-t-[2.5px] border-black flex justify-end shrink-0">
+              <button
+                onClick={handleCloseFacilNotice}
+                className="neobrutal-btn-primary w-full text-xs font-black uppercase !py-2.5 !px-4 !text-black shadow-[3px_3px_0px_#000]"
+              >
+                PAHAM MIN! 👍
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -52,6 +52,15 @@ export default function HeaderNav({
 
   const changelogs = [
     {
+      version: 'v1.5.0',
+      date: '31 Jul 2026',
+      changes: [
+        'Pemberitahuan Global Notice Mimin terbaru (Single Notice Modal).',
+        'Penyelarasan & perbaikan akurasi kalkulasi milestone fasilitator.',
+        'Pembersihan & proteksi privasi data kontak peserta non-Fajrin.'
+      ]
+    },
+    {
       version: 'v1.4.9',
       date: '26 Jul 2026',
       changes: [
@@ -105,7 +114,7 @@ export default function HeaderNav({
               className="text-[9px] px-1.5 py-0.5 bg-primary text-black border-[1.5px] border-black rounded shadow-[1px_1px_0_#000] hover:bg-primary-dark transition-colors font-bold uppercase tracking-wider"
               title="Lihat Log Pembaruan"
             >
-              v1.4.8 ℹ
+              v1.5.0 ℹ
             </button>
             {onToggleTheme && (
               <button

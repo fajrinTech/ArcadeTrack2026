@@ -437,21 +437,15 @@ html.dark .hover\:text-black:hover {
   color: var(--foreground) !important;
 }
 
-/* Keep text black on neon/light backgrounds for contrast */
+/* Keep text black on neon/light backgrounds for contrast, except explicit button/white text */
 html.dark .bg-primary,
-html.dark .bg-primary *,
+html.dark .bg-primary > span,
+html.dark .bg-primary > p,
+html.dark .bg-primary > h1,
+html.dark .bg-primary > h2,
+html.dark .bg-primary > h3,
 html.dark .bg-success,
-html.dark .bg-success *,
-html.dark .neobrutal-btn-primary,
-html.dark .neobrutal-btn-primary * {
-  color: #000000 !important;
-}
-
-/* Exit button override (invert bg-black in dark mode) */
-html.dark .bg-black {
-  background-color: var(--border-color) !important;
-}
-html.dark .bg-black,
-html.dark .bg-black * {
+html.dark .bg-success > span,
+html.dark .neobrutal-btn-primary {
   color: #000000 !important;
 }
