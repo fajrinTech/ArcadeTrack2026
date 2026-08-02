@@ -71,14 +71,14 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (myProfileId && !localStorage.getItem('notice_v200')) {
+    if (myProfileId && !localStorage.getItem('notice_v201')) {
       setIsNoticeOpen(true);
     }
   }, [myProfileId]);
 
   const handleCloseNotice = () => {
     setIsNoticeOpen(false);
-    localStorage.setItem('notice_v200', '1');
+    localStorage.setItem('notice_v201', '1');
   };
 
   // Confirm Modal State
@@ -566,20 +566,20 @@ export default function Home() {
 
             <div
               className="w-full h-44 sm:h-52 bg-black flex items-center justify-center shrink-0 overflow-hidden cursor-zoom-in border-b-[2px] border-black"
-              onClick={() => setLightboxSrc('https://i.pinimg.com/1200x/5a/fd/7c/5afd7cdf1a2017a8c5166506bf91e1ad.jpg')}
+              onClick={() => setLightboxSrc('https://i.pinimg.com/736x/d1/30/77/d1307726079aa3c22191e6280e8d6ad5.jpg')}
               title="Klik untuk lihat gambar penuh"
             >
               <img
-                src="https://i.pinimg.com/1200x/5a/fd/7c/5afd7cdf1a2017a8c5166506bf91e1ad.jpg"
+                src="https://i.pinimg.com/736x/d1/30/77/d1307726079aa3c22191e6280e8d6ad5.jpg"
                 alt="Pesan Mimin"
                 className="w-full h-full object-cover pointer-events-none"
               />
             </div>
 
             <div className="p-3.5 sm:p-4 font-mono text-left space-y-2 bg-surface text-xs leading-relaxed text-foreground">
-              <p>Siapa yang kangen mimin? kalo gada yang kangen yaudah tak ku lock saja ini track arcade 😂 bersyanda</p>
-              <p>gada update untuk kedepannya. cuma ngasih tau aja hehe</p>
-              <p className="font-bold text-secondary">lopyu sekebon 🫶</p>
+              <p>Keadaan mimin setelah tau web nya down 😂</p>
+              <p>maap yak karena ini support dari Admin besar kepada Member tersayang, panik banget (Lagi Healing loh asem banget)</p>
+              <p className="font-bold text-secondary">Dah lancar lagi selamat Hari SENINNNNNN</p>
             </div>
 
             <div className="px-3 sm:px-4 pb-3.5 pt-1 shrink-0 flex justify-end">
