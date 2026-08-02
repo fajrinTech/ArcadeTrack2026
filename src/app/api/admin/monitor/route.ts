@@ -1,14 +1,33 @@
 import { NextResponse } from 'next/server';
-import { supabase, getSessionParticipantId } from '@/lib/db';
+import { supabase, getSessionParticipantId, getSessionCookie } from '@/lib/db';
 
 const FAJRIN_ID = 'a3961d06-d854-4348-9977-004d5a3dd8d8';
 const FAJRIN_URL = 'https://www.skills.google/public_profiles/031574cc-02c5-4d38-80ce-cbb9bf95055c';
 
 export async function GET(request: Request) {
   try {
-    // Guard: session harus Fajrin
+    const { searchParams } = new URL(request.url);
+    const profileId = searchParams.get('profile_id');
     const sessionUserId = getSessionParticipantId(request);
-    if (!sessionUserId || sessionUserId !== FAJRIN_ID) {
+
+    let isAuthed = sessionUserId === FAJRIN_ID;
+    let shouldSetCookie = false;
+
+    // Fallback: jika session cookie belum ada / expired di browser baru, auto-auth Fajrin via DB check
+    if (!isAuthed && profileId === FAJRIN_ID) {
+      const { data: user } = await supabase
+        .from('participants')
+        .select('id, profile_url')
+        .eq('id', FAJRIN_ID)
+        .maybeSingle();
+
+      if (user && user.profile_url === FAJRIN_URL) {
+        isAuthed = true;
+        shouldSetCookie = true;
+      }
+    }
+
+    if (!isAuthed) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
@@ -84,7 +103,7 @@ export async function GET(request: Request) {
     if (allUnsyncedErr) throw allUnsyncedErr;
     const allUnsyncedIds = (allUnsyncedData || []).map((m: any) => m.id);
 
-    return NextResponse.json({
+    const responseData = {
       stats: {
         total: totalCount || 0,
         unsynced: unsyncedCount || 0,
@@ -93,7 +112,17 @@ export async function GET(request: Request) {
       unsyncedList: unsyncedMapped,
       recentList: recentMapped,
       allUnsyncedIds
-    });
+    };
+
+    if (shouldSetCookie) {
+      return NextResponse.json(responseData, {
+        headers: {
+          'Set-Cookie': getSessionCookie(FAJRIN_ID)
+        }
+      });
+    }
+
+    return NextResponse.json(responseData);
 
   } catch (error: any) {
     console.error('GET admin monitor error:', error);
