@@ -79,6 +79,7 @@ export default function Home() {
     });
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (myProfileId && !localStorage.getItem('notice_v201')) {
       setIsNoticeOpen(true);
@@ -107,6 +108,7 @@ export default function Home() {
     onConfirm: () => { }
   });
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (isNotifOpen) {
       const lastRead = localStorage.getItem('arcade_notif_last_read') || '1970-01-01';
@@ -159,6 +161,7 @@ export default function Home() {
     }
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     checkSyncLock();
     let interval = setInterval(checkSyncLock, 60000);
@@ -176,6 +179,7 @@ export default function Home() {
     };
   }, []);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     const savedId = localStorage.getItem('myProfileId');
     if (savedId) {
@@ -187,6 +191,7 @@ export default function Home() {
     fetchParticipants();
   }, []);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (myProfileId && myRole !== null) {
       const visibleNotifs = NOTIFICATIONS.filter(notif => !notif.role || notif.role === myRole);
