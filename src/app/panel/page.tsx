@@ -783,6 +783,10 @@ export default function PanelFasilPage() {
         const err = await res.json();
         throw new Error(err.error || 'Gagal menyinkronkan data.');
       }
+      const data = await res.json();
+      if (data.member) {
+        setParticipants(prev => prev.map(item => item.id === id ? data.member : item));
+      }
       toast('Profil berhasil disinkronkan.', 'success');
       fetchFacilitatorMembers(facilId);
     } catch (err: any) {

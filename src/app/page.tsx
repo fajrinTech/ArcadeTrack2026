@@ -301,10 +301,15 @@ export default function Home() {
         throw new Error(errorData.error || 'Gagal menyinkronkan data.');
       }
 
-      await fetchParticipants();
-      if (selectedParticipantId === id) {
-        await fetchParticipantDetail(id);
+      const syncData = await res.json();
+      if (syncData.participant) {
+        setSelectedParticipant(syncData.participant);
+        if (syncData.badges) {
+          setBadges(syncData.badges);
+        }
       }
+
+      await fetchParticipants();
       toast('Profil berhasil disinkronkan.', 'success');
     } catch (err: unknown) {
       toast(err instanceof Error ? err.message : 'Gagal menyinkronkan data.', 'error');
