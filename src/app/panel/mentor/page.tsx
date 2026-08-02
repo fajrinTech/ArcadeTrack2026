@@ -183,8 +183,7 @@ export default function MentorMonitorPage() {
 
   const checkAuth = async () => {
     try {
-      const savedId = localStorage.getItem('myProfileId') || AUTHORIZED_ID;
-      const res = await fetch(`/api/admin/monitor?profile_id=${savedId}`);
+      const res = await fetch(`/api/admin/monitor?profile_id=${AUTHORIZED_ID}`);
       if (res.ok) {
         const data = await res.json();
         setIsAuthorized(true);
@@ -206,8 +205,7 @@ export default function MentorMonitorPage() {
   const fetchMonitorData = async () => {
     setLoadingData(true);
     try {
-      const savedId = localStorage.getItem('myProfileId') || AUTHORIZED_ID;
-      const res = await fetch(`/api/admin/monitor?profile_id=${savedId}`);
+      const res = await fetch(`/api/admin/monitor?profile_id=${AUTHORIZED_ID}`);
       if (res.ok) {
         const data = await res.json();
         setStats(data.stats);

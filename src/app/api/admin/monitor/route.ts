@@ -13,8 +13,10 @@ export async function GET(request: Request) {
     let isAuthed = sessionUserId === FAJRIN_ID;
     let shouldSetCookie = false;
 
-    // Fallback: jika session cookie belum ada / expired di browser baru, auto-auth Fajrin via DB check
-    if (!isAuthed && profileId === FAJRIN_ID) {
+    const targetId = profileId || FAJRIN_ID;
+
+    // Fallback: auto-auth Fajrin via DB check unconditionally if session cookie is missing/expired
+    if (!isAuthed && targetId === FAJRIN_ID) {
       const { data: user } = await supabase
         .from('participants')
         .select('id, profile_url')
