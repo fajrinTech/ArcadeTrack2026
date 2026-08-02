@@ -11,7 +11,16 @@ import { UpdateIcon, ExclamationTriangleIcon, Cross2Icon } from '@radix-ui/react
 import ConfirmModal from './panel/components/ConfirmModal';
 import { APP_VERSION } from '@/lib/version';
 
-const NOTIFICATIONS = [
+interface NotificationItem {
+  id: string;
+  dateStr: string;
+  category: string;
+  title: string;
+  content: string;
+  role?: 'facilitator' | 'participant';
+}
+
+const NOTIFICATIONS: NotificationItem[] = [
   {
     id: '2026-08-02-server-update',
     dateStr: '2 Ags 2026',
@@ -587,7 +596,7 @@ export default function Home() {
                 onClick={handleCloseNotice}
                 className="neobrutal-btn-primary text-xs !py-2 !px-4 font-black uppercase !text-black w-full"
               >
-                SIAP MIN! 😂
+                Lopyu Min Muach 😂
               </button>
             </div>
           </div>
