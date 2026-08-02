@@ -135,8 +135,8 @@ let cachedSkillBadges: { data: SkillBadge[]; expiresAt: number } | null = null;
 let cachedSkillBadgesPromise: Promise<SkillBadge[]> | null = null;
 let cachedParticipants: { data: Participant[]; expiresAt: number } | null = null;
 
-const SKILLS_CACHE_TTL_MS = 10 * 60 * 1000; // 10 menit
-const PARTICIPANTS_CACHE_TTL_MS = 2 * 60 * 1000; // 2 menit
+const SKILLS_CACHE_TTL_MS = 30 * 60 * 1000; // 30 menit
+const PARTICIPANTS_CACHE_TTL_MS = 10 * 60 * 1000; // 10 menit
 
 export function invalidateParticipantsCache() {
   cachedParticipants = null;
@@ -179,7 +179,7 @@ export async function getParticipants(): Promise<Participant[]> {
   while (true) {
     const { data, error } = await supabase
       .from('participants')
-      .select('*')
+      .select('id, name, profile_url, avatar_url, role, last_synced, created_at, monthly_points')
       .range(from, from + limit - 1);
 
     if (error) throw error;

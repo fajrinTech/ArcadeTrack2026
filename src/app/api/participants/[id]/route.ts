@@ -68,7 +68,11 @@ export async function GET(
       return NextResponse.json({ error: 'Peserta tidak ditemukan.' }, { status: 404 });
     }
     const badges = await getBadges(id);
-    return NextResponse.json({ participant, badges });
+    return NextResponse.json({ participant, badges }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=300'
+      }
+    });
   } catch (error: any) {
     console.error('GET participant detail error:', error);
     return NextResponse.json({ error: 'Gagal mengambil detail peserta.' }, { status: 500 });

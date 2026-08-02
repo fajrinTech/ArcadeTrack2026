@@ -25,7 +25,11 @@ export async function GET() {
       by = lockSetting.value;
     }
 
-    return NextResponse.json({ locked, by, maintenance, version: APP_VERSION });
+    return NextResponse.json({ locked, by, maintenance, version: APP_VERSION }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60'
+      }
+    });
   } catch (error: any) {
     console.error('GET sync lock error:', error);
     return NextResponse.json({ error: 'Gagal mengecek status lock.' }, { status: 500 });

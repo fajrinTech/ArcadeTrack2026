@@ -9,7 +9,7 @@ export async function GET() {
     const participants = await getParticipants();
     return NextResponse.json({ participants }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=300'
+        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=600'
       }
     });
   } catch (error: any) {

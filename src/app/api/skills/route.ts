@@ -6,7 +6,7 @@ export async function GET() {
     const skills = await getSkillBadges();
     return NextResponse.json({ skills }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
+        'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=1800'
       }
     });
   } catch (error: any) {

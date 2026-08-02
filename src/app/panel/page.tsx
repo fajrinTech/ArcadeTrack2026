@@ -191,8 +191,19 @@ export default function PanelFasilPage() {
 
   useEffect(() => {
     checkSyncLock();
-    const interval = setInterval(checkSyncLock, 10000);
-    return () => clearInterval(interval);
+    let interval = setInterval(checkSyncLock, 60000);
+    const onVisibility = () => {
+      clearInterval(interval);
+      if (!document.hidden) {
+        checkSyncLock();
+        interval = setInterval(checkSyncLock, 60000);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, []);
 
   useEffect(() => {
