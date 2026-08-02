@@ -172,50 +172,40 @@ export default function MentorMonitorPage() {
   useEffect(() => {
     if (prevLocked && !systemLock.locked) {
       toast('System berhasil sync', 'success');
-      if (myId) {
-        fetchMonitorData(myId);
-      }
+      fetchMonitorData();
     }
     setPrevLocked(!!systemLock.locked);
-  }, [systemLock.locked, prevLocked, myId]);
+  }, [systemLock.locked, prevLocked]);
 
   useEffect(() => {
     checkAuth();
   }, []);
 
   const checkAuth = async () => {
-    const savedId = localStorage.getItem('myProfileId');
-    if (!savedId) {
-      setLoadingAuth(false);
-      return;
-    }
-
     try {
-      const res = await fetch(`/api/participants/${savedId}`);
-      if (res.status === 401) {
-        setShowSessionExpired(true);
-        setLoadingAuth(false);
-        return;
-      }
+      const res = await fetch('/api/admin/monitor');
       if (res.ok) {
         const data = await res.json();
-        if (data.participant && data.participant.id === AUTHORIZED_ID && data.participant.profile_url === AUTHORIZED_URL) {
-          setIsAuthorized(true);
-          setMyId(savedId);
-          fetchMonitorData(savedId);
-        }
+        setIsAuthorized(true);
+        setStats(data.stats);
+        setUnsyncedList(data.unsyncedList);
+        setRecentList(data.recentList);
+        setAllUnsyncedIds(data.allUnsyncedIds || []);
+      } else {
+        setIsAuthorized(false);
       }
     } catch (err) {
       console.error('Admin auth error:', err);
+      setIsAuthorized(false);
     } finally {
       setLoadingAuth(false);
     }
   };
 
-  const fetchMonitorData = async (profileId: string) => {
+  const fetchMonitorData = async () => {
     setLoadingData(true);
     try {
-      const res = await fetch(`/api/admin/monitor?profile_id=${profileId}`);
+      const res = await fetch('/api/admin/monitor');
       if (res.ok) {
         const data = await res.json();
         setStats(data.stats);
@@ -262,7 +252,7 @@ export default function MentorMonitorPage() {
       const res = await fetch(`/api/facilitator-members/${id}`, { method: 'POST' });
       if (!res.ok) throw new Error('Gagal sync');
       toast('Peserta berhasil disinkronkan.', 'success');
-      fetchMonitorData(myId);
+      fetchMonitorData();
     } catch (err) {
       toast('Gagal menyinkronkan data.', 'error');
     } finally {
@@ -398,7 +388,7 @@ export default function MentorMonitorPage() {
       
       checkSyncLock();
       toast(`Sync semua selesai! Sukses: ${successCount}, Gagal: ${failCount}`, 'info');
-      fetchMonitorData(myId);
+      fetchMonitorData();
     }
   };
 
@@ -511,7 +501,7 @@ export default function MentorMonitorPage() {
               ⚙️ {maintenanceEnabled ? 'MAINTENANCE: ON' : 'MAINTENANCE: OFF'}
             </button>
             <button
-              onClick={() => fetchMonitorData(myId)}
+              onClick={() => fetchMonitorData()}
               disabled={loadingData || isSyncingAll}
               className="p-2 border-[2.5px] border-black rounded bg-white hover:bg-surface-alt active:translate-x-[1.5px] active:translate-y-[1.5px] active:shadow-[1.5px_1.5px_0px_#000] shadow-[3px_3px_0px_#000] transition-all"
               title="Refresh Data"

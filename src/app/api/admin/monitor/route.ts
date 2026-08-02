@@ -6,28 +6,10 @@ const FAJRIN_URL = 'https://www.skills.google/public_profiles/031574cc-02c5-4d38
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const profileId = searchParams.get('profile_id');
-
-    if (!profileId) {
-      return NextResponse.json({ error: 'Akses Ditolak.' }, { status: 403 });
-    }
-
     // Guard: session harus Fajrin
     const sessionUserId = getSessionParticipantId(request);
     if (!sessionUserId || sessionUserId !== FAJRIN_ID) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    }
-
-    // Double-check authorization on database
-    const { data: user, error: userErr } = await supabase
-      .from('participants')
-      .select('id, profile_url')
-      .eq('id', profileId)
-      .single();
-
-    if (userErr || !user || user.id !== FAJRIN_ID || user.profile_url !== FAJRIN_URL) {
-      return NextResponse.json({ error: 'Akses Ditolak. Halaman ini hanya untuk pemilik proyek.' }, { status: 403 });
     }
 
     // 1. Total facilitator members count
