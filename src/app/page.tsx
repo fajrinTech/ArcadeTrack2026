@@ -565,14 +565,14 @@ export default function Home() {
             </div>
 
             <div
-              className="w-full h-44 sm:h-52 bg-black flex items-center justify-center shrink-0 overflow-hidden cursor-zoom-in border-b-[2px] border-black"
+              className="w-full h-52 sm:h-64 bg-black flex items-center justify-center shrink-0 overflow-hidden cursor-zoom-in border-b-[2px] border-black"
               onClick={() => setLightboxSrc('https://i.pinimg.com/736x/d1/30/77/d1307726079aa3c22191e6280e8d6ad5.jpg')}
               title="Klik untuk lihat gambar penuh"
             >
               <img
                 src="https://i.pinimg.com/736x/d1/30/77/d1307726079aa3c22191e6280e8d6ad5.jpg"
                 alt="Pesan Mimin"
-                className="w-full h-full object-cover pointer-events-none"
+                className="w-full h-full object-contain bg-black pointer-events-none"
               />
             </div>
 
