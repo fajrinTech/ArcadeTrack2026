@@ -70,7 +70,8 @@ export function createSessionToken(participantId: string): string {
 
 export function getSessionCookie(participantId: string): string {
   const token = createSessionToken(participantId);
-  return `${SESSION_COOKIE_NAME}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_MAX_AGE}`;
+  const isProd = process.env.NODE_ENV === 'production';
+  return `${SESSION_COOKIE_NAME}=${token}; Path=/; HttpOnly; ${isProd ? 'Secure;' : ''} SameSite=Lax; Max-Age=${SESSION_MAX_AGE}`;
 }
 
 export function clearSessionCookie(): string {

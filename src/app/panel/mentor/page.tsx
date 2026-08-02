@@ -460,7 +460,7 @@ export default function MentorMonitorPage() {
                     });
                     if (res.ok) {
                       toast('Sync sudah dibuka. Fasilitator bisa sync lagi.', 'success');
-                      fetchMonitorData(myId);
+                      fetchMonitorData();
                       checkSyncLock();
                     }
                   } catch { toast('Gagal membuka lock.', 'error'); }

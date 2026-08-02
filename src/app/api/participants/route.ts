@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getParticipants, getParticipantByUrl, addParticipant, updateParticipant, setBadges, normalizeProfileUrl, createSessionToken, clearSessionCookie } from '@/lib/db';
+import { getParticipants, getParticipantByUrl, addParticipant, updateParticipant, setBadges, normalizeProfileUrl, getSessionCookie, clearSessionCookie } from '@/lib/db';
 
-const SESSION_COOKIE = 'arcade_session';
 const SESSION_MAX_AGE = 7 * 24 * 60 * 60;
 
 export async function GET() {
@@ -42,11 +41,11 @@ export async function POST(request: Request) {
         }
         const updated = await updateParticipant(exists.id, { role: 'facilitator' });
         const result = updated || exists;
-        const cookie = `${SESSION_COOKIE}=${createSessionToken(result.id)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_MAX_AGE}`;
+        const cookie = getSessionCookie(result.id);
         return NextResponse.json({ ...result, returning: true }, { status: 200, headers: { 'Set-Cookie': cookie } });
       }
       // Login biasa - tidak perlu kode
-      const cookie = `${SESSION_COOKIE}=${createSessionToken(exists.id)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_MAX_AGE}`;
+      const cookie = getSessionCookie(exists.id);
       return NextResponse.json({ ...exists, returning: true }, { status: 200, headers: { 'Set-Cookie': cookie } });
     }
 
@@ -75,14 +74,14 @@ export async function POST(request: Request) {
           last_synced: scrapeData.scraped_at,
         });
         const result = updated || newParticipant;
-        const cookie = `${SESSION_COOKIE}=${createSessionToken(result.id)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_MAX_AGE}`;
+        const cookie = getSessionCookie(result.id);
         return NextResponse.json({ ...result, returning: false }, { status: 200, headers: { 'Set-Cookie': cookie } });
       }
     } catch (scrapeErr) {
       console.error('Failed auto-scrape on signup:', scrapeErr);
     }
 
-    const cookie = `${SESSION_COOKIE}=${createSessionToken(newParticipant.id)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_MAX_AGE}`;
+    const cookie = getSessionCookie(newParticipant.id);
     return NextResponse.json({ ...newParticipant, returning: false }, { status: 200, headers: { 'Set-Cookie': cookie } });
   } catch (error: any) {
     console.error('POST participant error:', error);
