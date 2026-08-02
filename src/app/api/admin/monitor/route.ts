@@ -60,7 +60,7 @@ export async function GET(request: Request) {
     // 4. List of 50 most recently created unsynced members
     const { data: unsyncedList, error: unsyncedListErr } = await supabase
       .from('facilitator_members')
-      .select('*, participants:facilitator_id(name)')
+      .select('*')
       .is('last_synced', null)
       .order('created_at', { ascending: false })
       .limit(50);
@@ -70,18 +70,30 @@ export async function GET(request: Request) {
     // 5. List of 50 most recently created members overall
     const { data: recentList, error: recentListErr } = await supabase
       .from('facilitator_members')
-      .select('*, participants:facilitator_id(name)')
+      .select('*')
       .order('created_at', { ascending: false })
       .limit(50);
 
     if (recentListErr) throw recentListErr;
+
+    // Fetch facilitator names safely
+    const facilIds = Array.from(new Set([
+      ...(unsyncedList || []).map((m: any) => m.facilitator_id),
+      ...(recentList || []).map((m: any) => m.facilitator_id),
+    ].filter(Boolean)));
+
+    const { data: fasilParticipants } = facilIds.length > 0
+      ? await supabase.from('participants').select('id, name').in('id', facilIds)
+      : { data: [] };
+
+    const fasilMap = new Map((fasilParticipants || []).map((p: any) => [p.id, p.name]));
 
     const unsyncedMapped = (unsyncedList || []).map((m: any) => ({
       id: m.id,
       name: m.name,
       profile_url: m.profile_url,
       created_at: m.created_at,
-      facilitator_name: m.participants?.name || 'Unknown'
+      facilitator_name: fasilMap.get(m.facilitator_id) || 'Unknown'
     }));
 
     const recentMapped = (recentList || []).map((m: any) => ({
@@ -93,7 +105,7 @@ export async function GET(request: Request) {
       monthly_points: m.monthly_points,
       last_synced: m.last_synced,
       created_at: m.created_at,
-      facilitator_name: m.participants?.name || 'Unknown'
+      facilitator_name: fasilMap.get(m.facilitator_id) || 'Unknown'
     }));
 
     // 6. Get all unsynced IDs for unlimited sync mass loops
