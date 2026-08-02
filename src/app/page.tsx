@@ -16,8 +16,8 @@ const NOTIFICATIONS = [
     id: '2026-08-02-server-update',
     dateStr: '2 Ags 2026',
     category: 'Pembaruan Sistem',
-    title: 'Pembaruan Server & Permohonan Maaf Kendala Akses',
-    content: 'Halo Rekan-rekan Peserta & Fasilitator Arcade 2026!<br /><br />Kami memohon maaf yang sebesar-besarnya atas ketidaknyamanan akibat kendala akses dan downtime server yang sempat terjadi sebelumnya.<br /><br /><strong>Pembaruan yang telah dilakukan:</strong><br />1. <strong>Migrasi Server & Database Baru</strong>: Seluruh sistem dan data telah dipindahkan ke server database baru yang jauh lebih stabil.<br />2. <strong>Optimasi Performa & Kecepatan</strong>: Sistem caching dan pemrosesan data telah ditingkatkan agar akses dashboard dan leaderboard menjadi lebih cepat serta lancar.<br /><br />Seluruh data poin, badge, dan progres Anda dipastikan aman 100%. Terima kasih banyak atas kesabaran dan dukungan rekan-rekan semua! Selamat melanjutkan petualangan di Google Arcade 2026! 🚀'
+    title: 'Pembaruan Sistem & Permohonan Maaf Kendala Akses',
+    content: 'Halo Rekan-rekan Peserta & Fasilitator Arcade 2026!<br /><br />Kami memohon maaf yang sebesar-besarnya atas kendala akses atau server yang sempat lambat/down sebelumnya.<br /><br /><strong>Apa saja yang sudah kami perbaiki?</strong><br />1. <strong>Pindah ke Server Baru</strong>: Sistem sudah kami pindahkan ke server baru yang lebih kuat dan stabil agar tidak gampang eror lagi.<br />2. <strong>Akses Lebih Cepat & Hemat Kuota</strong>: Membuka Dashboard dan melihat Leaderboard kini jauh lebih ringan dan ngebut.<br /><br />Tenang saja, seluruh data poin, badge, dan progres belajar Anda <strong>dijamin aman 100%</strong>.<br /><br />Terima kasih banyak atas kesabaran dan pengertian rekan-rekan semua. Selamat melanjutkan perburuan badge di Google Arcade 2026! 🚀'
   }
 ];
 
