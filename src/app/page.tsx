@@ -13,56 +13,11 @@ import { APP_VERSION } from '@/lib/version';
 
 const NOTIFICATIONS = [
   {
-    id: '2026-07-23-fasttrack',
-    dateStr: '23 Jul 2026',
-    category: 'Katalog FastTrack',
-    title: 'Pembaruan 100 Foundational Skill Badges & Fitur Sort',
-    content: 'Halo Rekan-rekan Peserta Arcade 2026!<br /><br />Katalog FastTrack Foundational Skill Badges telah diperbarui penuh dengan <strong>100 Skill Badges resmi</strong>!<br /><br /><strong>Apa saja yang baru?</strong><br />1. <strong>100 Skill Badges Terlengkap</strong>: Seluruh daftar badge FastTrack kini tersedia lengkap dengan link dan jumlah lab.<br />2. <strong>Fitur Pengurutan (Sort By)</strong>: Anda dapat mengurutkan badge berdasarkan jumlah lab terkecil/terbanyak, atau durasi tersingkat/terpanjang untuk menyelesaikan badge secara efisien.<br />3. <strong>Tampilan Mobile Jelas</strong>: Tag label, jumlah lab, dan durasi kini tampil tajam dan mudah dibaca di smartphone.<br /><br />Setiap Foundational Skill Badge bernilai <strong>0.5 poin</strong>. Silakan cek tab <strong>Fasttrack</strong> di dashboard untuk mulai mengerjakan!'
-  },
-  {
-    id: '2026-07-21-security',
-    dateStr: '21 Jul 2026',
-    category: 'Pembaruan Keamanan',
-    title: 'Patch Keamanan v1.4.5 — Login Ulang Diperlukan',
-    content: 'Sistem telah diperbarui ke v1.4.5 dengan peningkatan keamanan session. Seluruh fasilitator diminta login ulang dari halaman utama untuk mengaktifkan session cookie baru yang lebih aman.<br /><br />Jika Anda melihat pesan ini setelah diminta login ulang, berarti session Anda telah berhasil diperbarui. Terima kasih atas pengertiannya.',
-    role: 'facilitator'
-  },
-  {
-    id: '2026-07-18-bugfix',
-    dateStr: '18 Jul 2026',
-    category: 'Perbaikan Sistem',
-    title: 'Perbaikan Bug Sinkronisasi Poin & Badge Peserta',
-    content: 'Halo Fasilitator! Kami telah mengidentifikasi dan memperbaiki bug terkait ketidaksesuaian jumlah Game/Skill Badge pada tabel progres peserta bimbingan.<br /><br />Sebelumnya, sistem sinkronisasi panel menghitung seluruh badge secara historis (termasuk dari tahun 2025). Masalah ini telah diperbaiki sehingga sekarang Panel Fasilitator menyaring data secara akurat sesuai periode aktif berjalan (13 Juli 2026). Seluruh data yang sempat mengalami ketidaksesuaian kini telah otomatis dikoreksi di database.<br /><br />Kami memohon maaf atas ketidaknyamanan yang ditimbulkan.',
-    role: 'facilitator'
-  },
-  {
-    id: '2026-07-18',
-    dateStr: '18 Jul 2026',
-    category: 'Fitur Fasil',
-    title: 'Rilis Panel Fasilitator & Sinkronisasi',
-    content: 'Halo Fasilitator! Kami telah merilis fitur Panel Fasilitator baru untuk memudahkan Anda mengelola peserta bimbingan.<br /><br />Di panel ini, Anda dapat:<br />1. Mengunggah file CSV dari Arcade Global untuk mengimpor daftar peserta bimbingan Anda secara massal.<br />2. Melihat progres milestone fasilitator secara real-time.<br />3. Menyinkronkan seluruh profil peserta bimbingan sekaligus dengan tombol "Sync Semua".<br />4. Menghapus atau menyinkronkan data peserta bimbingan secara individu.<br /><br />Untuk mengakses panel ini, pastikan Anda masuk menggunakan profil Google Skills Boost yang terdaftar sebagai fasilitator, kemudian klik tombol "Panel Fasil" di pojok kanan atas dashboard.',
-    role: 'facilitator'
-  },
-  {
-    id: '2026-07-17',
-    dateStr: '17 Jul 2026',
-    category: 'Fitur Baru',
-    title: 'Add New Feature & Perbaiki Bug',
-    content: 'Kami sangat menghargai masukan dan laporan kendala Anda demi menyempurnakan platform ini. Sekarang Anda bisa mengirimkan ide fitur baru atau laporan bug melalui formulir resmi kami.<br /><br />Silakan klik tautan berikut untuk mengisi formulir: <a href="https://zeff.my.id/feedback-tracker" target="_blank" rel="noopener noreferrer" class="text-tertiary hover:underline font-bold">Formulir Masukan & Bug Tracker</a>.'
-  },
-  {
-    id: '2026-07-16',
-    dateStr: '16 Jul 2026',
-    category: 'Fitur Baru',
-    title: 'Pencarian Peserta',
-    content: 'Sekarang Anda bisa mencari nama peserta secara langsung di Leaderboard. Ketik saja nama di kolom pencarian untuk mem-filter data secara real-time.<br /><br />Untuk menjaga visual tetap rapi, podium 3 besar akan otomatis disembunyikan selama Anda sedang melakukan pencarian.'
-  },
-  {
-    id: '2026-07-15',
-    dateStr: '15 Jul 2026',
-    category: 'Update Sistem',
-    title: 'Perbaikan Bug Minor',
-    content: 'Terima kasih banyak atas masukan dan laporan kendala yang Anda kirimkan. Kami memohon maaf atas ketidaknyamanan saat menggunakan platform ini sebelumnya.<br /><br />Kami telah menyelesaikan perbaikan pada sistem perhitungan poin, penyaringan quest, serta validasi URL profil untuk memastikan data tracker berjalan dengan akurat dan lancar.'
+    id: '2026-08-02-server-update',
+    dateStr: '2 Ags 2026',
+    category: 'Pembaruan Sistem',
+    title: 'Pembaruan Server & Permohonan Maaf Kendala Akses',
+    content: 'Halo Rekan-rekan Peserta & Fasilitator Arcade 2026!<br /><br />Kami memohon maaf yang sebesar-besarnya atas ketidaknyamanan akibat kendala akses dan downtime server yang sempat terjadi sebelumnya.<br /><br /><strong>Pembaruan yang telah dilakukan:</strong><br />1. <strong>Migrasi Server & Database Baru</strong>: Seluruh sistem dan data telah dipindahkan ke server database baru yang jauh lebih stabil.<br />2. <strong>Optimasi Performa & Kecepatan</strong>: Sistem caching dan pemrosesan data telah ditingkatkan agar akses dashboard dan leaderboard menjadi lebih cepat serta lancar.<br /><br />Seluruh data poin, badge, dan progres Anda dipastikan aman 100%. Terima kasih banyak atas kesabaran dan dukungan rekan-rekan semua! Selamat melanjutkan petualangan di Google Arcade 2026! 🚀'
   }
 ];
 
