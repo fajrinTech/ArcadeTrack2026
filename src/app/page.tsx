@@ -22,13 +22,6 @@ interface NotificationItem {
 
 const NOTIFICATIONS: NotificationItem[] = [
   {
-    id: '2026-08-03-arcade-game-release',
-    dateStr: '3 Ags 2026',
-    category: 'Arcade Game Edisi Agustus',
-    title: 'Arcade Game Agustus Sudah Tersedia!',
-    content: 'Arcade Game sudah tersedia, selamat mengerjakan 🏏'
-  },
-  {
     id: '2026-08-02-server-update',
     dateStr: '2 Ags 2026',
     category: 'Pembaruan Sistem',
@@ -603,7 +596,7 @@ export default function Home() {
             </div>
 
             <div className="p-3.5 sm:p-4 font-mono text-left space-y-2 bg-surface text-xs leading-relaxed text-foreground">
-              <p className="font-bold text-secondary text-sm">Arcade Game sudah tersedia, selamat mengerjakan 🏏</p>
+              <p className="font-bold text-secondary text-sm">Arcade Game sudah tersedia, selamat mengerjakan (mecut 😂)</p>
             </div>
 
             <div className="px-3 sm:px-4 pb-3.5 pt-1 shrink-0 flex justify-end">
@@ -611,7 +604,7 @@ export default function Home() {
                 onClick={handleCloseNotice}
                 className="neobrutal-btn-primary text-xs !py-2 !px-4 font-black uppercase !text-black w-full"
               >
-                Gasss Kerjakan! 🚀
+                Lopyu Min Muach 😂
               </button>
             </div>
           </div>
