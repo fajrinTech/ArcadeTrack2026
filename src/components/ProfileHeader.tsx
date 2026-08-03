@@ -36,8 +36,8 @@ export default function ProfileHeader({ participant, badges, onResetSession, onS
     }
   }, [latestNotifId]);
 
-  const activeMonthName = 'Juli 2026';
-  const activeMonthPrefix = '2026-07';
+  const activeMonthName = 'Agustus 2026';
+  const activeMonthPrefix = '2026-08';
   const activePeriodStart = '2026-07-13';
 
   const isCurrentPeriod = (b: Badge) => b.earned_date >= activePeriodStart;

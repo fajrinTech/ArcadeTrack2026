@@ -190,7 +190,7 @@ export async function getParticipants(): Promise<Participant[]> {
     from += limit;
   }
 
-  // Calculate weekly_points dynamically for badges earned >= WEEKLY_PERIOD_START (2026-07-24)
+  // Calculate weekly_points dynamically for badges earned >= WEEKLY_PERIOD_START (2026-08-01)
   try {
     const { data: weeklyBadges } = await supabase
       .from('badges')

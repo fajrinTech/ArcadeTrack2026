@@ -238,11 +238,8 @@ interface DashboardProps {
 
 export default function Dashboard({ participant, badges }: DashboardProps) {
 
-  const activeMonthPrefix = '2026-07';
-  const activeMonthName = 'Juli 2026';
-  // Periode arcade berjalan: badge yang diperoleh sejak awal bulan ini dan
-  // seterusnya. Badge sebelum tanggal ini = arsip akun lama (mis. akun
-  // fasilitator), hanya ditampilkan dan TIDAK menyumbang poin.
+  const activeMonthPrefix = '2026-08';
+  const activeMonthName = 'Agustus 2026';
   const activePeriodStart = '2026-07-13';
 
   const [activeSubTab, setActiveSubTab] = useState<'dashboard' | 'arcade_track' | 'fasttrack' | 'track_badge'>('dashboard');
@@ -320,13 +317,13 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
     return badges;
   })().sort((a, b) => new Date(b.earned_date).getTime() - new Date(a.earned_date).getTime());
 
-  const targetJulyBadges = [
-    { name: 'Arcade Base Camp', category: 'game', url: 'https://www.skills.google/games/7313', accessCode: '1q-basecamp-07511' },
-    { name: 'Arcade Adventure', category: 'game', url: 'https://www.skills.google/games/7314', accessCode: '1q-lowcode-92316' },
-    { name: 'Arcade Voyage', category: 'game', url: 'https://www.skills.google/games/7315', accessCode: '1q-bucket-58231' },
-    { name: 'Arcade Trail', category: 'game', url: 'https://www.skills.google/games/7316', accessCode: '1q-workspace-31069' },
-    { name: 'Arcade Simulator: Data Mesh Architect', category: 'game', url: 'https://www.skills.google/games/7317', accessCode: '1q-datamesh-16451' },
-    { name: 'Safe Spaces', category: 'game', url: 'https://www.skills.google/games/7318', accessCode: '1q-security-19110' }
+  const targetAugustBadges = [
+    { name: 'Arcade Base Camp', exactTitle: 'Arcade Base Camp August 2026', category: 'game', url: 'https://www.skills.google/games/7394', accessCode: '1q-basecamp-10219', matchKey: 'base camp august 2026' },
+    { name: 'Arcade Adventure: Data Vault', exactTitle: 'Data Vault', category: 'game', url: 'https://www.skills.google/games/7395', accessCode: '1q-datamgt-92372', matchKey: 'data vault' },
+    { name: 'Arcade Voyage: Google Sheets', exactTitle: 'Google Sheets', category: 'game', url: 'https://www.skills.google/games/7398', accessCode: '1q-sheets-29185', matchKey: 'google sheets' },
+    { name: 'Arcade Trail: Cloud Delivery Systems', exactTitle: 'Cloud Delivery Systems', category: 'game', url: 'https://www.skills.google/games/7396', accessCode: '1q-delivery-31058', matchKey: 'cloud delivery systems' },
+    { name: 'Arcade Simulator: Network Security Engineer', exactTitle: 'Network Security Engineer', category: 'game', url: 'https://www.skills.google/games/7397', accessCode: '1q-network-51470', matchKey: 'network security engineer' },
+    { name: 'Spans and Plans', exactTitle: 'Spans and Plans', category: 'game', url: 'https://www.skills.google/games/7399', accessCode: '1q-schema-27083', matchKey: 'spans and plans' }
   ];
 
   const [skillBadges, setSkillBadges] = useState<SkillBadge[]>([]);
@@ -659,8 +656,20 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {targetJulyBadges.map((targetBadge, idx) => {
-                const isEarned = monthlyBadges.some(b => b.badge_name.toLowerCase().includes(targetBadge.name.toLowerCase()));
+              {targetAugustBadges.map((targetBadge, idx) => {
+                const isEarned = monthlyBadges.some(b => {
+                  if (b.category !== 'game') return false;
+                  const badgeLower = b.badge_name.toLowerCase();
+                  
+                  // Specific August 2026 Game title check
+                  if (targetBadge.matchKey && badgeLower.includes(targetBadge.matchKey.toLowerCase())) return true;
+                  if (targetBadge.exactTitle && badgeLower.includes(targetBadge.exactTitle.toLowerCase())) return true;
+
+                  // Earned in August 2026 onwards
+                  if (b.earned_date >= '2026-08-01' && badgeLower.includes(targetBadge.name.toLowerCase())) return true;
+
+                  return false;
+                });
                 
                 return (
                   <button 

@@ -261,7 +261,7 @@ export default function FacilitatorPanel({
                 <tr className="border-b-[3px] border-black text-text-muted uppercase tracking-wider font-bold text-[10px]">
                   <th className="py-2.5 px-2 text-center w-10">#</th>
                   <th className="py-2.5 px-2">PLAYER</th>
-                  <th className="py-2.5 px-2 text-right">PTS (JULI)</th>
+                  <th className="py-2.5 px-2 text-right">PTS (AGUSTUS)</th>
                 </tr>
               </thead>
               <tbody className="divide-y-[2px] divide-black text-black">
