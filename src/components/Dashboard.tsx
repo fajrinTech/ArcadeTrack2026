@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Participant, Badge, SkillBadge } from '@/lib/db';
 import ActivityChart from '@/components/ActivityChart';
-import { 
-  CheckIcon, 
+import {
+  CheckIcon,
   DashboardIcon,
   BackpackIcon,
   ListBulletIcon,
@@ -25,18 +25,18 @@ function LiquidWave({ colorClass, milestoneIdx, heightPercent, isHovered, hoverX
 
   useEffect(() => {
     if (!pathRef.current) return;
-    
+
     if (isHovered && heightPercent < 100) {
       // Swell height: water bulges towards the cursor
       const bulgeY = 2; // top height of the swell in SVG coordinates
       const targetPath = `M0,12 C${hoverX - 40},${bulgeY} ${hoverX + 40},${bulgeY} 200,12 L200,100 L0,100 Z`;
-      
+
       const anim = animate(pathRef.current, {
         d: targetPath,
         duration: 350,
         ease: 'outQuad'
       });
-      
+
       return () => {
         anim.pause();
       };
@@ -61,15 +61,15 @@ function LiquidWave({ colorClass, milestoneIdx, heightPercent, isHovered, hoverX
 
   return (
     <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none z-0">
-      <svg 
-        viewBox="0 0 200 100" 
-        preserveAspectRatio="none" 
+      <svg
+        viewBox="0 0 200 100"
+        preserveAspectRatio="none"
         className={`absolute bottom-0 left-0 w-full opacity-35 transition-all duration-1000 ease-out ${colorClass}`}
         style={{ height: `${heightPercent}%` }}
       >
-        <path 
-          ref={pathRef} 
-          d="M0,12 C50,12 150,12 200,12 L200,100 L0,100 Z" 
+        <path
+          ref={pathRef}
+          d="M0,12 C50,12 150,12 200,12 L200,100 L0,100 Z"
           className="fill-current"
         />
       </svg>
@@ -150,19 +150,18 @@ function MilestoneCard({
     <div
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`relative p-3 border-[3px] border-black rounded-lg flex flex-col gap-2.5 transition-all overflow-hidden shadow-[3px_3px_0px_#000] ${
-        isCompleted
+      className={`relative p-3 border-[3px] border-black rounded-lg flex flex-col gap-2.5 transition-all overflow-hidden shadow-[3px_3px_0px_#000] ${isCompleted
           ? colors.cardBg
           : isNext
             ? 'bg-primary/15 border-black'
             : 'bg-surface-alt border-black'
-      }`}
+        }`}
     >
       {/* Liquid wave background based on milestone progress */}
       {completionPercent > 0 && (
-        <LiquidWave 
-          colorClass={colors.waveColor} 
-          milestoneIdx={idx} 
+        <LiquidWave
+          colorClass={colors.waveColor}
+          milestoneIdx={idx}
           heightPercent={completionPercent}
           isHovered={hoverState.isHovered}
           hoverX={hoverState.hoverX}
@@ -177,7 +176,7 @@ function MilestoneCard({
           ) : (
             <>
               {/* Wave Water Layer */}
-              <div 
+              <div
                 className="absolute bottom-0 left-0 right-0 bg-primary/75 transition-all duration-1000 ease-out"
                 style={{ height: `${completionPercent}%` }}
               >
@@ -191,10 +190,9 @@ function MilestoneCard({
             </>
           )}
         </div>
-        
-        <span className={`text-xs font-black uppercase tracking-wide truncate ${
-          isCompleted ? colors.textColor : 'text-black'
-        }`}>
+
+        <span className={`text-xs font-black uppercase tracking-wide truncate ${isCompleted ? colors.textColor : 'text-black'
+          }`}>
           {m.name}
         </span>
       </div>
@@ -204,7 +202,7 @@ function MilestoneCard({
         <div className="text-black bg-surface-alt border-2 border-black rounded px-1.5 py-1 text-[9px] w-fit shadow-[1px_1px_0_#000]">
           +{m.bonus} Bonus · Total {m.total} pt
         </div>
-        
+
         {/* Game progress */}
         <div className="space-y-1">
           <div className="flex justify-between text-[9px] font-extrabold text-text-muted">
@@ -255,7 +253,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
 
   const currentGames = monthlyBadges.filter(b => b.category === 'game');
   const currentSkills = monthlyBadges.filter(b => b.category === 'skill_badge');
-  
+
   const totalCurrentGames = currentGames.length;
   const totalCurrentSkills = currentSkills.length;
   const totalCurrentPoints = totalCurrentGames + (totalCurrentSkills * 0.5);
@@ -318,7 +316,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
   })().sort((a, b) => new Date(b.earned_date).getTime() - new Date(a.earned_date).getTime());
 
   const targetAugustBadges = [
-    { name: 'Arcade Base Camp', exactTitle: 'Arcade Base Camp August 2026', category: 'game', url: 'https://www.skills.google/games/7394', accessCode: '1q-basecamp-10219', matchKey: 'base camp august 2026' },
+    { name: 'Arcade Base Camp August', exactTitle: 'Arcade Base Camp August 2026', category: 'game', url: 'https://www.skills.google/games/7394', accessCode: '1q-basecamp-10219', matchKey: 'base camp august 2026' },
     { name: 'Arcade Adventure: Data Vault', exactTitle: 'Data Vault', category: 'game', url: 'https://www.skills.google/games/7395', accessCode: '1q-datamgt-92372', matchKey: 'data vault' },
     { name: 'Arcade Voyage: Google Sheets', exactTitle: 'Google Sheets', category: 'game', url: 'https://www.skills.google/games/7398', accessCode: '1q-sheets-29185', matchKey: 'google sheets' },
     { name: 'Arcade Trail: Cloud Delivery Systems', exactTitle: 'Cloud Delivery Systems', category: 'game', url: 'https://www.skills.google/games/7396', accessCode: '1q-delivery-31058', matchKey: 'cloud delivery systems' },
@@ -383,7 +381,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
   const filteredSkills = skillBadges
     .filter(skill => {
       const matchesSearch = skill.name.toLowerCase().includes(skillsSearch.toLowerCase());
-      const matchesDifficulty = skillsDifficulty === 'all' || 
+      const matchesDifficulty = skillsDifficulty === 'all' ||
         (skill.difficulty && skill.difficulty.toLowerCase() === skillsDifficulty.toLowerCase());
       return matchesSearch && matchesDifficulty;
     })
@@ -414,33 +412,30 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
       <div className="flex overflow-x-auto no-scrollbar border-[3px] border-black bg-surface-alt p-1 rounded-lg shadow-[4px_4px_0_#000] gap-1.5">
         <button
           onClick={() => setActiveSubTab('dashboard')}
-          className={`flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all flex-1 sm:flex-initial shrink-0 duration-200 border-[3px] ${
-            activeSubTab === 'dashboard' 
-              ? 'bg-primary text-black border-black shadow-[2px_2px_0px_#000] -translate-y-0.5 z-10' 
+          className={`flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all flex-1 sm:flex-initial shrink-0 duration-200 border-[3px] ${activeSubTab === 'dashboard'
+              ? 'bg-primary text-black border-black shadow-[2px_2px_0px_#000] -translate-y-0.5 z-10'
               : 'text-text-muted hover:text-black hover:bg-white border-transparent'
-          }`}
+            }`}
         >
           <DashboardIcon className="w-4 h-4" />
           <span>Dashboard</span>
         </button>
         <button
           onClick={() => setActiveSubTab('arcade_track')}
-          className={`flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all flex-1 sm:flex-initial shrink-0 duration-200 border-[3px] ${
-            activeSubTab === 'arcade_track' 
-              ? 'bg-tertiary text-white border-black shadow-[2px_2px_0px_#000] -translate-y-0.5 z-10' 
+          className={`flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all flex-1 sm:flex-initial shrink-0 duration-200 border-[3px] ${activeSubTab === 'arcade_track'
+              ? 'bg-tertiary text-white border-black shadow-[2px_2px_0px_#000] -translate-y-0.5 z-10'
               : 'text-text-muted hover:text-black hover:bg-white border-transparent'
-          }`}
+            }`}
         >
           <BackpackIcon className="w-4 h-4" />
           <span>Arcade Track</span>
         </button>
         <button
           onClick={() => setActiveSubTab('fasttrack')}
-          className={`flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all flex-1 sm:flex-initial shrink-0 duration-200 border-[3px] ${
-            activeSubTab === 'fasttrack' 
-              ? 'bg-secondary text-white border-black shadow-[2px_2px_0px_#000] -translate-y-0.5 z-10' 
+          className={`flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all flex-1 sm:flex-initial shrink-0 duration-200 border-[3px] ${activeSubTab === 'fasttrack'
+              ? 'bg-secondary text-white border-black shadow-[2px_2px_0px_#000] -translate-y-0.5 z-10'
               : 'text-text-muted hover:text-black hover:bg-white border-transparent'
-          }`}
+            }`}
         >
           <ListBulletIcon className="w-4 h-4" />
           <span>Fasttrack</span>
@@ -450,11 +445,10 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
         </button>
         <button
           onClick={() => setActiveSubTab('track_badge')}
-          className={`flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all flex-1 sm:flex-initial shrink-0 duration-200 border-[3px] ${
-            activeSubTab === 'track_badge' 
-              ? 'bg-success text-white border-black shadow-[2px_2px_0px_#000] -translate-y-0.5 z-10' 
+          className={`flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all flex-1 sm:flex-initial shrink-0 duration-200 border-[3px] ${activeSubTab === 'track_badge'
+              ? 'bg-success text-white border-black shadow-[2px_2px_0px_#000] -translate-y-0.5 z-10'
               : 'text-text-muted hover:text-black hover:bg-white border-transparent'
-          }`}
+            }`}
         >
           <CheckIcon className="w-4 h-4" />
           <span>Track Badge</span>
@@ -463,7 +457,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
 
       {/* Tab Contents */}
       <div className="transition-all duration-300">
-        
+
         {/* DASHBOARD SUBTAB */}
         {activeSubTab === 'dashboard' && (
           <div className="space-y-6">
@@ -512,7 +506,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                     <span className="text-[10px] uppercase tracking-widest text-text-muted font-bold font-mono">Poin Arcade</span>
                     <span className="w-3.5 h-3.5 rounded-full bg-primary border-[2px] border-black shadow-[1px_1px_0px_#000]" />
                   </div>
-                  
+
                   <div className="flex flex-col items-center lg:items-start justify-center flex-grow py-2">
                     <div className="flex items-baseline gap-1">
                       <span className="text-5xl font-black text-black leading-none" style={{ fontFamily: 'var(--font-sans)' }}>{totalArcadePoints.toFixed(1)}</span>
@@ -621,7 +615,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                       const colors = getMilestoneColors(idx);
 
                       return (
-                        <MilestoneCard 
+                        <MilestoneCard
                           key={m.name}
                           m={m}
                           idx={idx}
@@ -660,7 +654,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                 const isEarned = monthlyBadges.some(b => {
                   if (b.category !== 'game') return false;
                   const badgeLower = b.badge_name.toLowerCase();
-                  
+
                   // Specific August 2026 Game title check
                   if (targetBadge.matchKey && badgeLower.includes(targetBadge.matchKey.toLowerCase())) return true;
                   if (targetBadge.exactTitle && badgeLower.includes(targetBadge.exactTitle.toLowerCase())) return true;
@@ -670,19 +664,18 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
 
                   return false;
                 });
-                
+
                 return (
-                  <button 
-                    key={idx} 
+                  <button
+                    key={idx}
                     onClick={() => {
                       setSelectedGameModal(targetBadge);
                       setCopied(false);
                     }}
-                    className={`p-4 border-[3px] border-black rounded-lg flex items-center justify-between gap-4 transition-all shadow-[4px_4px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_#000] animate-fade-slide-up text-left w-full ${
-                      isEarned 
-                        ? 'bg-success/10 border-success hover:border-success' 
+                    className={`p-4 border-[3px] border-black rounded-lg flex items-center justify-between gap-4 transition-all shadow-[4px_4px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_#000] animate-fade-slide-up text-left w-full ${isEarned
+                        ? 'bg-success/10 border-success hover:border-success'
                         : 'bg-white hover:border-zinc-800'
-                    }`}
+                      }`}
                     style={{ animationDelay: `${idx * 80}ms` }}
                   >
                     <div>
@@ -695,11 +688,10 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                       </p>
                     </div>
 
-                    <span className={`text-[9px] font-mono font-bold px-2.5 py-1 border-[2px] border-black rounded shadow-[2px_2px_0px_#000] ${
-                      isEarned 
-                        ? 'text-white bg-success' 
+                    <span className={`text-[9px] font-mono font-bold px-2.5 py-1 border-[2px] border-black rounded shadow-[2px_2px_0px_#000] ${isEarned
+                        ? 'text-white bg-success'
                         : 'text-white bg-secondary'
-                    }`}>
+                      }`}>
                       {isEarned ? 'DONE' : 'PENDING'}
                     </span>
                   </button>
@@ -751,7 +743,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                   <span className="text-primary">{totalCurrentSkills}/{skillBadges.length}</span> Skill Badges Done
                 </span>
               </div>
-              
+
               {/* Search, Level Filter, and Sort Inputs */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
                 <input
@@ -793,31 +785,29 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
             ) : paginatedBadges.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {paginatedBadges.map((skill, idx) => {
-                  const isEarned = monthlyBadges.some(b => 
+                  const isEarned = monthlyBadges.some(b =>
                     b.badge_name.toLowerCase().replace(/\s+/g, '') === skill.name.toLowerCase().replace(/\s+/g, '') ||
                     b.badge_name.toLowerCase().includes(skill.name.toLowerCase()) ||
                     skill.name.toLowerCase().includes(b.badge_name.toLowerCase())
                   );
 
                   return (
-                    <div 
-                      key={skill.id} 
-                      className={`p-4 border-[3px] border-black rounded-lg flex flex-col justify-between gap-4 transition-all shadow-[4px_4px_0px_#000] ${
-                        isEarned 
-                          ? 'bg-success/10 border-success' 
+                    <div
+                      key={skill.id}
+                      className={`p-4 border-[3px] border-black rounded-lg flex flex-col justify-between gap-4 transition-all shadow-[4px_4px_0px_#000] ${isEarned
+                          ? 'bg-success/10 border-success'
                           : 'bg-white'
-                      }`}
+                        }`}
                     >
                       <div className="space-y-3">
                         <div className="flex items-start justify-between gap-2">
                           <h4 className="text-sm font-bold tracking-tight uppercase leading-snug" style={{ fontFamily: 'var(--font-sans)' }}>
                             {skill.name}
                           </h4>
-                          <span className={`text-xs font-mono font-bold px-2.5 py-1 border-[2px] border-black rounded shrink-0 ${
-                            isEarned 
-                              ? 'text-white bg-success' 
+                          <span className={`text-xs font-mono font-bold px-2.5 py-1 border-[2px] border-black rounded shrink-0 ${isEarned
+                              ? 'text-white bg-success'
                               : 'text-white bg-secondary'
-                          }`}>
+                            }`}>
                             {isEarned ? 'DONE' : 'PENDING'}
                           </span>
                         </div>
@@ -855,9 +845,8 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                           href={skill.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={`neobrutal-btn-secondary px-4 py-2 text-xs font-black tracking-wider uppercase block shrink-0 ${
-                            isEarned ? 'opacity-70 hover:translate-y-0 hover:shadow-[2px_2px_0px_#000]' : ''
-                          }`}
+                          className={`neobrutal-btn-secondary px-4 py-2 text-xs font-black tracking-wider uppercase block shrink-0 ${isEarned ? 'opacity-70 hover:translate-y-0 hover:shadow-[2px_2px_0px_#000]' : ''
+                            }`}
                         >
                           {isEarned ? 'Lihat Lab' : 'Mulai ↗'}
                         </a>
@@ -875,7 +864,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
             {/* Pagination */}
             {!isLoadingSkills && totalPages > 1 && (
               <div className="flex justify-center items-center gap-4 pt-2 font-mono text-xs">
-                <button 
+                <button
                   onClick={() => setFasttrackPage(prev => Math.max(1, prev - 1))}
                   disabled={fasttrackPage === 1}
                   className="neobrutal-btn-primary px-3 py-1.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-[2px_2px_0px_#000]"
@@ -883,7 +872,7 @@ export default function Dashboard({ participant, badges }: DashboardProps) {
                   Prev
                 </button>
                 <span className="font-black text-black">Page {fasttrackPage} of {totalPages}</span>
-                <button 
+                <button
                   onClick={() => setFasttrackPage(prev => Math.min(totalPages, prev + 1))}
                   disabled={fasttrackPage === totalPages}
                   className="neobrutal-btn-primary px-3 py-1.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-[2px_2px_0px_#000]"

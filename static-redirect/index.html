@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arcade Tracker 2026 - Domain Migration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0c0d0e;
+      --panel-bg: rgba(18, 19, 22, 0.8);
+      --border: rgba(255, 255, 255, 0.07);
+      --border-hover: rgba(255, 255, 255, 0.16);
+      --text-primary: #ededed;
+      --text-secondary: #8e8e93;
+      --text-tertiary: #52525b;
+      --accent: #38bdf8;
+      --button-bg: #ffffff;
+      --button-text: #090a0f;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2.5rem 1.5rem;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Minimalist Top Nav Header */
+    header {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .brand-icon {
+      width: 10px;
+      height: 10px;
+      background-color: var(--accent);
+      border-radius: 2px;
+    }
+
+    .sys-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.725rem;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+    }
+
+    /* Main Container */
+    main {
+      max-width: 620px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .card {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 3rem 2.5rem;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+
+    .eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      background-color: var(--accent);
+      border-radius: 50%;
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      line-height: 1.18;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 0.975rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 2.25rem;
+      max-width: 52ch;
+    }
+
+    .action-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.85rem 1.5rem;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-primary:hover {
+      background-color: #f4f4f5;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-icon {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-primary:hover .btn-icon {
+      transform: translateX(3px);
+    }
+
+    /* Progress & Redirect Indicator */
+    .redirect-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.775rem;
+      color: var(--text-tertiary);
+    }
+
+    .redirect-time {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 2px;
+      background-color: rgba(255, 255, 255, 0.06);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-top: 0.65rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: var(--accent);
+      width: 100%;
+      transition: width 1s linear;
+    }
+
+    /* Footer */
+    footer {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+    }
+
+    footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    footer a:hover {
+      color: var(--text-primary);
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 1.5rem 1rem;
+      }
+      .card {
+        padding: 2rem 1.5rem;
+      }
+      h1 {
+        font-size: 1.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Nav -->
+  <header>
+    <div class="brand-logo">
+      <div class="brand-icon"></div>
+      <span>ARCADE TRACKER</span>
+    </div>
+    <div class="sys-badge">STATUS: MIGRATED</div>
+  </header>
+
+  <!-- Main Card -->
+  <main>
+    <div class="card">
+      <div class="eyebrow">
+        <div class="eyebrow-dot"></div>
+        Domain Migration Notice
+      </div>
+
+      <h1>System Has Moved to <br>Arcpoin.my.id</h1>
+
+      <p>
+        Seluruh data peserta, fitur sinkronisasi, dan monitor fasilitator Arcade Tracker 2026 kini beroperasi aktif di domain resmi baru.
+      </p>
+
+      <div class="action-group">
+        <a href="https://arcpoin.my.id" class="btn-primary">
+          <span>Kunjungi arcpoin.my.id</span>
+          <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+          </svg>
+        </a>
+
+        <div>
+          <div class="redirect-meta">
+            <span>Mengalihkan otomatis</span>
+            <span class="redirect-time"><span id="timer">5</span> detik</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <span>© 2026 Arcade Tracker</span>
+    <a href="https://arcpoin.my.id">arcpoin.my.id &rarr;</a>
+  </footer>
+
+  <script>
+    let seconds = 5;
+    const timerEl = document.getElementById('timer');
+    const progressEl = document.getElementById('progress');
+
+    const interval = setInterval(() => {
+      seconds--;
+      if (timerEl) timerEl.textContent = seconds;
+      if (progressEl) progressEl.style.width = (seconds / 5 * 100) + '%';
+
+      if (seconds <= 0) {
+        clearInterval(interval);
+        window.location.href = 'https://arcpoin.my.id';
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
