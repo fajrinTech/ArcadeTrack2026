@@ -81,10 +81,10 @@ export default function Home() {
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
-    if (!localStorage.getItem('notice_v203')) {
+    if (myProfileId && !localStorage.getItem('notice_v203')) {
       setIsNoticeOpen(true);
     }
-  }, []);
+  }, [myProfileId]);
 
   const handleCloseNotice = () => {
     setIsNoticeOpen(false);
@@ -568,7 +568,7 @@ export default function Home() {
 
 
       {/* Global Notice Modal — Single Notice (Tanpa Slide) */}
-      {isNoticeOpen && !confirmConfig.isOpen && (
+      {isNoticeOpen && myProfileId && !confirmConfig.isOpen && (
         <div className="fixed inset-0 z-[160] flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-sm animate-fade-in pointer-events-auto">
           <div className="w-[92vw] max-w-md flex flex-col border-[3px] border-black shadow-[6px_6px_0px_#000] rounded-xl bg-surface text-foreground overflow-hidden animate-scale-in">
             <div className="flex items-center justify-between border-b-[2px] border-black px-3 sm:px-4 py-2 shrink-0 bg-surface-alt">
